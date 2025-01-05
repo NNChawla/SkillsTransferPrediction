@@ -1,0 +1,60 @@
+Have experimented across the following parameters:
+- Segment size (full sequence or 1 second intervals)
+- Enabled trackers (Head, Left Hand, Right Hand)
+- Enabled measurements (combinations of position, euler, quat, sixD)
+- Enabled metadata (combinations of build time and gender)
+- Handle NaN (impute or drop)
+- Train set (A or B)
+- Sample rate (None or 20 seconds)
+
+Predicting:
+- Regression (raw score): RMSE, MAE, R2, MSE
+- Classification (category): Accuracy, F1-Score, Precision, Recall
+
+Version 1 (v1)
+Parallelized both regression and classification experiments. ~5-6 minutes per ~800-900 experiments.
+Testing with full segment size only, imputing NaN values only, and no sample rate (using full sequence).
+
+Findings:
+In both classification and regression, the left hand seems to be the key tracker. I think some combination of build time and the rotation representations could be helpful as well; can't tell yet.
+Better results testing on A when training on B, not by a lot but makes sense given users completed A before B.
+Scores for both are very low, there are a lot of potential reasons for this.
+- Only using kNNs, could explore GBMs, Random Forests, SVMs for classification.
+- Need to verify that the data is being normalized and scaled without issues.
+- Not tuning the hyperparameters at all, could be helpful.
+- Feature engineering could be useful, lot of potential features to be examined.
+
+Thoughts:
+- Consider the relationship between the features; how linear are they, does it make sense that one model would be better than another?
+- Can probably automate the feature combination process, rather than manually specifying them.
+- Using a config file for the experiment parameters would be helpful.
+    - Specifying models, metrics, etc.
+    - Feature combinations should be generated based on the ones specified in the config file.
+- Generating some visuals for the results would be helpful.
+- Can probably use a single approach for both regression and classification, rather than two separate ones.
+    - Just need to use classes to separate the two, and then use a single pipeline for the experiments.
+    - Need to make the pipeline flexible, more modular, including the ability to add new models, metrics, etc.
+
+Docket:
+1. Separate feature specification to config file
+2. Automatically generate all feature combinations in config file, keeping x, y, and z components together for features like position and euler.
+3. Unify classification and regression experiments into a single pipeline, using classes to separate the two.
+4. Make the pipeline flexible, more modular, including the ability to add new models, metrics, etc.
+5. Update the architecture so that derived/engineered features can easily be added to the pipeline and specified in the config file.
+6. Engineer kinematic and motion features
+7. Add new derived features to config file rerun experiments for v2
+
+Version 2 (v2)
+Testing with train policy A only, segment size full, sample rate null, and no metadata.
+Beginning with position, quat, velocity, and angular velocity.
+My logic is that the metadata has not had a significant effect so far, and it seems as if (and makes sense that) good performance training on A will indicate good performance on B.
+Was running out of RAM due to large size of each csv as number of features increases (30mb per file). Need to optimize loading, considering converting CSVs to Parquets.
+
+Key Finding: Memory isn't the issue; number of combinations is just exponentially crazy. Improved speed; roughly 3 experiments per second now.
+Key Finding: future direction is to better understand the feature space. Postpone engineering until pipeline to better understand existing features is established.
+
+Backup to github
+Need to load the data in and then export the combined dataframe to a single file for analysis.
+Need a separate script where feature distribution and correlation (VIF and correlation matrix) can be investigated.
+Full EDA (check chatgpt logs) pipeline, looking at data from start to finish.
+Train a random forest on all variables and explore the SHAP values.

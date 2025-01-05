@@ -1,0 +1,57 @@
+nan_policy:
+  - impute
+
+train_policy:
+  - A
+
+segment_policy:
+  - full
+
+sample_rates:
+  - null
+  
+# Define individual measurement types
+measurements:
+  position: [_position_x, _position_y, _position_z]
+  quat: [_quat_x, _quat_y, _quat_z, _quat_w]
+  velocity: [_velocity_x, _velocity_y, _velocity_z]
+  angular_velocity: [_angular_velocity_x, _angular_velocity_y, _angular_velocity_z]  
+
+# Define individual trackers
+trackers:
+  - Head
+  - LeftHand
+  - RightHand
+
+model:
+  type: 'knn'  # 'knn', 'random_forest', 'svm', 'lightgbm', or 'mlp'
+  model_params:
+    knn:
+      n_neighbors: 5
+      weights: 'uniform'
+      n_jobs: 1
+    
+    random_forest:
+      n_estimators: 100
+      n_jobs: 1
+    
+    svm:
+      kernel: 'poly'
+    
+    lightgbm:
+      n_estimators: 100
+      n_jobs: 1
+    
+    mlp:
+      hidden_layer_sizes: (100, 50)  # Two hidden layers with 100 and 50 neurons
+      activation: 'relu'  # Options: 'identity', 'logistic', 'tanh', 'relu'
+      solver: 'adam'  # Options: 'lbfgs', 'sgd', 'adam'
+      max_iter: 1000
+      # Optional parameters:
+      # learning_rate: 'adaptive'  # Options: 'constant', 'invscaling', 'adaptive'
+      # learning_rate_init: 0.001
+      # alpha: 0.0001  # L2 penalty
+      # batch_size: 'auto'
+      # early_stopping: False
+      # validation_fraction: 0.1  # Only used if early_stopping=True
+      # random_state: 42

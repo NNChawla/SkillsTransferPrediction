@@ -1,0 +1,17 @@
+1. 1D CNN for regression, with fully connected layers for single output score
+2. RNN (LSTM or GRU) for regression. Input is 6DoF position and orientation data, output is a single score from final hidden state or pooling layer.
+3. Validate the model score by checking that the three-joint connector is incorportated correctly.
+5. Better categorical variable encoding, potentially categorical embeddings?
+7. Bagging, ensembling, stacking, voting, model souping, boosting, binning (segment sequence into bins, then use summary statistics of each bin with final score as new data point i.e. segment policy (needs to be renamed)), etc.
+9. Apply PCA to identify which features contain most of the variance in the data, then use those features for the model.
+10. Gestural clustering or embedding by segmenting data, then clustering or embedding the segments. Use the clusters as features for the model.
+12. Potentially identify derived metrics, aggregate the scores for those metrics to output a single score.
+13. Investigate gesture augmentation: "Effective 2D stroke-based gesture augmentation for RNNs", "Voight-Kampff machine for automatic custom gesture recognition threshold selection", "DeepNAG", "Machete Taranta".
+14. Explore analagous tasks: User identification by movement, activity recognition from IMUs (phones, watches, etc.), Gesture recognition, Sports (golf, tennis, etc.) skill or performance prediction (accuracy, speed, etc.) from motion data, Wii/Kinect studies, Demographic prediction from motion data
+14a. "Sports analytics machine learning", "player performance prediction using motion data", "rehabilitation outcome prediction using motion data", "Physical therapy machine learning", "human activity recogntion machine learning", "weable sensor data prediction"
+15. Use optuna for hyperparameter tuning on the best performing models.
+
+4. SVM with polynomial kernel and/or RBF kernel
+6. LightGBM and RandomForest with SHAP feature importance
+11. Simple Multi-Layer Perceptron (MLP) for regression, with fully connected layers for single output score
+(?) 8. Body Relative Transformation of features (use Schell et al.)
