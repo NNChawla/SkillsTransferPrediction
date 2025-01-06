@@ -17,6 +17,8 @@ import lightgbm as lgb
 from sklearn.neural_network import MLPRegressor, MLPClassifier
 import pyarrow.parquet as pq
 import gc
+import shap
+import matplotlib.pyplot as plt
 
 class ScorePredictionBase:
     _data_by_id_A = None  # Class-level cache
@@ -60,7 +62,7 @@ class ScorePredictionBase:
     def _process_files(cls, set_type):
         """Process parquet files for either set A or B"""
         data_dict = {}
-        directory = f'./data/FAB/FAB_{set_type}_v2'
+        directory = f'./data/FAB/FAB_{set_type}_v3'
         
         # Get list of parquet files from directory
         files = sorted([f for f in os.listdir(directory) if f.endswith('.parquet')])
@@ -95,9 +97,8 @@ class ScorePredictionBase:
         with open(config_path, 'r') as f:
             return yaml.safe_load(f)
     
-    def extract_features(self, df, pid, enabled_trackers=None, enabled_measurements=None, 
-                        enabled_metadata=None, global_features=None, train_set=None,
-                        segment_size=None, sample_rate=None):
+    def extract_features(self, df, pid, enabled_metadata=None, global_features=None, 
+                        train_set=None, segment_size=None, sample_rate=None):
         """Extract features from a DataFrame with individual feature caching"""
         features = []
         used_features = []
@@ -129,27 +130,33 @@ class ScorePredictionBase:
 
         # Add global features if specified
         if global_features:
-            for feature_type, feature_cols in global_features.items():
-                cols = feature_cols
+            for feature_type, feature_config in global_features.items():
+                cols = feature_config['features']
+                statistics = feature_config.get('statistics', ['min', 'max', 'median', 'mean', 'std'])
                 
                 if all(col in df.columns for col in cols):
-                    feature_count += 5 * len(cols)
+                    feature_count += len(statistics) * len(cols)
                     used_features.extend(cols)
+                    
+                    # Define available statistics
+                    stat_functions = {
+                        'min': lambda x: x.min() if not np.isnan(x.min()) else 0,
+                        'max': lambda x: x.max() if not np.isnan(x.max()) else 0,
+                        'median': lambda x: x.median() if not np.isnan(x.median()) else 0,
+                        'mean': lambda x: x.mean() if not np.isnan(x.mean()) else 0,
+                        'std': lambda x: x.std() if not np.isnan(x.std()) else 0
+                    }
                     
                     # Calculate statistics for each column while maintaining order
                     for col in cols:
                         col_data = df[col]
                         
-                        # Calculate and cache each statistic
-                        stats = [
-                            ('min', lambda x: x.min() if not np.isnan(x.min()) else 0),
-                            ('max', lambda x: x.max() if not np.isnan(x.max()) else 0),
-                            ('median', lambda x: x.median() if not np.isnan(x.median()) else 0),
-                            ('mean', lambda x: x.mean() if not np.isnan(x.mean()) else 0),
-                            ('std', lambda x: x.std() if not np.isnan(x.std()) else 0)
-                        ]
-                        
-                        for stat_name, stat_func in stats:
+                        # Only calculate specified statistics
+                        for stat_name in statistics:
+                            if stat_name not in stat_functions:
+                                logging.warning(f"Unknown statistic '{stat_name}' for feature {col}")
+                                continue
+                            
                             cache_key = self._get_feature_cache_key(df_id, 'global', 
                                                                   f"{col}_{stat_name}",
                                                                   segment_size, sample_rate, pid)
@@ -157,61 +164,12 @@ class ScorePredictionBase:
                             if cache_key in self._feature_cache:
                                 feature_value = self._feature_cache[cache_key]
                             else:
-                                feature_value = stat_func(col_data)
+                                feature_value = stat_functions[stat_name](col_data)
                                 self._feature_cache[cache_key] = feature_value
                             
                             features.append(feature_value)
                         
                         col_data = None
-        
-        # Add tracker-specific features
-        trackers = enabled_trackers if enabled_trackers else ['Head', 'LeftHand', 'RightHand']
-        measurements = enabled_measurements if enabled_measurements else {
-            'position': ['_position_x', '_position_y', '_position_z'],
-            'euler': ['_euler_x', '_euler_y', '_euler_z'],
-            'quat': ['_quat_x', '_quat_y', '_quat_z', '_quat_w'],
-            'sixD': ['_sixD_a', '_sixD_b', '_sixD_c', '_sixD_d', '_sixD_e', '_sixD_f']
-        }
-        
-        # Vectorized feature extraction maintaining original order
-        for tracker in trackers:
-            for measure_type, measure_cols in measurements.items():
-                cols = [tracker + suffix for suffix in measure_cols]
-                
-                if all(col in df.columns for col in cols):
-                    feature_count += 5 * len(cols)
-                    used_features.extend(cols)
-                    
-                    # Calculate statistics for each column while maintaining order
-                    for col in cols:
-                        col_data = df[col]
-                        
-                        # Calculate and cache each statistic
-                        stats = [
-                            ('min', lambda x: x.min() if not np.isnan(x.min()) else 0),
-                            ('max', lambda x: x.max() if not np.isnan(x.max()) else 0),
-                            ('median', lambda x: x.median() if not np.isnan(x.median()) else 0),
-                            ('mean', lambda x: x.mean() if not np.isnan(x.mean()) else 0),
-                            ('std', lambda x: x.std() if not np.isnan(x.std()) else 0)
-                        ]
-                        
-                        for stat_name, stat_func in stats:
-                            cache_key = self._get_feature_cache_key(df_id, 'tracker', 
-                                                                  f"{col}_{stat_name}",
-                                                                  segment_size, sample_rate, pid)
-                            
-                            if cache_key in self._feature_cache:
-                                feature_value = self._feature_cache[cache_key]
-                            else:
-                                feature_value = stat_func(col_data)
-                                self._feature_cache[cache_key] = feature_value
-                            
-                            features.append(feature_value)
-                        
-                        col_data = None
-                else:
-                    # If columns don't exist, add zeros for all missing statistics
-                    features.extend([0] * (5 * len(measure_cols)))
         
         logging.info(f"Number of features extracted per segment: {feature_count}")
         used_features = None
@@ -222,9 +180,9 @@ class ScorePredictionBase:
         """Generate a unique key for feature caching"""
         return (df_id, feature_type, feature_name, segment_size, str(sample_rate), pid)
 
-    def segment_and_extract_features(self, df, pid, segment_size='20s', enabled_trackers=None,
-                                   enabled_measurements=None, enabled_metadata=None, 
-                                   global_features=None, train_set=None, sample_rate=None):
+    def segment_and_extract_features(self, df, pid, segment_size='20s',
+                                   enabled_metadata=None, global_features=None,
+                                   train_set=None, sample_rate=None):
         """Segments the dataframe by time and extracts features from each segment"""
         df = df.copy()
         
@@ -250,9 +208,8 @@ class ScorePredictionBase:
         
         # If segment_size is 'full', process entire sequence at once
         if segment_size == 'full':
-            features = self.extract_features(df, pid, enabled_trackers, enabled_measurements, 
-                                          enabled_metadata, global_features, train_set,
-                                          segment_size, sample_rate)
+            features = self.extract_features(df, pid, enabled_metadata, global_features, 
+                                          train_set, segment_size, sample_rate)
             return [features]
         
         # Resample data into segments
@@ -262,9 +219,8 @@ class ScorePredictionBase:
         segment_features = []
         for i, segment in enumerate(segments):
             if not segment.empty:
-                features = self.extract_features(segment, pid, enabled_trackers, enabled_measurements, 
-                                              enabled_metadata, global_features, train_set,
-                                              segment_size, sample_rate)
+                features = self.extract_features(segment, pid, enabled_metadata, global_features, 
+                                              train_set, segment_size, sample_rate)
                 segment_features.append(features)
         
         segments = None
@@ -313,6 +269,55 @@ class ScorePredictionBase:
         """Clear the feature cache to free memory"""
         cls._feature_cache.clear()
 
+    def calculate_shap_values(self, X_train_scaled, X_test_scaled, feature_names=None):
+        """Calculate SHAP values for supported models"""
+        if not hasattr(self, 'model'):
+            raise ValueError("Model must be trained before calculating SHAP values")
+
+        if not isinstance(self.model, (RandomForestRegressor, RandomForestClassifier, 
+                                     lgb.LGBMRegressor, lgb.LGBMClassifier)):
+            raise ValueError("SHAP analysis is only supported for Random Forest and LightGBM models")
+
+        try:
+            if isinstance(self.model, (RandomForestRegressor, RandomForestClassifier)):
+                explainer = shap.TreeExplainer(self.model)
+                shap_values = explainer.shap_values(X_test_scaled)
+            else:  # LightGBM models
+                explainer = shap.TreeExplainer(self.model)
+                shap_values = explainer.shap_values(X_test_scaled)
+                if isinstance(shap_values, list):  # For multi-class classification
+                    shap_values = np.array(shap_values)
+
+            return {
+                'shap_values': shap_values,
+                'explainer': explainer,
+                'feature_names': feature_names
+            }
+        except Exception as e:
+            logging.error(f"Error calculating SHAP values: {str(e)}")
+            raise e
+
+    def get_feature_names(self, metadata_features, global_features):
+        """Generate feature names in the same order as they're created"""
+        feature_names = []
+        
+        # Add metadata feature names
+        if metadata_features:
+            feature_names.extend([f for f in metadata_features 
+                                if not ((f == 'A_Build_Time' and self.train_set != 'A') or 
+                                      (f == 'B_Build_Time' and self.train_set != 'B'))])
+        
+        # Add global feature names
+        if global_features:
+            for feature_type, feature_config in global_features.items():
+                cols = feature_config['features']
+                statistics = feature_config.get('statistics', ['min', 'max', 'median', 'mean', 'std'])
+                
+                for col in cols:
+                    feature_names.extend([f"{col}_{stat}" for stat in statistics])
+        
+        return feature_names
+
 class RegressionPredictor(ScorePredictionBase):
     def __init__(self, config_path='experiment_config.yaml'):
         super().__init__(config_path)
@@ -356,9 +361,13 @@ class RegressionPredictor(ScorePredictionBase):
         return rmse, mae, r2, mse
 
     def run_single_experiment(self, handle_nan, train_set, sample_rate, segment_size, 
-                            tracker_key, trackers, measure_key, measurements, 
-                            meta_key, metadata_features, global_key, global_features, **kwargs):
-        """Run a single regression experiment with given parameters"""
+                            metadata_features, global_features, **kwargs):
+        """Run a single experiment with given parameters"""
+        # Store train_set as instance variable at the start of the method
+        self.train_set = train_set
+
+        #print(f"Global features: {global_features}")
+        #print(f"Metadata features: {metadata_features}")
         
         # Use cached data instead of reloading
         if train_set == 'A':
@@ -379,8 +388,6 @@ class RegressionPredictor(ScorePredictionBase):
             segment_features = self.segment_and_extract_features(
                 df, pid=id_num,
                 segment_size=segment_size,
-                enabled_trackers=trackers,
-                enabled_measurements=measurements,
                 enabled_metadata=metadata_features,
                 global_features=global_features,
                 train_set=train_set,
@@ -408,8 +415,6 @@ class RegressionPredictor(ScorePredictionBase):
             segment_features = self.segment_and_extract_features(
                 df, pid=id_num,
                 segment_size=segment_size,
-                enabled_trackers=trackers,
-                enabled_measurements=measurements,
                 enabled_metadata=metadata_features,
                 global_features=global_features,
                 train_set=train_set,
@@ -436,8 +441,12 @@ class RegressionPredictor(ScorePredictionBase):
         X_test = np.array([d['features'] for d in test_data])
         y_test = np.array([d['Score'] for d in test_data])
         
+        # Add before scaling
+        if X_train.shape[1] == 0:
+            raise ValueError(f"No features were extracted for combination: metadata={metadata_features}, global={global_features}")
+        
         # After features are processed but before scaling/training
-        if segment_size == 'full':  # Only export for full sequence analysis
+        '''if True:  # Only export for full sequence analysis
             # Create feature names
             feature_names = []
             
@@ -460,17 +469,6 @@ class RegressionPredictor(ScorePredictionBase):
                             f"{col}_mean", f"{col}_std"
                         ])
                 print(f"After global: {len(feature_names)} features")
-            
-            # Add tracker-specific feature names
-            for tracker in trackers:
-                for measure_type, measure_cols in measurements.items():
-                    for col_suffix in measure_cols:
-                        col = tracker + col_suffix
-                        feature_names.extend([
-                            f"{col}_min", f"{col}_max", f"{col}_median",
-                            f"{col}_mean", f"{col}_std"
-                        ])
-                print(f"After tracker {tracker}: {len(feature_names)} features")
             
             print(f"X_train shape: {X_train.shape}")
             print(f"Number of feature names: {len(feature_names)}")
@@ -495,9 +493,10 @@ class RegressionPredictor(ScorePredictionBase):
             # Save to CSV
             output_dir = 'results/feature_exports'
             os.makedirs(output_dir, exist_ok=True)
-            filename = f'{output_dir}/features_{train_set}_{tracker_key}_{measure_key}_{meta_key}_{global_key}.csv'
+            filename = f'{output_dir}/features_{train_set}_{meta_key}_{global_key}.csv'
             feature_df.to_csv(filename, index=False)
             print(f"Exported features to: {filename}")
+        '''
 
         # Clear data for memory management
         test_data_copy = test_data.copy()  # Keep a copy for evaluation
@@ -533,22 +532,56 @@ class RegressionPredictor(ScorePredictionBase):
         #print(f"Number of samples: {len(X_train)}")
         #print(f"Number of features: {X_train.shape[1]}")
         
-        X_train_scaled = scaler.fit_transform(X_train)
         X_train = None  # Clear original data
         #gc.collect()
         
         # Train and predict
         self.model.fit(X_train_scaled, y_train)
-        
         predictions = self.model.predict(X_test_scaled)
-        X_test = None  # Clear test data
-        X_test_scaled = None
-        #gc.collect()
         
         # Calculate metrics
         rmse, mae, r2, mse = self.evaluate_predictions(y_test, predictions, segment_size, test_data_copy)
         
-        # After evaluation, clean up remaining data
+        # Calculate SHAP values BEFORE clearing X_test_scaled
+        if isinstance(self.model, (RandomForestRegressor, lgb.LGBMRegressor)):
+            feature_names = self.get_feature_names(
+                metadata_features,
+                global_features
+            )
+            shap_results = self.calculate_shap_values(X_train_scaled, X_test_scaled, feature_names)
+            
+            if shap_results:
+                output_dir = 'results/shap_analysis'
+                os.makedirs(output_dir, exist_ok=True)
+                
+                # Create a unique identifier from the features
+                feature_id = hash(str(metadata_features) + str(global_features))
+                
+                # Save feature importance plot
+                plt.figure(figsize=(12, 8))
+                shap.summary_plot(
+                    shap_results['shap_values'],
+                    X_test_scaled,
+                    feature_names=feature_names,
+                    max_display=30,
+                    show=False
+                )
+                plt.tight_layout()
+                plt.savefig(f'{output_dir}/shap_summary_{train_set}_{feature_id}.png')
+                plt.close()
+                
+                # Save SHAP values to CSV
+                shap_df = pd.DataFrame(
+                    shap_results['shap_values'],
+                    columns=feature_names
+                )
+                shap_df.to_csv(f'{output_dir}/shap_values_{train_set}_{feature_id}.csv')
+        
+        # Clean up data AFTER SHAP analysis
+        X_train = None
+        X_test = None
+        X_train_scaled = None
+        X_test_scaled = None
         test_data_copy = None
         #gc.collect()
 
@@ -560,11 +593,7 @@ class RegressionPredictor(ScorePredictionBase):
             'handle_nan': handle_nan,
             'train_set': train_set,
             'sample_rate': sample_rate,
-            'segment_size': segment_size,
-            'tracker_key': tracker_key,
-            'measure_key': measure_key,
-            'meta_key': meta_key,
-            'global_key': global_key
+            'segment_size': segment_size
         }
 
 class ClassificationPredictor(ScorePredictionBase):
@@ -629,9 +658,8 @@ class ClassificationPredictor(ScorePredictionBase):
         return accuracy, f1, precision, recall 
 
     def run_single_experiment(self, handle_nan, train_set, sample_rate, segment_size, 
-                            tracker_key, trackers, measure_key, measurements, 
-                            meta_key, metadata_features, **kwargs):
-        """Run a single classification experiment with given parameters"""
+                            metadata_features, global_features, **kwargs):
+        """Run a single experiment with given parameters"""
         # Determine which dataset to use for training and testing
         if train_set == 'A':
             train_data_dict = self._data_by_id_A
@@ -649,10 +677,10 @@ class ClassificationPredictor(ScorePredictionBase):
         for pid_num, id_num in enumerate(train_data_dict.keys()):
             df = train_data_dict[id_num][0]['data']
             segment_features = self.segment_and_extract_features(
-                df, segment_size=segment_size,
-                enabled_trackers=trackers,
-                enabled_measurements=measurements,
+                df, pid=id_num,
+                segment_size=segment_size,
                 enabled_metadata=metadata_features,
+                global_features=global_features,
                 train_set=train_set,
                 sample_rate=sample_rate
             )
@@ -672,10 +700,10 @@ class ClassificationPredictor(ScorePredictionBase):
         for pid_num, id_num in enumerate(test_data_dict.keys()):
             df = test_data_dict[id_num][0]['data']
             segment_features = self.segment_and_extract_features(
-                df, segment_size=segment_size,
-                enabled_trackers=trackers,
-                enabled_measurements=measurements,
+                df, pid=id_num,
+                segment_size=segment_size,
                 enabled_metadata=metadata_features,
+                global_features=global_features,
                 train_set=train_set,
                 sample_rate=sample_rate
             )
@@ -695,6 +723,12 @@ class ClassificationPredictor(ScorePredictionBase):
         y_train = np.array([d['Score'] for d in train_data])
         X_test = np.array([d['features'] for d in test_data])
         y_test = np.array([d['Score'] for d in test_data])
+        
+        # Keep a copy for evaluation and clear data for memory management
+        test_data_copy = test_data.copy()
+        train_data = None
+        test_data = None
+        #gc.collect()
         
         # Handle NaN values
         if handle_nan == 'drop':
@@ -725,13 +759,78 @@ class ClassificationPredictor(ScorePredictionBase):
         #print(f"Number of features: {X_train.shape[1]}")
         
         X_train_scaled = scaler.fit_transform(X_train)
+        X_train = None  # Clear original data
+        #gc.collect()
         
         # Train and predict
         self.model.fit(X_train_scaled, y_train)
         predictions = self.model.predict(X_test_scaled)
         
         # Calculate metrics
-        accuracy, f1, precision, recall = self.evaluate_predictions(y_test, predictions, segment_size, test_data)
+        accuracy, f1, precision, recall = self.evaluate_predictions(y_test, predictions, segment_size, test_data_copy)
+        
+        # Final cleanup
+        test_data_copy = None
+        #gc.collect()
+        
+        # After model training and prediction, calculate SHAP values if applicable
+        if isinstance(self.model, (RandomForestClassifier, lgb.LGBMClassifier)):
+            feature_names = self.get_feature_names(
+                metadata_features,
+                global_features
+            )
+            shap_results = self.calculate_shap_values(X_train_scaled, X_test_scaled, feature_names)
+            
+            if shap_results:
+                output_dir = 'results/shap_analysis'
+                os.makedirs(output_dir, exist_ok=True)
+                
+                # Create a unique identifier from the features
+                feature_id = hash(str(metadata_features) + str(global_features))
+                
+                # Save feature importance plot
+                plt.figure(figsize=(12, 8))
+                if isinstance(shap_results['shap_values'], list):  # Multi-class
+                    # Plot for each class
+                    for i, class_shap in enumerate(shap_results['shap_values']):
+                        plt.figure(figsize=(12, 8))
+                        shap.summary_plot(
+                            class_shap,
+                            X_test_scaled,
+                            feature_names=feature_names,
+                            max_display=30,  # Increase number of features shown
+                            show=False
+                        )
+                        plt.tight_layout()
+                        plt.savefig(f'{output_dir}/shap_summary_{train_set}_{feature_id}_class_{i}.png')
+                        plt.close()
+                else:
+                    plt.figure(figsize=(12, 8))
+                    shap.summary_plot(
+                        shap_results['shap_values'],
+                        X_test_scaled,
+                        feature_names=feature_names,
+                        max_display=30,  # Increase number of features shown
+                        show=False
+                    )
+                    plt.tight_layout()
+                    plt.savefig(f'{output_dir}/shap_summary_{train_set}_{feature_id}.png')
+                    plt.close()
+                
+                # Save SHAP values to CSV
+                if isinstance(shap_results['shap_values'], list):
+                    for i, class_shap in enumerate(shap_results['shap_values']):
+                        shap_df = pd.DataFrame(
+                            class_shap,
+                            columns=feature_names
+                        )
+                        shap_df.to_csv(f'{output_dir}/shap_values_{train_set}_{feature_id}_class_{i}.csv')
+                else:
+                    shap_df = pd.DataFrame(
+                        shap_results['shap_values'],
+                        columns=feature_names
+                    )
+                    shap_df.to_csv(f'{output_dir}/shap_values_{train_set}_{feature_id}.csv')
         
         return {
             'accuracy': accuracy,
@@ -741,8 +840,5 @@ class ClassificationPredictor(ScorePredictionBase):
             'handle_nan': handle_nan,
             'train_set': train_set,
             'sample_rate': sample_rate,
-            'segment_size': segment_size,
-            'tracker_key': tracker_key,
-            'measure_key': measure_key,
-            'meta_key': meta_key
+            'segment_size': segment_size
         }

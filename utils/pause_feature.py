@@ -3,6 +3,10 @@ import numpy as np
 from scipy.spatial.transform import Rotation as R
 import os
 from scipy.signal import savgol_filter
+from motion_features import calculate_motion_derivatives
+import multiprocessing as mp
+from functools import partial
+from tqdm import tqdm
 
 def calculate_velocities(positions, quaternions, dt=1/30):
     """
@@ -49,37 +53,50 @@ def calculate_velocities(positions, quaternions, dt=1/30):
     
     return velocities, angular_vel
 
-def detect_pauses(velocities, angular_velocities, percentile=25):
+def detect_pauses(velocities, accelerations, jerks, angular_velocities, angular_accelerations, angular_jerks, percentile=25):
     """
-    Detect periods where both linear and angular motion are below thresholds
-    determined by the data distribution.
+    Detect periods where motion derivatives are below thresholds determined by the data distribution.
     
     Args:
         velocities: numpy array of shape (n, 3) containing xyz velocities
+        accelerations: numpy array of shape (n, 3) containing xyz accelerations
+        jerks: numpy array of shape (n, 3) containing xyz jerks
         angular_velocities: numpy array of shape (n, 3) containing angular velocities
+        angular_accelerations: numpy array of shape (n, 3) containing angular accelerations
+        angular_jerks: numpy array of shape (n, 3) containing angular jerks
         percentile: percentile below which motion is considered 'paused' (default: 25)
     
     Returns:
-        numpy array of shape (n,) with 1s indicating pauses and 0s indicating motion
+        Dictionary containing pause signals for each motion derivative
     """
-    # Add input validation
     if not (0 <= percentile <= 100):
         raise ValueError("Percentile must be between 0 and 100")
     
-    if velocities.shape != angular_velocities.shape[:2]:
-        raise ValueError("Velocity arrays must have compatible shapes")
+    # Calculate magnitudes
+    linear_vel_mag = np.linalg.norm(velocities, axis=1)
+    linear_acc_mag = np.linalg.norm(accelerations, axis=1)
+    linear_jerk_mag = np.linalg.norm(jerks, axis=1)
+    angular_vel_mag = np.linalg.norm(angular_velocities, axis=1)
+    angular_acc_mag = np.linalg.norm(angular_accelerations, axis=1)
+    angular_jerk_mag = np.linalg.norm(angular_jerks, axis=1)
     
-    # Calculate magnitude of velocities
-    linear_magnitude = np.linalg.norm(velocities, axis=1)
-    angular_magnitude = np.linalg.norm(angular_velocities, axis=1)
+    # Calculate thresholds
+    linear_vel_threshold = np.percentile(linear_vel_mag, percentile)
+    linear_acc_threshold = np.percentile(linear_acc_mag, percentile)
+    linear_jerk_threshold = np.percentile(linear_jerk_mag, percentile)
+    angular_vel_threshold = np.percentile(angular_vel_mag, percentile)
+    angular_acc_threshold = np.percentile(angular_acc_mag, percentile)
+    angular_jerk_threshold = np.percentile(angular_jerk_mag, percentile)
     
-    # Calculate thresholds based on data distribution
-    linear_threshold = np.percentile(linear_magnitude, percentile)
-    angular_threshold = np.percentile(angular_magnitude, percentile)
-    
-    # Detect where both linear and angular motion are below thresholds
-    is_paused = (linear_magnitude < linear_threshold) & (angular_magnitude < angular_threshold)
-    return is_paused.astype(int)
+    # Detect pauses for each derivative
+    return {
+        'velocity': (linear_vel_mag < linear_vel_threshold).astype(int),
+        'acceleration': (linear_acc_mag < linear_acc_threshold).astype(int),
+        'jerk': (linear_jerk_mag < linear_jerk_threshold).astype(int),
+        'angular_velocity': (angular_vel_mag < angular_vel_threshold).astype(int),
+        'angular_acceleration': (angular_acc_mag < angular_acc_threshold).astype(int),
+        'angular_jerk': (angular_jerk_mag < angular_jerk_threshold).astype(int)
+    }
 
 def calculate_pause_features(binary_pauses, dt=1/30):
     """
@@ -136,7 +153,7 @@ def calculate_pause_features(binary_pauses, dt=1/30):
 
 def calculate_motion_features(input_path, output_path):
     """
-    Calculate pause features for both scene-relative and body-relative coordinates.
+    Calculate pause features for all motion derivatives.
     """
     # Verify file exists
     if not os.path.exists(input_path):
@@ -179,15 +196,19 @@ def calculate_motion_features(input_path, output_path):
         pos = df[pos_cols].to_numpy()
         quat = df[quat_cols].to_numpy()
         
-        vel, ang_vel = calculate_velocities(pos, quat, dt)
+        vel, acc, jerk, ang_vel, ang_acc, ang_jerk = calculate_motion_derivatives(pos, quat, dt)
         
-        # Get binary pauses first
-        binary_pauses = detect_pauses(vel, ang_vel, percentile=10)
+        # Get binary pauses for all derivatives
+        binary_pauses = detect_pauses(
+            vel, acc, jerk, ang_vel, ang_acc, ang_jerk,
+            percentile=10
+        )
         
-        # Calculate meaningful pause features
-        pause_features = calculate_pause_features(binary_pauses, dt)
-        df_out[f'{obj}_pause_duration'] = pause_features['pause_duration']
-        df_out[f'{obj}_time_since_pause'] = pause_features['time_since_pause']
+        # Calculate meaningful pause features for each derivative type
+        for derivative_type, pause_signal in binary_pauses.items():
+            pause_features = calculate_pause_features(pause_signal, dt)
+            df_out[f'{obj}_{derivative_type}_pause_duration'] = pause_features['pause_duration']
+            df_out[f'{obj}_{derivative_type}_time_since_pause'] = pause_features['time_since_pause']
     
     # Process body-relative features for hands
     hands = ['Left', 'Right']
@@ -212,13 +233,20 @@ def calculate_motion_features(input_path, output_path):
         pos_relative = df[pos_cols_relative].to_numpy()
         quat_relative = df[quat_cols_relative].to_numpy()
         
-        vel_relative, ang_vel_relative = calculate_velocities(pos_relative, quat_relative, dt)
+        vel_relative, acc_relative, jerk_relative, ang_vel_relative, ang_acc_relative, ang_jerk_relative = calculate_motion_derivatives(pos_relative, quat_relative, dt)
         
-        # Calculate relative pause features
-        binary_pauses = detect_pauses(vel_relative, ang_vel_relative, percentile=10)
-        pause_features = calculate_pause_features(binary_pauses, dt)
-        df_out[f'{hand}Hand_pause_duration_relative'] = pause_features['pause_duration']
-        df_out[f'{hand}Hand_time_since_pause_relative'] = pause_features['time_since_pause']
+        # Get binary pauses for all derivatives
+        binary_pauses = detect_pauses(
+            vel_relative, acc_relative, jerk_relative,
+            ang_vel_relative, ang_acc_relative, ang_jerk_relative,
+            percentile=10
+        )
+        
+        # Calculate meaningful pause features for each derivative type
+        for derivative_type, pause_signal in binary_pauses.items():
+            pause_features = calculate_pause_features(pause_signal, dt)
+            df_out[f'{hand}Hand_{derivative_type}_pause_duration_relative'] = pause_features['pause_duration']
+            df_out[f'{hand}Hand_{derivative_type}_time_since_pause_relative'] = pause_features['time_since_pause']
     
     # Process head no-yaw quaternion
     head_no_yaw_quat_cols = [
@@ -230,42 +258,72 @@ def calculate_motion_features(input_path, output_path):
     
     if all(col in df.columns for col in head_no_yaw_quat_cols):
         head_no_yaw_quat = df[head_no_yaw_quat_cols].to_numpy()
-        _, ang_vel_no_yaw = calculate_velocities(
+        _, _, _, ang_vel_no_yaw, ang_acc_no_yaw, ang_jerk_no_yaw = calculate_motion_derivatives(
             np.zeros((len(df), 3)),
             head_no_yaw_quat, 
             dt
         )
         
-        # For no-yaw, we only consider angular velocity
-        angular_magnitude = np.linalg.norm(ang_vel_no_yaw, axis=1)
-        angular_threshold = np.percentile(angular_magnitude, 10)
-        binary_pauses = (angular_magnitude < angular_threshold).astype(int)
+        # For no-yaw, we only consider angular derivatives
+        binary_pauses = detect_pauses(
+            np.zeros_like(ang_vel_no_yaw), # Dummy values for linear derivatives
+            np.zeros_like(ang_vel_no_yaw),
+            np.zeros_like(ang_vel_no_yaw),
+            ang_vel_no_yaw,
+            ang_acc_no_yaw,
+            ang_jerk_no_yaw,
+            percentile=10
+        )
         
-        pause_features = calculate_pause_features(binary_pauses, dt)
-        df_out['Head_no_yaw_pause_duration'] = pause_features['pause_duration']
-        df_out['Head_no_yaw_time_since_pause'] = pause_features['time_since_pause']
+        # Calculate pause features for angular derivatives only
+        for derivative_type in ['angular_velocity', 'angular_acceleration', 'angular_jerk']:
+            pause_features = calculate_pause_features(binary_pauses[derivative_type], dt)
+            df_out[f'Head_no_yaw_{derivative_type}_pause_duration'] = pause_features['pause_duration']
+            df_out[f'Head_no_yaw_{derivative_type}_time_since_pause'] = pause_features['time_since_pause']
     
     # Save to new CSV file
     df_out.to_csv(output_path, index=False)
     return df_out
 
-# Example usage
+def process_file(filename, input_dir, output_dir):
+    """Process a single file with motion feature calculation."""
+    input_path = os.path.join(input_dir, filename)
+    output_path = os.path.join(output_dir, filename)
+    try:
+        df_transformed = calculate_motion_features(input_path, output_path)
+        return True
+    except Exception as e:
+        print(f"\nError processing {filename}: {str(e)}")
+        return False
+
 if __name__ == "__main__":
     # Define input and output directories
-    input_dir = "data/FAB/FAB_A_Modified_Motion"
-    output_dir = "data/FAB/FAB_A_Modified_Motion_Pause"
+    input_dir = "data/FAB/FAB_B_Modified_Motion"
+    output_dir = "data/FAB/FAB_B_Modified_Motion_Pause"
     
     # Create output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
     
-    # Process all CSV files in the input directory
-    for filename in os.listdir(input_dir):
-        if filename.endswith('.csv'):
-            input_path = os.path.join(input_dir, filename)
-            output_path = os.path.join(output_dir, filename)
-            print(f"Processing {filename}...")
-            try:
-                df_transformed = calculate_motion_features(input_path, output_path)
-                print(f"Successfully processed {filename}")
-            except Exception as e:
-                print(f"Error processing {filename}: {str(e)}")
+    # Get list of CSV files
+    csv_files = [f for f in os.listdir(input_dir) if f.endswith('.csv')]
+    total_files = len(csv_files)
+    
+    # Set up multiprocessing
+    num_cores = mp.cpu_count() - 1  # Leave one core free
+    print(f"Processing {total_files} files using {num_cores} cores...")
+    
+    # Create partial function with fixed arguments
+    process_file_partial = partial(process_file, input_dir=input_dir, output_dir=output_dir)
+    
+    # Process files in parallel with progress bar
+    with mp.Pool(processes=num_cores) as pool:
+        results = list(tqdm(
+            pool.imap(process_file_partial, csv_files),
+            total=total_files,
+            desc="Processing files",
+            unit="file"
+        ))
+    
+    # Print summary
+    successful = sum(results)
+    print(f"\nProcessing complete: {successful}/{total_files} files processed successfully")

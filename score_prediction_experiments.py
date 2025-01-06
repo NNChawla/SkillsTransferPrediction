@@ -12,128 +12,250 @@ def create_score_table(config, segment_sizes=['full'], single_run=False):
     """Create empty DataFrame for storing results using config values"""
     if single_run:
         # For single run, only create one row with all features
-        row_label = "all_trackers_all_measurements_all_all_global"
+        row_label = "all_metadata_all_global"
         return pd.DataFrame(columns=segment_sizes, index=[row_label])
     
-    # Generate global feature combinations
-    global_feature_combinations = ['none']  # Always include 'none'
-    if 'global_features' in config:
-        global_features = list(config['global_features'].keys())
-        for r in range(1, len(global_features) + 1):
-            for combo in combinations(global_features, r):
-                key_name = '_'.join(combo)
-                if len(combo) == len(global_features):
-                    key_name = 'all_global'
-                global_feature_combinations.append(key_name)
-
-    # Generate tracker combinations (e.g., H+L+R, H+L, etc.)
-    tracker_combinations = []
-    trackers = config['trackers']
-    for r in range(1, len(trackers) + 1):
-        for combo in combinations(trackers, r):
-            # Create key name from first letter of each tracker
-            key_name = '+'.join(t[0] for t in combo)
-            tracker_combinations.append(key_name)
+    # Create list of all possible features
+    all_features = []
     
-    # Generate measurement combinations (e.g., pos_euler_quat_sixD, pos_only, etc.)
-    measurement_types = []
-    measurements = list(config['measurements'].keys())
-    for r in range(1, len(measurements) + 1):
-        for combo in combinations(measurements, r):
-            # Create measurement type name
-            key_name = '_'.join(combo) + '_only' if len(combo) == 1 else '_'.join(combo)
-            measurement_types.append(key_name)
+    # Add metadata features
+    metadata_fields = config.get('metadata_fields', [])
+    if metadata_fields:
+        all_features.extend(metadata_fields)
     
-    # Generate metadata combinations (e.g., none, age, gender, all, etc.)
-    metadata_types = ['none']  # Always include 'none'
-    metadata_fields = config.get('metadata_fields', [])  # Default to empty list if not present
-    if metadata_fields:  # Only generate combinations if metadata fields exist
-        for r in range(1, len(metadata_fields) + 1):
-            for combo in combinations(metadata_fields, r):
-                key_name = '_'.join(field.lower() for field in combo)
-                if len(combo) == len(metadata_fields):
-                    key_name = 'all'
-                metadata_types.append(key_name)
+    # Add global features with their statistics
+    global_features = config.get('global_features', {})
+    if global_features:
+        for feature_name, feature_config in global_features.items():
+            statistics = feature_config.get('statistics', [])
+            for stat in statistics:
+                all_features.append(f"{feature_name}_{stat}")
     
-    # Create row labels that combine all combinations
-    row_labels = [f"{t}_{m}_{meta}_{g}" for t in tracker_combinations 
-                 for m in measurement_types 
-                 for meta in metadata_types
-                 for g in global_feature_combinations]
+    # Get required features
+    required_metadata = set(config.get('required_metadata_fields', []))
+    required_global = set(config.get('required_global_features', []))
     
+    # Get combination sizes
+    combo_sizes = config.get('combination_sizes', [len(all_features)])
+    
+    # Generate row labels for each combination size
+    row_labels = []
+    for size in combo_sizes:
+        for combo in combinations(all_features, size):
+            # Check if combination includes all required features
+            if required_metadata and not required_metadata.issubset(set(combo)):
+                continue
+            if required_global and not required_global.issubset(set(combo)):
+                continue
+            
+            # Generate row label - features sorted and joined by underscore
+            row_labels.append('_'.join(sorted(combo)))
+    
+    if not row_labels:
+        raise ValueError("No features found for score table. Check your configuration.")
+        
     return pd.DataFrame(columns=segment_sizes, index=row_labels)
 
-def generate_combinations(config, single_run=False):
-    """Generate all possible combinations for experiments"""
-    def generate_global_feature_combinations(global_features, single_run):
-        if not global_features:
-            return {'none': {}}
-            
-        if single_run:
-            return {'all_global': global_features}
-            
-        global_feature_sets = {'none': {}}
-        feature_types = list(global_features.keys())
+def generate_global_feature_combinations(global_features, required_features, combo_sizes):
+    """Generate combinations of global features, always including required features"""
+    if not global_features:
+        return {'none': {}}
         
-        for r in range(1, len(feature_types) + 1):
-            for combo in combinations(feature_types, r):
-                key_name = '_'.join(combo)
-                if len(combo) == len(feature_types):
-                    key_name = 'all_global'
-                feature_dict = {feat_type: global_features[feat_type] for feat_type in combo}
-                global_feature_sets[key_name] = feature_dict
-                
+    # Ensure required features exist in feature_types
+    feature_types = list(global_features.keys())
+    required_features = [f for f in required_features if f in feature_types]
+    
+    # If there are required features, don't include 'none' option
+    global_feature_sets = {} if required_features else {'none': {}}
+    
+    if not required_features:
+        # If no required features, generate regular combinations
+        for size in combo_sizes:
+            if size <= len(feature_types):
+                for combo in combinations(feature_types, size):
+                    key_name = '_'.join(combo)
+                    if len(combo) == len(feature_types):
+                        key_name = 'all_global'
+                    feature_dict = {feat_type: global_features[feat_type] for feat_type in combo}
+                    global_feature_sets[key_name] = feature_dict
         return global_feature_sets
-
-    def generate_measurement_combinations(measurements, single_run):
-        if single_run:
-            return {'all_measurements': measurements}
+    
+    # Get remaining features
+    remaining_features = [f for f in feature_types if f not in required_features]
+    
+    # For each combination size
+    for size in combo_sizes:
+        if size < len(required_features):
+            continue  # Skip if size is smaller than number of required features
             
-        measurement_sets = {}
-        measure_types = list(measurements.keys())
+        # Calculate how many additional features we need
+        additional_needed = size - len(required_features)
         
-        for r in range(1, len(measure_types) + 1):
-            for combo in combinations(measure_types, r):
-                key_name = '_'.join(combo) + '_only' if len(combo) == 1 else '_'.join(combo)
-                measurement_dict = {measure_type: measurements[measure_type] for measure_type in combo}
-                measurement_sets[key_name] = measurement_dict
+        # Generate combinations of remaining features
+        if additional_needed > 0 and remaining_features:
+            for combo in combinations(remaining_features, additional_needed):
+                # Combine with required features
+                full_combo = list(required_features) + list(combo)
+                key_name = '_'.join(full_combo)
+                if len(full_combo) == len(feature_types):
+                    key_name = 'all_global'
+                feature_dict = {feat_type: global_features[feat_type] for feat_type in full_combo}
+                global_feature_sets[key_name] = feature_dict
+        elif additional_needed == 0:
+            # If size exactly matches required features, add just those
+            key_name = '_'.join(required_features)
+            if len(required_features) == len(feature_types):
+                key_name = 'all_global'
+            feature_dict = {feat_type: global_features[feat_type] for feat_type in required_features}
+            global_feature_sets[key_name] = feature_dict
+            
+    return global_feature_sets
+
+def generate_metadata_combinations(metadata_fields, required_fields, combo_sizes):
+    """Generate combinations of metadata fields, always including required fields"""
+    if not metadata_fields:
+        return {'none': []}
         
-        return measurement_sets
-
-    def generate_tracker_combinations(trackers, single_run):
-        if single_run:
-            return {'all_trackers': trackers}
-            
-        tracker_combinations = {}
-        for r in range(1, len(trackers) + 1):
-            for combo in combinations(trackers, r):
-                key_name = '+'.join(t[0] for t in combo)
-                tracker_combinations[key_name] = list(combo)
-        return tracker_combinations
-
-    def generate_metadata_combinations(metadata_fields, single_run):
-        if not metadata_fields:
-            return {'none': []}
-            
-        if single_run:
-            return {'all': metadata_fields}
-            
-        metadata_sets = {'none': []}
-        if metadata_fields:
-            for r in range(1, len(metadata_fields) + 1):
-                for combo in combinations(metadata_fields, r):
+    # Ensure required fields exist in metadata_fields
+    required_fields = [f for f in required_fields if f in metadata_fields]
+    
+    # If there are required fields, don't include 'none' option
+    metadata_sets = {} if required_fields else {'none': []}
+    
+    if not required_fields:
+        # If no required fields, generate regular combinations
+        for size in combo_sizes:
+            if size <= len(metadata_fields):
+                for combo in combinations(metadata_fields, size):
                     key_name = '_'.join(field.lower() for field in combo)
                     if len(combo) == len(metadata_fields):
                         key_name = 'all'
                     metadata_sets[key_name] = list(combo)
         return metadata_sets
+    
+    # Get remaining fields
+    remaining_fields = [f for f in metadata_fields if f not in required_fields]
+    
+    # For each combination size
+    for size in combo_sizes:
+        if size < len(required_fields):
+            continue  # Skip if size is smaller than number of required fields
+            
+        # Calculate how many additional fields we need
+        additional_needed = size - len(required_fields)
+        
+        # Generate combinations of remaining fields
+        if additional_needed > 0 and remaining_fields:
+            for combo in combinations(remaining_fields, additional_needed):
+                # Combine with required fields
+                full_combo = list(required_fields) + list(combo)
+                key_name = '_'.join(field.lower() for field in full_combo)
+                if len(full_combo) == len(metadata_fields):
+                    key_name = 'all'
+                metadata_sets[key_name] = full_combo
+        elif additional_needed == 0:
+            # If size exactly matches required fields, add just those
+            key_name = '_'.join(field.lower() for field in required_fields)
+            if len(required_fields) == len(metadata_fields):
+                key_name = 'all'
+            metadata_sets[key_name] = list(required_fields)
+            
+    return metadata_sets
 
-    return {
-        'measurements': generate_measurement_combinations(config['measurements'], single_run),
-        'trackers': generate_tracker_combinations(config['trackers'], single_run),
-        'metadata': generate_metadata_combinations(config.get('metadata_fields', []), single_run),
-        'global_features': generate_global_feature_combinations(config.get('global_features', {}), single_run)
+def generate_combinations(config, single_run=False):
+    """Generate all possible combinations for experiments"""
+    if single_run:
+        return {
+            'metadata': {'all': config.get('metadata_fields', [])},
+            'global_features': {'all_global': config.get('global_features', {})}
+        }
+    
+    # Create list of all possible features
+    all_features = []
+    
+    # Add metadata features
+    metadata_fields = config.get('metadata_fields', [])
+    if metadata_fields:
+        for field in metadata_fields:
+            all_features.append(('metadata', field))
+    
+    # Add global features with their statistics
+    global_features = config.get('global_features', {})
+    if global_features:
+        for feature_name, feature_config in global_features.items():
+            statistics = feature_config.get('statistics', [])
+            for stat in statistics:
+                all_features.append(('global', (feature_name, stat)))
+    
+    # Get required features
+    required_metadata = set(config.get('required_metadata_fields', []))
+    required_global_stats = set()
+    
+    # Parse required global features to include statistics
+    for feat in config.get('required_global_features', []):
+        if '_' in feat:
+            feature_name, stat = feat.rsplit('_', 1)
+            required_global_stats.add((feature_name, stat))
+    
+    # Get combination sizes
+    combo_sizes = config.get('combination_sizes', [len(all_features)])
+    
+    # Initialize result structure
+    result_combinations = {
+        'metadata': {},
+        'global_features': {}
     }
+    
+    # Generate combinations for each size
+    for size in combo_sizes:
+        for combo in combinations(all_features, size):
+            # Check if this combination includes all required features
+            metadata = set()
+            global_stats = set()
+            
+            for feature_type, feature in combo:
+                if feature_type == 'metadata':
+                    metadata.add(feature)
+                else:  # global feature
+                    global_stats.add(feature)
+            
+            # Skip if combination doesn't include all required features
+            if not (required_metadata.issubset(metadata) and 
+                   all(stat in global_stats for stat in required_global_stats)):
+                continue
+            
+            # Process valid combination
+            metadata_list = []
+            global_feats = {}
+            feature_names = []
+            
+            for feature_type, feature in combo:
+                if feature_type == 'metadata':
+                    metadata_list.append(feature)
+                    feature_names.append(feature)
+                else:  # global feature
+                    feature_name, stat = feature
+                    if feature_name not in global_feats:
+                        global_feats[feature_name] = {'features': [feature_name], 'statistics': []}
+                    global_feats[feature_name]['statistics'].append(stat)
+                    feature_names.append(f"{feature_name}_{stat}")
+            
+            # Generate simple key name - just the features joined by underscore
+            key = '_'.join(sorted(feature_names))
+            
+            result_combinations['metadata'][key] = metadata_list
+            result_combinations['global_features'][key] = global_feats
+    
+    # Add debug logging
+    num_combinations = len(result_combinations['metadata'])
+    print(f"Generated {num_combinations} feature combinations for sizes {combo_sizes}")
+    print(f"Required metadata: {required_metadata}")
+    print(f"Required global features: {required_global_stats}")
+    
+    if not result_combinations['metadata']:
+        raise ValueError("No valid feature combinations were generated. Check your configuration.")
+    
+    return result_combinations
 
 def initialize_tables(train_policy, sample_rates, config, predictor_type='regression', single_run=False):
     """Initialize result tables structure based on predictor type"""
@@ -170,41 +292,51 @@ def run_experiment_wrapper(params):
     predictor_type = params.pop('predictor_type')
     predictor_class = RegressionPredictor if predictor_type == 'regression' else ClassificationPredictor
     predictor = predictor_class()
-    return predictor.run_single_experiment(**params)
+    
+    # Extract feature key
+    feature_key = params.pop('feature_key')
+    
+    # Run the experiment
+    result = predictor.run_single_experiment(**params)
+    
+    # Add the feature_key back to the result
+    result['feature_key'] = feature_key
+    
+    return result
 
 def generate_experiment_params(config, predictor_type, single_run):
     """Generator function for experiment parameters"""
     combinations = generate_combinations(config, single_run)
     
+    # Debug print
+    print(f"\nConfig parameters:")
+    print(f"nan_policy: {config['nan_policy']}")
+    print(f"train_policy: {config['train_policy']}")
+    print(f"sample_rates: {config['sample_rates']}")
+    print(f"segment_policy: {config['segment_policy']}")
+    print(f"Number of feature combinations: {len(combinations['metadata'])}")
+    
+    # Generate experiments for each combination of parameters
     for params in product(
         config['nan_policy'], 
         config['train_policy'], 
         config['sample_rates'], 
-        config['segment_policy'], 
-        combinations['trackers'].items(),
-        combinations['measurements'].items(), 
-        combinations['metadata'].items(),
-        combinations['global_features'].items()
+        config['segment_policy']
     ):
-        handle_nan, train_set, sample_rate, segment_size, \
-        (tracker_key, trackers), (measure_key, measurements), \
-        (meta_key, metadata_features), (global_key, global_features) = params
+        handle_nan, train_set, sample_rate, segment_size = params
         
-        yield {
-            'predictor_type': predictor_type,
-            'handle_nan': handle_nan,
-            'train_set': train_set,
-            'sample_rate': sample_rate,
-            'segment_size': segment_size,
-            'tracker_key': tracker_key,
-            'trackers': trackers,
-            'measure_key': measure_key,
-            'measurements': measurements,
-            'meta_key': meta_key,
-            'metadata_features': metadata_features,
-            'global_key': global_key,
-            'global_features': global_features
-        }
+        # Use the same key for both metadata and global features
+        for feature_key in combinations['metadata'].keys():
+            yield {
+                'predictor_type': predictor_type,
+                'handle_nan': handle_nan,
+                'train_set': train_set,
+                'sample_rate': sample_rate,
+                'segment_size': segment_size,
+                'feature_key': feature_key,
+                'metadata_features': combinations['metadata'][feature_key],
+                'global_features': combinations['global_features'][feature_key]
+            }
 
 def run_experiments(predictor_type='regression', single_run=False):
     """Run all experiments with feature caching"""
@@ -233,13 +365,10 @@ def run_experiments(predictor_type='regression', single_run=False):
                 pbar.update(1)
                 pbar.set_description(
                     f"NaN: {result['handle_nan']}, Train: {result['train_set']}, "
-                    f"Rate: {result['sample_rate'] if result['sample_rate'] else 'original'}, "
-                    f"Tracker: {result['tracker_key']}"
+                    f"Rate: {result['sample_rate'] if result['sample_rate'] else 'original'}"
                 )
                 
-                # Process result
-                row_key = f"{result['tracker_key']}_{result['measure_key']}_" \
-                         f"{result['meta_key']}_{result['global_key']}"
+                # Process result using single feature key
                 current_tables = tables[result['train_set']][result['handle_nan']][result['sample_rate']]
                 
                 if predictor_type == 'regression':
@@ -248,7 +377,7 @@ def run_experiments(predictor_type='regression', single_run=False):
                     metrics = ['accuracy', 'f1', 'precision', 'recall']
                     
                 for metric in metrics:
-                    current_tables[metric].loc[row_key, result['segment_size']] = result[metric]
+                    current_tables[metric].loc[result['feature_key'], result['segment_size']] = result[metric]
     
     except Exception as e:
         logging.error(f"Error in parallel processing: {str(e)}")
@@ -292,5 +421,5 @@ def save_results(tables, train_policy, nan_policy, sample_rates, predictor_type)
                         logging.error(f"Error saving {metric} results: {str(e)}")
 
 if __name__ == "__main__":
-    run_experiments('regression', single_run=True)
+    run_experiments('regression', single_run=False)
     #run_experiments('classification')

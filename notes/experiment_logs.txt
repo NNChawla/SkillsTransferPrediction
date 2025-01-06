@@ -58,3 +58,52 @@ Need to load the data in and then export the combined dataframe to a single file
 Need a separate script where feature distribution and correlation (VIF and correlation matrix) can be investigated.
 Full EDA (check chatgpt logs) pipeline, looking at data from start to finish.
 Train a random forest on all variables and explore the SHAP values.
+
+LightGBM
+Scene-Relative Thoughts
+Best performance so far (-0.506) with Left Hand angular velocity only.
+Tested other individual variables, but performance was worse.
+Improvement in performance is significant when dropping the head vs hand trackers.
+General thoughts are:
+    - Position and rotation may be largely redundant for this model at least.
+    - Head Tracker seems to be contributing noise, but not sure what particular signal.
+    - Angular Velocity seems more informative than linear velocity.
+
+Body-Relative Thoughts
+So big surprise, the pause duration features and gender yield the best performance so far?
+Using a feature by itself yields the best performance so far I think.
+Unsure of how much the use of all summary statistics is contributing to this.
+Body relative transformation does not seem to yield better performance, barely worse but not worth the effort then.
+Maybe not strictly the case though; Left hand body relative time since pause yields 0.365, which ~5% better than scene relative.
+Right hand pause duration yields the best performance so far (-0.317).
+Head signals seem largely noisey.
+Pairing gender with right hand pause duration actually yields better performance (-0.309).
+Why would body relative pause duration/time since pause not do as well when paired with gender?
+Still need to look at X, Y, and Z components of all the motion features individually. Waiting till v3 to adjust summary statistics.
+
+Need to test with kNN and random forest, but going to wait till v3.
+
+V3 docket:
+    - Need to update config and scripts to remove tracker and measurement combinations, switch all to global features.
+    - All features (metadata, global) should be able to specify which summary statistics to use.
+    - Acceleration and jerk features should be added, to see if even further improvement can be had, since velocity was better than position.
+    - Need to be able to specify what features to remain constant in combinations
+    - Need to be able to specify what combination sizes to use
+    - Need to separate out motion feature x,y,z components; each should be an individual feature so they can be studied and summary stats can be varied appropriately.
+
+Version 3 (v3)
+
+Conducting a test with all features, but only using one combination size.
+Going for a greedy approach, starting with the most important features and then adding more as needed.
+Tested MLP, SVM, Random Forest, LightGBM, and KNN on combination size 1.
+Got first -0.2* and -0.1* R^2 scores!
+-0.2* scores are from MLP, lgbm, and knn.
+-0.1* score is from knn (right hand velocity x mean).
+Seems like the top features are right hand velocity x mean, gender, pause duration. Angular and Linear velocity are meaningful.
+Need to add acceleration and jerk features then test again.
+Disabling relative features for now, will explore again if necessary.
+Minimal initial gains from acceleration and jerk. Think the move forward is now EDA and feature selection.
+
+Need to explore transformations (log, sqrt, square, etc.) to observe non-linear effects.
+Need to investigate linear correlation and linear dependence (multicollinearity) of features.
+Use VIF for multicollinearity, pearson correlation for linear correlation. Mutual information for non-linear correlation.

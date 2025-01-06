@@ -4,9 +4,9 @@ from scipy.spatial.transform import Rotation as R
 import os
 from scipy.signal import savgol_filter
 
-def calculate_velocities(positions, quaternions, dt=1/30):
+def calculate_motion_derivatives(positions, quaternions, dt=1/30):
     """
-    Calculate linear and angular velocities from positions and quaternions.
+    Calculate linear and angular velocities, accelerations, and jerk from positions and quaternions.
     
     Args:
         positions: numpy array of shape (n, 3) containing xyz positions
@@ -19,28 +19,49 @@ def calculate_velocities(positions, quaternions, dt=1/30):
     velocities[0] = (positions[1] - positions[0]) / dt
     velocities[-1] = (positions[-1] - positions[-2]) / dt
     
-    # Calculate angular velocity from quaternions
+    # Calculate linear acceleration
+    accelerations = np.zeros_like(positions)
+    accelerations[1:-1] = (velocities[2:] - velocities[:-2]) / (2 * dt)
+    accelerations[0] = (velocities[1] - velocities[0]) / dt
+    accelerations[-1] = (velocities[-1] - velocities[-2]) / dt
+    
+    # Calculate linear jerk
+    jerks = np.zeros_like(positions)
+    jerks[1:-1] = (accelerations[2:] - accelerations[:-2]) / (2 * dt)
+    jerks[0] = (accelerations[1] - accelerations[0]) / dt
+    jerks[-1] = (accelerations[-1] - accelerations[-2]) / dt
+
+    # Calculate angular derivatives
     angular_vel = np.zeros((len(quaternions), 3))
     for i in range(1, len(quaternions)):
         q1 = quaternions[i-1]
         q2 = quaternions[i]
-        
-        # Convert to rotation objects
         r1 = R.from_quat(q1)
         r2 = R.from_quat(q2)
-        
-        # Calculate relative rotation
         r_diff = r2 * r1.inv()
-        
-        # Convert to axis-angle representation
         rotvec = r_diff.as_rotvec()
         angular_vel[i] = rotvec / dt
     
-    # Optional: Apply smoothing to reduce noise
-    velocities = savgol_filter(velocities, window_length=5, polyorder=2, axis=0)
-    angular_vel = savgol_filter(angular_vel, window_length=5, polyorder=2, axis=0)
+    # Calculate angular acceleration and jerk
+    angular_acc = np.zeros_like(angular_vel)
+    angular_acc[1:-1] = (angular_vel[2:] - angular_vel[:-2]) / (2 * dt)
+    angular_acc[0] = (angular_vel[1] - angular_vel[0]) / dt
+    angular_acc[-1] = (angular_vel[-1] - angular_vel[-2]) / dt
     
-    return velocities, angular_vel
+    angular_jerk = np.zeros_like(angular_vel)
+    angular_jerk[1:-1] = (angular_acc[2:] - angular_acc[:-2]) / (2 * dt)
+    angular_jerk[0] = (angular_acc[1] - angular_acc[0]) / dt
+    angular_jerk[-1] = (angular_acc[-1] - angular_acc[-2]) / dt
+    
+    # Apply smoothing to reduce noise
+    velocities = savgol_filter(velocities, window_length=5, polyorder=2, axis=0)
+    accelerations = savgol_filter(accelerations, window_length=5, polyorder=2, axis=0)
+    jerks = savgol_filter(jerks, window_length=5, polyorder=2, axis=0)
+    angular_vel = savgol_filter(angular_vel, window_length=5, polyorder=2, axis=0)
+    angular_acc = savgol_filter(angular_acc, window_length=5, polyorder=2, axis=0)
+    angular_jerk = savgol_filter(angular_jerk, window_length=5, polyorder=2, axis=0)
+    
+    return velocities, accelerations, jerks, angular_vel, angular_acc, angular_jerk
 
 def calculate_motion_features(input_path, output_path):
     """
@@ -73,17 +94,29 @@ def calculate_motion_features(input_path, output_path):
         
         # Scene-relative velocities
         pos = df[pos_cols].to_numpy()
-        quat = df[quat_cols].to_numpy()  # Now correctly ordered as (w,x,y,z)
+        quat = df[quat_cols].to_numpy()
         
-        vel, ang_vel = calculate_velocities(pos, quat, dt)
+        vel, acc, jerk, ang_vel, ang_acc, ang_jerk = calculate_motion_derivatives(pos, quat, dt)
         
-        # Add scene-relative velocities
+        # Add all motion derivatives
         df_out[f'{obj}_velocity_x'] = vel[:, 0]
         df_out[f'{obj}_velocity_y'] = vel[:, 1]
         df_out[f'{obj}_velocity_z'] = vel[:, 2]
+        df_out[f'{obj}_acceleration_x'] = acc[:, 0]
+        df_out[f'{obj}_acceleration_y'] = acc[:, 1]
+        df_out[f'{obj}_acceleration_z'] = acc[:, 2]
+        df_out[f'{obj}_jerk_x'] = jerk[:, 0]
+        df_out[f'{obj}_jerk_y'] = jerk[:, 1]
+        df_out[f'{obj}_jerk_z'] = jerk[:, 2]
         df_out[f'{obj}_angular_velocity_x'] = ang_vel[:, 0]
         df_out[f'{obj}_angular_velocity_y'] = ang_vel[:, 1]
         df_out[f'{obj}_angular_velocity_z'] = ang_vel[:, 2]
+        df_out[f'{obj}_angular_acceleration_x'] = ang_acc[:, 0]
+        df_out[f'{obj}_angular_acceleration_y'] = ang_acc[:, 1]
+        df_out[f'{obj}_angular_acceleration_z'] = ang_acc[:, 2]
+        df_out[f'{obj}_angular_jerk_x'] = ang_jerk[:, 0]
+        df_out[f'{obj}_angular_jerk_y'] = ang_jerk[:, 1]
+        df_out[f'{obj}_angular_jerk_z'] = ang_jerk[:, 2]
     
     # Process body-relative features for hands
     hands = ['Left', 'Right']
@@ -106,17 +139,29 @@ def calculate_motion_features(input_path, output_path):
         
         # Body-relative velocities
         pos_relative = df[pos_cols_relative].to_numpy()
-        quat_relative = df[quat_cols_relative].to_numpy()  # Now correctly ordered as (w,x,y,z)
+        quat_relative = df[quat_cols_relative].to_numpy()
         
-        vel_relative, ang_vel_relative = calculate_velocities(pos_relative, quat_relative, dt)
+        vel_relative, acc_relative, jerk_relative, ang_vel_relative, ang_acc_relative, ang_jerk_relative = calculate_motion_derivatives(pos_relative, quat_relative, dt)
         
-        # Add body-relative velocities
+        # Add all relative motion derivatives
         df_out[f'{hand}Hand_velocity_x_relative'] = vel_relative[:, 0]
         df_out[f'{hand}Hand_velocity_y_relative'] = vel_relative[:, 1]
         df_out[f'{hand}Hand_velocity_z_relative'] = vel_relative[:, 2]
+        df_out[f'{hand}Hand_acceleration_x_relative'] = acc_relative[:, 0]
+        df_out[f'{hand}Hand_acceleration_y_relative'] = acc_relative[:, 1]
+        df_out[f'{hand}Hand_acceleration_z_relative'] = acc_relative[:, 2]
+        df_out[f'{hand}Hand_jerk_x_relative'] = jerk_relative[:, 0]
+        df_out[f'{hand}Hand_jerk_y_relative'] = jerk_relative[:, 1]
+        df_out[f'{hand}Hand_jerk_z_relative'] = jerk_relative[:, 2]
         df_out[f'{hand}Hand_angular_velocity_x_relative'] = ang_vel_relative[:, 0]
         df_out[f'{hand}Hand_angular_velocity_y_relative'] = ang_vel_relative[:, 1]
         df_out[f'{hand}Hand_angular_velocity_z_relative'] = ang_vel_relative[:, 2]
+        df_out[f'{hand}Hand_angular_acceleration_x_relative'] = ang_acc_relative[:, 0]
+        df_out[f'{hand}Hand_angular_acceleration_y_relative'] = ang_acc_relative[:, 1]
+        df_out[f'{hand}Hand_angular_acceleration_z_relative'] = ang_acc_relative[:, 2]
+        df_out[f'{hand}Hand_angular_jerk_x_relative'] = ang_jerk_relative[:, 0]
+        df_out[f'{hand}Hand_angular_jerk_y_relative'] = ang_jerk_relative[:, 1]
+        df_out[f'{hand}Hand_angular_jerk_z_relative'] = ang_jerk_relative[:, 2]
     
     # Process head no-yaw quaternion
     head_no_yaw_quat_cols = [
@@ -128,8 +173,8 @@ def calculate_motion_features(input_path, output_path):
     
     if all(col in df.columns for col in head_no_yaw_quat_cols):
         # Calculate angular velocity for head no-yaw rotation
-        head_no_yaw_quat = df[head_no_yaw_quat_cols].to_numpy()  # Now correctly ordered as (w,x,y,z)
-        _, ang_vel_no_yaw = calculate_velocities(
+        head_no_yaw_quat = df[head_no_yaw_quat_cols].to_numpy()
+        _, _, _, ang_vel_no_yaw, _, _ = calculate_motion_derivatives(
             np.zeros((len(df), 3)),  # Dummy positions since we only need angular velocity
             head_no_yaw_quat, 
             dt
@@ -147,8 +192,8 @@ def calculate_motion_features(input_path, output_path):
 # Example usage
 if __name__ == "__main__":
     # Define input and output directories
-    input_dir = "data/FAB/FAB_B_Modified"
-    output_dir = "data/FAB/FAB_B_Modified_Motion"
+    input_dir = "data/FAB/FAB_A_Modified"
+    output_dir = "data/FAB/FAB_A_Modified_Motion"
     
     # Create output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)

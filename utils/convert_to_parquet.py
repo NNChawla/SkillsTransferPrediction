@@ -48,7 +48,7 @@ if __name__ == "__main__":
     ]
     
     for input_dir in input_directories:
-        output_dir = './data/FAB/FAB_B_v2'  # Save in same directory
+        output_dir = './data/FAB/FAB_B_v3'  # Save in same directory
         print(f"\nProcessing directory: {input_dir}")
         convert_csvs_to_parquet(input_dir, output_dir)
         

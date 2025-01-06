@@ -1,8 +1,10 @@
 nan_policy:
   - impute
+  #- drop
 
 train_policy:
   - A
+  #- B
 
 segment_policy:
   - full
@@ -12,45 +14,690 @@ sample_rates:
 
 metadata_fields:
   - Gender
-  - A_Build_Time
-  - B_Build_Time
-  
-# Define individual measurement types
-measurements:
-  position: [_position_x, _position_y, _position_z]
-  euler: [_euler_x, _euler_y, _euler_z]
-  quat: [_quat_x, _quat_y, _quat_z, _quat_w]
-  sixD: [_sixD_a, _sixD_b, _sixD_c, _sixD_d, _sixD_e, _sixD_f]
-  velocity: [_velocity_x, _velocity_y, _velocity_z]
-  angular_velocity: [_angular_velocity_x, _angular_velocity_y, _angular_velocity_z]
-  pause_duration: [_pause_duration]
-  time_since_pause: [_time_since_pause]
+  #- A_Build_Time
+  #- B_Build_Time
 
-# Define global features (not tracker-specific)
+# Define global features individually
 global_features:
-  LeftHand_position_relative: [LeftHand_position_x_relative, LeftHand_position_y_relative, LeftHand_position_z_relative]
-  RightHand_position_relative: [RightHand_position_x_relative, RightHand_position_y_relative, RightHand_position_z_relative]
-  LeftHand_quat_relative: [LeftHand_quat_w_relative, LeftHand_quat_x_relative, LeftHand_quat_y_relative, LeftHand_quat_z_relative]
-  RightHand_quat_relative: [RightHand_quat_w_relative, RightHand_quat_x_relative, RightHand_quat_y_relative, RightHand_quat_z_relative]
-  Head_quat_relative: [Head_no_yaw_quat_w, Head_no_yaw_quat_x, Head_no_yaw_quat_y, Head_no_yaw_quat_z]
-  LeftHand_velocity_relative: [LeftHand_velocity_x_relative, LeftHand_velocity_y_relative, LeftHand_velocity_z_relative]
-  RightHand_velocity_relative: [RightHand_velocity_x_relative, RightHand_velocity_y_relative, RightHand_velocity_z_relative]
-  LeftHand_angular_velocity_relative: [LeftHand_angular_velocity_x_relative, LeftHand_angular_velocity_y_relative, LeftHand_angular_velocity_z_relative]
-  RightHand_angular_velocity_relative: [RightHand_angular_velocity_x_relative, RightHand_angular_velocity_y_relative, RightHand_angular_velocity_z_relative]
-  Head_angular_velocity_relative: [Head_no_yaw_angular_velocity_x, Head_no_yaw_angular_velocity_y, Head_no_yaw_angular_velocity_z]
-  LeftHand_pause_relative: [LeftHand_pause_duration_relative, LeftHand_time_since_pause_relative]
-  RightHand_pause_relative: [RightHand_pause_duration_relative, RightHand_time_since_pause_relative]
-  Head_pause_relative: [Head_no_yaw_pause_duration, Head_no_yaw_time_since_pause]
-  
+  Head_position_x:
+   features: [Head_position_x]
+   statistics: [min, max, median, mean, std]
+  Head_position_y:
+   features: [Head_position_y]
+   statistics: [min, max, median, mean, std]
+  Head_position_z:
+   features: [Head_position_z]
+   statistics: [min, max, median, mean, std]
+  Head_quat_x:
+   features: [Head_quat_x]
+   statistics: [min, max, median, mean, std]
+  Head_quat_y:
+   features: [Head_quat_y]
+   statistics: [min, max, median, mean, std]
+  Head_quat_z:
+   features: [Head_quat_z]
+   statistics: [min, max, median, mean, std]
+  Head_quat_w:
+   features: [Head_quat_w]
+   statistics: [min, max, median, mean, std]
+  Head_sixD_a:
+   features: [Head_sixD_a]
+   statistics: [min, max, median, mean, std]
+  Head_sixD_b:
+   features: [Head_sixD_b]
+   statistics: [min, max, median, mean, std]
+  Head_sixD_c:
+   features: [Head_sixD_c]
+   statistics: [min, max, median, mean, std]
+  Head_sixD_d:
+   features: [Head_sixD_d]
+   statistics: [min, max, median, mean, std]
+  Head_sixD_e:
+   features: [Head_sixD_e]
+   statistics: [min, max, median, mean, std]
+  Head_sixD_f:
+   features: [Head_sixD_f]
+   statistics: [min, max, median, mean, std]
+  LeftHand_position_x:
+   features: [LeftHand_position_x]
+   statistics: [min, max, median, mean, std]
+  LeftHand_position_y:
+   features: [LeftHand_position_y]
+   statistics: [min, max, median, mean, std]
+  LeftHand_position_z:
+   features: [LeftHand_position_z]
+   statistics: [min, max, median, mean, std]
+  LeftHand_quat_x:
+   features: [LeftHand_quat_x]
+   statistics: [min, max, median, mean, std]
+  LeftHand_quat_y:
+   features: [LeftHand_quat_y]
+   statistics: [min, max, median, mean, std]
+  LeftHand_quat_z:
+   features: [LeftHand_quat_z]
+   statistics: [min, max, median, mean, std]
+  LeftHand_quat_w:
+   features: [LeftHand_quat_w]
+   statistics: [min, max, median, mean, std]
+  LeftHand_sixD_a:
+   features: [LeftHand_sixD_a]
+   statistics: [min, max, median, mean, std]
+  LeftHand_sixD_b:
+   features: [LeftHand_sixD_b]
+   statistics: [min, max, median, mean, std]
+  LeftHand_sixD_c:
+   features: [LeftHand_sixD_c]
+   statistics: [min, max, median, mean, std]
+  LeftHand_sixD_d:
+   features: [LeftHand_sixD_d]
+   statistics: [min, max, median, mean, std]
+  LeftHand_sixD_e:
+   features: [LeftHand_sixD_e]
+   statistics: [min, max, median, mean, std]
+  LeftHand_sixD_f:
+   features: [LeftHand_sixD_f]
+   statistics: [min, max, median, mean, std]
+  RightHand_position_x:
+   features: [RightHand_position_x]
+   statistics: [min, max, median, mean, std]
+  RightHand_position_y:
+   features: [RightHand_position_y]
+   statistics: [min, max, median, mean, std]
+  RightHand_position_z:
+   features: [RightHand_position_z]
+   statistics: [min, max, median, mean, std]
+  RightHand_quat_x:
+   features: [RightHand_quat_x]
+   statistics: [min, max, median, mean, std]
+  RightHand_quat_y:
+   features: [RightHand_quat_y]
+   statistics: [min, max, median, mean, std]
+  RightHand_quat_z:
+   features: [RightHand_quat_z]
+   statistics: [min, max, median, mean, std]
+  RightHand_quat_w:
+   features: [RightHand_quat_w]
+   statistics: [min, max, median, mean, std]
+  RightHand_sixD_a:
+   features: [RightHand_sixD_a]
+   statistics: [min, max, median, mean, std]
+  RightHand_sixD_b:
+   features: [RightHand_sixD_b]
+   statistics: [min, max, median, mean, std]
+  RightHand_sixD_c:
+   features: [RightHand_sixD_c]
+   statistics: [min, max, median, mean, std]
+  RightHand_sixD_d:
+   features: [RightHand_sixD_d]
+   statistics: [min, max, median, mean, std]
+  RightHand_sixD_e:
+   features: [RightHand_sixD_e]
+   statistics: [min, max, median, mean, std]
+  RightHand_sixD_f:
+   features: [RightHand_sixD_f]
+   statistics: [min, max, median, mean, std]
+  Head_euler_x:
+   features: [Head_euler_x]
+   statistics: [min, max, median, mean, std]
+  Head_euler_y:
+   features: [Head_euler_y]
+   statistics: [min, max, median, mean, std]
+  Head_euler_z:
+   features: [Head_euler_z]
+   statistics: [min, max, median, mean, std]
+  LeftHand_euler_x:
+   features: [LeftHand_euler_x]
+   statistics: [min, max, median, mean, std]
+  LeftHand_euler_y:
+   features: [LeftHand_euler_y]
+   statistics: [min, max, median, mean, std]
+  LeftHand_euler_z:
+   features: [LeftHand_euler_z]
+   statistics: [min, max, median, mean, std]
+  RightHand_euler_x:
+   features: [RightHand_euler_x]
+   statistics: [min, max, median, mean, std]
+  RightHand_euler_y:
+   features: [RightHand_euler_y]
+   statistics: [min, max, median, mean, std]
+  RightHand_euler_z:
+   features: [RightHand_euler_z]
+   statistics: [min, max, median, mean, std]
+  Head_velocity_x:
+   features: [Head_velocity_x]
+   statistics: [min, max, median, mean, std]
+  Head_velocity_y:
+   features: [Head_velocity_y]
+   statistics: [min, max, median, mean, std]
+  Head_velocity_z:
+   features: [Head_velocity_z]
+   statistics: [min, max, median, mean, std]
+  Head_acceleration_x:
+   features: [Head_acceleration_x]
+   statistics: [min, max, median, mean, std]
+  Head_acceleration_y:
+   features: [Head_acceleration_y]
+   statistics: [min, max, median, mean, std]
+  Head_acceleration_z:
+   features: [Head_acceleration_z]
+   statistics: [min, max, median, mean, std]
+  Head_jerk_x:
+   features: [Head_jerk_x]
+   statistics: [min, max, median, mean, std]
+  Head_jerk_y:
+   features: [Head_jerk_y]
+   statistics: [min, max, median, mean, std]
+  Head_jerk_z:
+   features: [Head_jerk_z]
+   statistics: [min, max, median, mean, std]
+  Head_angular_velocity_x:
+   features: [Head_angular_velocity_x]
+   statistics: [min, max, median, mean, std]
+  Head_angular_velocity_y:
+   features: [Head_angular_velocity_y]
+   statistics: [min, max, median, mean, std]
+  Head_angular_velocity_z:
+   features: [Head_angular_velocity_z]
+   statistics: [min, max, median, mean, std]
+  Head_angular_acceleration_x:
+   features: [Head_angular_acceleration_x]
+   statistics: [min, max, median, mean, std]
+  Head_angular_acceleration_y:
+   features: [Head_angular_acceleration_y]
+   statistics: [min, max, median, mean, std]
+  Head_angular_acceleration_z:
+   features: [Head_angular_acceleration_z]
+   statistics: [min, max, median, mean, std]
+  Head_angular_jerk_x:
+   features: [Head_angular_jerk_x]
+   statistics: [min, max, median, mean, std]
+  Head_angular_jerk_y:
+   features: [Head_angular_jerk_y]
+   statistics: [min, max, median, mean, std]
+  Head_angular_jerk_z:
+   features: [Head_angular_jerk_z]
+   statistics: [min, max, median, mean, std]
+  LeftHand_velocity_x:
+   features: [LeftHand_velocity_x]
+   statistics: [min, max, median, mean, std]
+  LeftHand_velocity_y:
+   features: [LeftHand_velocity_y]
+   statistics: [min, max, median, mean, std]
+  LeftHand_velocity_z:
+   features: [LeftHand_velocity_z]
+   statistics: [min, max, median, mean, std]
+  LeftHand_acceleration_x:
+   features: [LeftHand_acceleration_x]
+   statistics: [min, max, median, mean, std]
+  LeftHand_acceleration_y:
+   features: [LeftHand_acceleration_y]
+   statistics: [min, max, median, mean, std]
+  LeftHand_acceleration_z:
+   features: [LeftHand_acceleration_z]
+   statistics: [min, max, median, mean, std]
+  LeftHand_jerk_x:
+   features: [LeftHand_jerk_x]
+   statistics: [min, max, median, mean, std]
+  LeftHand_jerk_y:
+   features: [LeftHand_jerk_y]
+   statistics: [min, max, median, mean, std]
+  LeftHand_jerk_z:
+   features: [LeftHand_jerk_z]
+   statistics: [min, max, median, mean, std]
+  LeftHand_angular_velocity_x:
+   features: [LeftHand_angular_velocity_x]
+   statistics: [min, max, median, mean, std]
+  LeftHand_angular_velocity_y:
+   features: [LeftHand_angular_velocity_y]
+   statistics: [min, max, median, mean, std]
+  LeftHand_angular_velocity_z:
+   features: [LeftHand_angular_velocity_z]
+   statistics: [min, max, median, mean, std]
+  LeftHand_angular_acceleration_x:
+   features: [LeftHand_angular_acceleration_x]
+   statistics: [min, max, median, mean, std]
+  LeftHand_angular_acceleration_y:
+   features: [LeftHand_angular_acceleration_y]
+   statistics: [min, max, median, mean, std]
+  LeftHand_angular_acceleration_z:
+   features: [LeftHand_angular_acceleration_z]
+   statistics: [min, max, median, mean, std]
+  LeftHand_angular_jerk_x:
+   features: [LeftHand_angular_jerk_x]
+   statistics: [min, max, median, mean, std]
+  LeftHand_angular_jerk_y:
+   features: [LeftHand_angular_jerk_y]
+   statistics: [min, max, median, mean, std]
+  LeftHand_angular_jerk_z:
+   features: [LeftHand_angular_jerk_z]
+   statistics: [min, max, median, mean, std]
+  RightHand_velocity_x:
+   features: [RightHand_velocity_x]
+   statistics: [min, max, median, mean, std]
+  RightHand_velocity_y:
+   features: [RightHand_velocity_y]
+   statistics: [min, max, median, mean, std]
+  RightHand_velocity_z:
+   features: [RightHand_velocity_z]
+   statistics: [min, max, median, mean, std]
+  RightHand_acceleration_x:
+   features: [RightHand_acceleration_x]
+   statistics: [min, max, median, mean, std]
+  RightHand_acceleration_y:
+   features: [RightHand_acceleration_y]
+   statistics: [min, max, median, mean, std]
+  RightHand_acceleration_z:
+   features: [RightHand_acceleration_z]
+   statistics: [min, max, median, mean, std]
+  RightHand_jerk_x:
+   features: [RightHand_jerk_x]
+   statistics: [min, max, median, mean, std]
+  RightHand_jerk_y:
+   features: [RightHand_jerk_y]
+   statistics: [min, max, median, mean, std]
+  RightHand_jerk_z:
+   features: [RightHand_jerk_z]
+   statistics: [min, max, median, mean, std]
+  RightHand_angular_velocity_x:
+   features: [RightHand_angular_velocity_x]
+   statistics: [min, max, median, mean, std]
+  RightHand_angular_velocity_y:
+   features: [RightHand_angular_velocity_y]
+   statistics: [min, max, median, mean, std]
+  RightHand_angular_velocity_z:
+   features: [RightHand_angular_velocity_z]
+   statistics: [min, max, median, mean, std]
+  RightHand_angular_acceleration_x:
+   features: [RightHand_angular_acceleration_x]
+   statistics: [min, max, median, mean, std]
+  RightHand_angular_acceleration_y:
+   features: [RightHand_angular_acceleration_y]
+   statistics: [min, max, median, mean, std]
+  RightHand_angular_acceleration_z:
+   features: [RightHand_angular_acceleration_z]
+   statistics: [min, max, median, mean, std]
+  RightHand_angular_jerk_x:
+   features: [RightHand_angular_jerk_x]
+   statistics: [min, max, median, mean, std]
+  RightHand_angular_jerk_y:
+   features: [RightHand_angular_jerk_y]
+   statistics: [min, max, median, mean, std]
+  RightHand_angular_jerk_z:
+   features: [RightHand_angular_jerk_z]
+   statistics: [min, max, median, mean, std]
+  Head_velocity_pause_duration:
+   features: [Head_velocity_pause_duration]
+   statistics: [min, max, median, mean, std]
+  Head_velocity_time_since_pause:
+   features: [Head_velocity_time_since_pause]
+   statistics: [min, max, median, mean, std]
+  Head_acceleration_pause_duration:
+   features: [Head_acceleration_pause_duration]
+   statistics: [min, max, median, mean, std]
+  Head_acceleration_time_since_pause:
+   features: [Head_acceleration_time_since_pause]
+   statistics: [min, max, median, mean, std]
+  Head_jerk_pause_duration:
+   features: [Head_jerk_pause_duration]
+   statistics: [min, max, median, mean, std]
+  Head_jerk_time_since_pause:
+   features: [Head_jerk_time_since_pause]
+   statistics: [min, max, median, mean, std]
+  Head_angular_velocity_pause_duration:
+   features: [Head_angular_velocity_pause_duration]
+   statistics: [min, max, median, mean, std]
+  Head_angular_velocity_time_since_pause:
+   features: [Head_angular_velocity_time_since_pause]
+   statistics: [min, max, median, mean, std]
+  Head_angular_acceleration_pause_duration:
+   features: [Head_angular_acceleration_pause_duration]
+   statistics: [min, max, median, mean, std]
+  Head_angular_acceleration_time_since_pause:
+   features: [Head_angular_acceleration_time_since_pause]
+   statistics: [min, max, median, mean, std]
+  Head_angular_jerk_pause_duration:
+   features: [Head_angular_jerk_pause_duration]
+   statistics: [min, max, median, mean, std]
+  Head_angular_jerk_time_since_pause:
+   features: [Head_angular_jerk_time_since_pause]
+   statistics: [min, max, median, mean, std]
+  LeftHand_velocity_pause_duration:
+   features: [LeftHand_velocity_pause_duration]
+   statistics: [min, max, median, mean, std]
+  LeftHand_velocity_time_since_pause:
+   features: [LeftHand_velocity_time_since_pause]
+   statistics: [min, max, median, mean, std]
+  LeftHand_acceleration_pause_duration:
+   features: [LeftHand_acceleration_pause_duration]
+   statistics: [min, max, median, mean, std]
+  LeftHand_acceleration_time_since_pause:
+   features: [LeftHand_acceleration_time_since_pause]
+   statistics: [min, max, median, mean, std]
+  LeftHand_jerk_pause_duration:
+   features: [LeftHand_jerk_pause_duration]
+   statistics: [min, max, median, mean, std]
+  LeftHand_jerk_time_since_pause:
+   features: [LeftHand_jerk_time_since_pause]
+   statistics: [min, max, median, mean, std]
+  LeftHand_angular_velocity_pause_duration:
+   features: [LeftHand_angular_velocity_pause_duration]
+   statistics: [min, max, median, mean, std]
+  LeftHand_angular_velocity_time_since_pause:
+   features: [LeftHand_angular_velocity_time_since_pause]
+   statistics: [min, max, median, mean, std]
+  LeftHand_angular_acceleration_pause_duration:
+   features: [LeftHand_angular_acceleration_pause_duration]
+   statistics: [min, max, median, mean, std]
+  LeftHand_angular_acceleration_time_since_pause:
+   features: [LeftHand_angular_acceleration_time_since_pause]
+   statistics: [min, max, median, mean, std]
+  LeftHand_angular_jerk_pause_duration:
+   features: [LeftHand_angular_jerk_pause_duration]
+   statistics: [min, max, median, mean, std]
+  LeftHand_angular_jerk_time_since_pause:
+   features: [LeftHand_angular_jerk_time_since_pause]
+   statistics: [min, max, median, mean, std]
+  RightHand_velocity_pause_duration:
+   features: [RightHand_velocity_pause_duration]
+   statistics: [min, max, median, mean, std]
+  RightHand_velocity_time_since_pause:
+   features: [RightHand_velocity_time_since_pause]
+   statistics: [min, max, median, mean, std]
+  RightHand_acceleration_pause_duration:
+   features: [RightHand_acceleration_pause_duration]
+   statistics: [min, max, median, mean, std]
+  RightHand_acceleration_time_since_pause:
+   features: [RightHand_acceleration_time_since_pause]
+   statistics: [min, max, median, mean, std]
+  RightHand_jerk_pause_duration:
+   features: [RightHand_jerk_pause_duration]
+   statistics: [min, max, median, mean, std]
+  RightHand_jerk_time_since_pause:
+   features: [RightHand_jerk_time_since_pause]
+   statistics: [min, max, median, mean, std]
+  RightHand_angular_velocity_pause_duration:
+   features: [RightHand_angular_velocity_pause_duration]
+   statistics: [min, max, median, mean, std]
+  RightHand_angular_velocity_time_since_pause:
+   features: [RightHand_angular_velocity_time_since_pause]
+   statistics: [min, max, median, mean, std]
+  RightHand_angular_acceleration_pause_duration:
+   features: [RightHand_angular_acceleration_pause_duration]
+   statistics: [min, max, median, mean, std]
+  RightHand_angular_acceleration_time_since_pause:
+   features: [RightHand_angular_acceleration_time_since_pause]
+   statistics: [min, max, median, mean, std]
+  RightHand_angular_jerk_pause_duration:
+   features: [RightHand_angular_jerk_pause_duration]
+   statistics: [min, max, median, mean, std]
+  RightHand_angular_jerk_time_since_pause:
+   features: [RightHand_angular_jerk_time_since_pause]
+   statistics: [min, max, median, mean, std]
 
-# Define individual trackers
-trackers:
-  - Head
-  - LeftHand
-  - RightHand
+  # LeftHand_position_x_relative:
+  #  features: [LeftHand_position_x_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_position_y_relative:
+  #  features: [LeftHand_position_y_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_position_z_relative:
+  #  features: [LeftHand_position_z_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_quat_w_relative:
+  #  features: [LeftHand_quat_w_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_quat_x_relative:
+  #  features: [LeftHand_quat_x_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_quat_y_relative:
+  #  features: [LeftHand_quat_y_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_quat_z_relative:
+  #  features: [LeftHand_quat_z_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_position_x_relative:
+  #  features: [RightHand_position_x_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_position_y_relative:
+  #  features: [RightHand_position_y_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_position_z_relative:
+  #  features: [RightHand_position_z_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_quat_w_relative:
+  #  features: [RightHand_quat_w_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_quat_x_relative:
+  #  features: [RightHand_quat_x_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_quat_y_relative:
+  #  features: [RightHand_quat_y_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_quat_z_relative:
+  #  features: [RightHand_quat_z_relative]
+  #  statistics: [min, max, median, mean, std]
+  # Head_no_yaw_quat_x:
+  #  features: [Head_no_yaw_quat_x]
+  #  statistics: [min, max, median, mean, std]
+  # Head_no_yaw_quat_y:
+  #  features: [Head_no_yaw_quat_y]
+  #  statistics: [min, max, median, mean, std]
+  # Head_no_yaw_quat_z:
+  #  features: [Head_no_yaw_quat_z]
+  #  statistics: [min, max, median, mean, std]
+  # Head_no_yaw_quat_w:
+  #  features: [Head_no_yaw_quat_w]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_velocity_x_relative:
+  #  features: [LeftHand_velocity_x_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_velocity_y_relative:
+  #  features: [LeftHand_velocity_y_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_velocity_z_relative:
+  #  features: [LeftHand_velocity_z_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_acceleration_x_relative:
+  #  features: [LeftHand_acceleration_x_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_acceleration_y_relative:
+  #  features: [LeftHand_acceleration_y_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_acceleration_z_relative:
+  #  features: [LeftHand_acceleration_z_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_jerk_x_relative:
+  #  features: [LeftHand_jerk_x_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_jerk_y_relative:
+  #  features: [LeftHand_jerk_y_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_jerk_z_relative:
+  #  features: [LeftHand_jerk_z_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_angular_velocity_x_relative:
+  #  features: [LeftHand_angular_velocity_x_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_angular_velocity_y_relative:
+  #  features: [LeftHand_angular_velocity_y_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_angular_velocity_z_relative:
+  #  features: [LeftHand_angular_velocity_z_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_angular_acceleration_x_relative:
+  #  features: [LeftHand_angular_acceleration_x_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_angular_acceleration_y_relative:
+  #  features: [LeftHand_angular_acceleration_y_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_angular_acceleration_z_relative:
+  #  features: [LeftHand_angular_acceleration_z_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_angular_jerk_x_relative:
+  #  features: [LeftHand_angular_jerk_x_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_angular_jerk_y_relative:
+  #  features: [LeftHand_angular_jerk_y_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_angular_jerk_z_relative:
+  #  features: [LeftHand_angular_jerk_z_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_velocity_x_relative:
+  #  features: [RightHand_velocity_x_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_velocity_y_relative:
+  #  features: [RightHand_velocity_y_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_velocity_z_relative:
+  #  features: [RightHand_velocity_z_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_acceleration_x_relative:
+  #  features: [RightHand_acceleration_x_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_acceleration_y_relative:
+  #  features: [RightHand_acceleration_y_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_acceleration_z_relative:
+  #  features: [RightHand_acceleration_z_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_jerk_x_relative:
+  #  features: [RightHand_jerk_x_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_jerk_y_relative:
+  #  features: [RightHand_jerk_y_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_jerk_z_relative:
+  #  features: [RightHand_jerk_z_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_angular_velocity_x_relative:
+  #  features: [RightHand_angular_velocity_x_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_angular_velocity_y_relative:
+  #  features: [RightHand_angular_velocity_y_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_angular_velocity_z_relative:
+  #  features: [RightHand_angular_velocity_z_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_angular_acceleration_x_relative:
+  #  features: [RightHand_angular_acceleration_x_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_angular_acceleration_y_relative:
+  #  features: [RightHand_angular_acceleration_y_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_angular_acceleration_z_relative:
+  #  features: [RightHand_angular_acceleration_z_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_angular_jerk_x_relative:
+  #  features: [RightHand_angular_jerk_x_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_angular_jerk_y_relative:
+  #  features: [RightHand_angular_jerk_y_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_angular_jerk_z_relative:
+  #  features: [RightHand_angular_jerk_z_relative]
+  #  statistics: [min, max, median, mean, std]
+  # Head_no_yaw_angular_velocity_x:
+  #  features: [Head_no_yaw_angular_velocity_x]
+  #  statistics: [min, max, median, mean, std]
+  # Head_no_yaw_angular_velocity_y:
+  #  features: [Head_no_yaw_angular_velocity_y]
+  #  statistics: [min, max, median, mean, std]
+  # Head_no_yaw_angular_velocity_z:
+  #  features: [Head_no_yaw_angular_velocity_z]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_velocity_pause_duration_relative:
+  #  features: [LeftHand_velocity_pause_duration_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_velocity_time_since_pause_relative:
+  #  features: [LeftHand_velocity_time_since_pause_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_acceleration_pause_duration_relative:
+  #  features: [LeftHand_acceleration_pause_duration_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_acceleration_time_since_pause_relative:
+  #  features: [LeftHand_acceleration_time_since_pause_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_jerk_pause_duration_relative:
+  #  features: [LeftHand_jerk_pause_duration_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_jerk_time_since_pause_relative:
+  #  features: [LeftHand_jerk_time_since_pause_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_angular_velocity_pause_duration_relative:
+  #  features: [LeftHand_angular_velocity_pause_duration_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_angular_velocity_time_since_pause_relative:
+  #  features: [LeftHand_angular_velocity_time_since_pause_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_angular_acceleration_pause_duration_relative:
+  #  features: [LeftHand_angular_acceleration_pause_duration_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_angular_acceleration_time_since_pause_relative:
+  #  features: [LeftHand_angular_acceleration_time_since_pause_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_angular_jerk_pause_duration_relative:
+  #  features: [LeftHand_angular_jerk_pause_duration_relative]
+  #  statistics: [min, max, median, mean, std]
+  # LeftHand_angular_jerk_time_since_pause_relative:
+  #  features: [LeftHand_angular_jerk_time_since_pause_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_velocity_pause_duration_relative:
+  #  features: [RightHand_velocity_pause_duration_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_velocity_time_since_pause_relative:
+  #  features: [RightHand_velocity_time_since_pause_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_acceleration_pause_duration_relative:
+  #  features: [RightHand_acceleration_pause_duration_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_acceleration_time_since_pause_relative:
+  #  features: [RightHand_acceleration_time_since_pause_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_jerk_pause_duration_relative:
+  #  features: [RightHand_jerk_pause_duration_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_jerk_time_since_pause_relative:
+  #  features: [RightHand_jerk_time_since_pause_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_angular_velocity_pause_duration_relative:
+  #  features: [RightHand_angular_velocity_pause_duration_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_angular_velocity_time_since_pause_relative:
+  #  features: [RightHand_angular_velocity_time_since_pause_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_angular_acceleration_pause_duration_relative:
+  #  features: [RightHand_angular_acceleration_pause_duration_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_angular_acceleration_time_since_pause_relative:
+  #  features: [RightHand_angular_acceleration_time_since_pause_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_angular_jerk_pause_duration_relative:
+  #  features: [RightHand_angular_jerk_pause_duration_relative]
+  #  statistics: [min, max, median, mean, std]
+  # RightHand_angular_jerk_time_since_pause_relative:
+  #  features: [RightHand_angular_jerk_time_since_pause_relative]
+  #  statistics: [min, max, median, mean, std]
+  # Head_no_yaw_angular_velocity_pause_duration:
+  #  features: [Head_no_yaw_angular_velocity_pause_duration]
+  #  statistics: [min, max, median, mean, std]
+  # Head_no_yaw_angular_velocity_time_since_pause:
+  #  features: [Head_no_yaw_angular_velocity_time_since_pause]
+  #  statistics: [min, max, median, mean, std]
+  # Head_no_yaw_angular_acceleration_pause_duration:
+  #  features: [Head_no_yaw_angular_acceleration_pause_duration]
+  #  statistics: [min, max, median, mean, std]
+  # Head_no_yaw_angular_acceleration_time_since_pause:
+  #  features: [Head_no_yaw_angular_acceleration_time_since_pause]
+  #  statistics: [min, max, median, mean, std]
+  # Head_no_yaw_angular_jerk_pause_duration:
+  #  features: [Head_no_yaw_angular_jerk_pause_duration]
+  #  statistics: [min, max, median, mean, std]
+  # Head_no_yaw_angular_jerk_time_since_pause:
+  #  features: [Head_no_yaw_angular_jerk_time_since_pause]
+  #  statistics: [min, max, median, mean, std]
 
 model:
-  type: 'knn'  # 'knn', 'random_forest', 'svm', 'lightgbm', or 'mlp'
+  type: 'lightgbm'  # 'knn', 'random_forest', 'svm', 'lightgbm', or 'mlp'
   model_params:
     knn:
       n_neighbors: 5
@@ -67,9 +714,10 @@ model:
     lightgbm:
       n_estimators: 100
       n_jobs: 1
+      verbosity: -1
     
     mlp:
-      hidden_layer_sizes: (100, 50)  # Two hidden layers with 100 and 50 neurons
+      hidden_layer_sizes: [100, 50]  # Two hidden layers with 100 and 50 neurons
       activation: 'relu'  # Options: 'identity', 'logistic', 'tanh', 'relu'
       solver: 'adam'  # Options: 'lbfgs', 'sgd', 'adam'
       max_iter: 1000
@@ -81,3 +729,12 @@ model:
       # early_stopping: False
       # validation_fraction: 0.1  # Only used if early_stopping=True
       # random_state: 42
+
+# Specify which combination sizes to generate
+# For example, this will only generate pairs and triplets
+combination_sizes: [1]
+
+# Specify features that must be included in all combinations
+#required_global_ features: - RightHand_pause_duration
+
+#required_metadata_fields: null
