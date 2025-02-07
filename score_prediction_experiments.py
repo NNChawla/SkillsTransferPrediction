@@ -1,59 +1,85 @@
 import os
 import yaml
+import time
 import logging
 import numpy as np
 import pandas as pd
+from math import comb
 from itertools import product, combinations
 from multiprocessing import Pool, cpu_count
 from tqdm import tqdm
 from score_prediction import RegressionPredictor, ClassificationPredictor
 
 def create_score_table(config, segment_sizes=['full'], single_run=False):
-    """Create empty DataFrame for storing results using config values"""
+    """Create an empty DataFrame for storing results, generating only feature combinations
+    that include the required fields to avoid combinatorial explosion.
+    
+    Parameters:
+        config (dict): Configuration containing metadata_fields, global_features,
+                       required_metadata_fields, required_global_features, and combination_sizes.
+        segment_sizes (list): Column labels for the DataFrame.
+        single_run (bool): If True, only one combination (all features) is used.
+        
+    Returns:
+        pd.DataFrame: A DataFrame with row labels corresponding to feature combinations.
+    """
     if single_run:
-        # For single run, only create one row with all features
+        # For single run, only create one row with all features.
         row_label = "all_metadata_all_global"
         return pd.DataFrame(columns=segment_sizes, index=[row_label])
     
-    # Create list of all possible features
-    all_features = []
-    
-    # Add metadata features
+    # --- Step 1. Gather all features ---
+    # Get metadata fields and global features from the config.
     metadata_fields = config.get('metadata_fields', [])
+    global_features_config = config.get('global_features', {})
+    
+    # Build a list of all feature identifiers.
+    # For metadata features, we keep the string as is.
+    # For global features, we combine the feature name and statistic (e.g., "globalStat_mean").
+    all_features = []
     if metadata_fields:
         all_features.extend(metadata_fields)
-    
-    # Add global features with their statistics
-    global_features = config.get('global_features', {})
-    if global_features:
-        for feature_name, feature_config in global_features.items():
-            statistics = feature_config.get('statistics', [])
-            for stat in statistics:
+    if global_features_config:
+        for feature_name, feature_config in global_features_config.items():
+            for stat in feature_config.get('statistics', []):
                 all_features.append(f"{feature_name}_{stat}")
     
-    # Get required features
+    # --- Step 2. Separate required and optional features ---
+    # Get required fields from config.
     required_metadata = set(config.get('required_metadata_fields', []))
     required_global = set(config.get('required_global_features', []))
+    required_features = required_metadata.union(required_global)
     
-    # Get combination sizes
+    # Only include features that actually exist in our feature list.
+    available_required = [feat for feat in all_features if feat in required_features]
+    optional_features = [feat for feat in all_features if feat not in required_features]
+    
+    # --- Step 3. Generate only valid feature combinations ---
+    # Retrieve the combination sizes from configuration.
     combo_sizes = config.get('combination_sizes', [len(all_features)])
     
-    # Generate row labels for each combination size
     row_labels = []
     for size in combo_sizes:
-        for combo in combinations(all_features, size):
-            # Check if combination includes all required features
-            if required_metadata and not required_metadata.issubset(set(combo)):
-                continue
-            if required_global and not required_global.issubset(set(combo)):
-                continue
-            
-            # Generate row label - features sorted and joined by underscore
-            row_labels.append('_'.join(sorted(combo)))
+        # The combination must at least include all required features.
+        if size < len(available_required):
+            continue  # Not enough slots to include all required features.
+        additional_needed = size - len(available_required)
+        # If the required extra optional features exceed what is available, skip this size.
+        if additional_needed > len(optional_features):
+            continue
+        for optional_combo in combinations(optional_features, additional_needed):
+            # Build the combination by uniting the required features and the chosen optional ones.
+            combination = list(available_required) + list(optional_combo)
+            # Sort for consistent ordering.
+            combination_sorted = sorted(combination)
+            # Create a unique key by joining feature names with an underscore.
+            key = '_'.join(combination_sorted)
+            row_labels.append(key)
     
     if not row_labels:
         raise ValueError("No features found for score table. Check your configuration.")
         
+    # --- Step 4. Create and return the DataFrame ---
     return pd.DataFrame(columns=segment_sizes, index=row_labels)
 
 def generate_global_feature_combinations(global_features, required_features, combo_sizes):
@@ -163,97 +189,120 @@ def generate_metadata_combinations(metadata_fields, required_fields, combo_sizes
     return metadata_sets
 
 def generate_combinations(config, single_run=False):
-    """Generate all possible combinations for experiments"""
+    """Generate only valid feature combinations that include the required fields.
+
+    This function separates the features into required and optional.
+    For each desired combination size s (from config['combination_sizes']),
+    it selects only combinations of optional features of size (s - number_of_required_features)
+    and unions them with the required features.
+    """
     if single_run:
         return {
-            'metadata': {'all': config.get('metadata_fields', [])},
-            'global_features': {'all_global': config.get('global_features', {})}
+            'metadata': {'all_metadata_all_global': config.get('metadata_fields', [])},
+            'global_features': {'all_metadata_all_global': config.get('global_features', {})}
         }
     
-    # Create list of all possible features
-    all_features = []
-    
-    # Add metadata features
+    # Build the full feature list with type tags.
+    # For metadata features, we simply use their name.
+    # For global features, we record a tuple (feature_name, stat).
     metadata_fields = config.get('metadata_fields', [])
-    if metadata_fields:
-        for field in metadata_fields:
-            all_features.append(('metadata', field))
+    global_features_config = config.get('global_features', {})
     
-    # Add global features with their statistics
-    global_features = config.get('global_features', {})
-    if global_features:
-        for feature_name, feature_config in global_features.items():
-            statistics = feature_config.get('statistics', [])
-            for stat in statistics:
-                all_features.append(('global', (feature_name, stat)))
-    
-    # Get required features
+    all_features = []
+    for field in metadata_fields:
+        all_features.append(('metadata', field))
+    for feature_name, feature_config in global_features_config.items():
+        for stat in feature_config.get('statistics', []):
+            all_features.append(('global', (feature_name, stat)))
+            
+    # Identify required features.
     required_metadata = set(config.get('required_metadata_fields', []))
     required_global_stats = set()
-    
-    # Parse required global features to include statistics
     for feat in config.get('required_global_features', []):
         if '_' in feat:
             feature_name, stat = feat.rsplit('_', 1)
             required_global_stats.add((feature_name, stat))
     
-    # Get combination sizes
+    # Build the set of required features in the same format as in all_features.
+    required_set = set()
+    for feature in all_features:
+        if feature[0] == 'metadata' and feature[1] in required_metadata:
+            required_set.add(feature)
+        elif feature[0] == 'global' and feature[1] in required_global_stats:
+            required_set.add(feature)
+    
+    # (Optional) Warn or raise an error if no required features are found.
+    if not required_set:
+        raise ValueError("No required features found. Check that your 'required_metadata_fields' "
+                         "or 'required_global_features' exist in the provided features.")
+    
+    # The optional features are those not required.
+    optional_features = [f for f in all_features if f not in required_set]
+    
+    # Get the list of combination sizes from configuration.
     combo_sizes = config.get('combination_sizes', [len(all_features)])
     
-    # Initialize result structure
-    result_combinations = {
-        'metadata': {},
-        'global_features': {}
-    }
+    # Prepare a dictionary to hold the results.
+    result_combinations = {'metadata': {}, 'global_features': {}}
     
-    # Generate combinations for each size
+    # Pre-calculate total combinations (for the progress bar) by summing over sizes.
+    total_combinations = 0
     for size in combo_sizes:
-        for combo in combinations(all_features, size):
-            # Check if this combination includes all required features
-            metadata = set()
-            global_stats = set()
+        if size < len(required_set):
+            continue  # Skip sizes smaller than the number of required features.
+        k = size - len(required_set)
+        if k > len(optional_features):
+            continue
+        total_combinations += comb(len(optional_features), k)
+    
+    pbar = tqdm(total=total_combinations, desc="Generating feature combinations")
+    
+    # Generate only valid combinations.
+    for size in combo_sizes:
+        if size < len(required_set):
+            continue  # Skip sizes that cannot include all required features.
+        k = size - len(required_set)
+        if k > len(optional_features):
+            continue
+        for optional_combo in combinations(optional_features, k):
+            # The valid combination is the union of the required features and the chosen optional ones.
+            combo = required_set.union(optional_combo)
+            pbar.update(1)
             
-            for feature_type, feature in combo:
-                if feature_type == 'metadata':
-                    metadata.add(feature)
-                else:  # global feature
-                    global_stats.add(feature)
-            
-            # Skip if combination doesn't include all required features
-            if not (required_metadata.issubset(metadata) and 
-                   all(stat in global_stats for stat in required_global_stats)):
-                continue
-            
-            # Process valid combination
+            # Process the combination into separate structures for metadata and global features.
             metadata_list = []
             global_feats = {}
             feature_names = []
             
-            for feature_type, feature in combo:
-                if feature_type == 'metadata':
-                    metadata_list.append(feature)
-                    feature_names.append(feature)
-                else:  # global feature
-                    feature_name, stat = feature
+            for feature in combo:
+                if feature[0] == 'metadata':
+                    metadata_list.append(feature[1])
+                    feature_names.append(feature[1])
+                else:  # 'global' feature
+                    feature_name, stat = feature[1]
                     if feature_name not in global_feats:
-                        global_feats[feature_name] = {'features': [feature_name], 'statistics': []}
+                        global_feats[feature_name] = {
+                            'features': [feature_name],
+                            'statistics': []
+                        }
+                        if 'transform' in global_features_config.get(feature_name, {}):
+                            global_feats[feature_name]['transform'] = global_features_config[feature_name]['transform']
                     global_feats[feature_name]['statistics'].append(stat)
                     feature_names.append(f"{feature_name}_{stat}")
             
-            # Generate simple key name - just the features joined by underscore
+            # Create a key from the sorted list of feature names.
             key = '_'.join(sorted(feature_names))
-            
             result_combinations['metadata'][key] = metadata_list
             result_combinations['global_features'][key] = global_feats
-    
-    # Add debug logging
-    num_combinations = len(result_combinations['metadata'])
-    print(f"Generated {num_combinations} feature combinations for sizes {combo_sizes}")
-    print(f"Required metadata: {required_metadata}")
-    print(f"Required global features: {required_global_stats}")
+            
+    pbar.close()
     
     if not result_combinations['metadata']:
         raise ValueError("No valid feature combinations were generated. Check your configuration.")
+    
+    print(f"Generated {len(result_combinations['metadata'])} feature combinations for sizes {combo_sizes}")
+    print(f"Required metadata: {required_metadata}")
+    print(f"Required global features: {required_global_stats}")
     
     return result_combinations
 
@@ -348,7 +397,40 @@ def run_experiments(predictor_type='regression', single_run=False):
     predictor_class = RegressionPredictor if predictor_type == 'regression' else ClassificationPredictor
     predictor = predictor_class()
     
-    # Initialize result tables
+    # Check if we should run nested CV
+    if single_run == 'nested_cv':
+        # Generate experiment parameters for nested CV
+        experiment_params_list = list(generate_experiment_params(config, predictor_type, True))
+        
+        # Create results directory
+        results_dir = f'results/nested_cv_{predictor_type}_{config["model"]["type"]}'
+        os.makedirs(results_dir, exist_ok=True)
+        
+        # Run each nested CV experiment sequentially
+        all_results = []
+        for experiment_params in experiment_params_list:
+            result = predictor.run_nested_cv_experiment(
+                handle_nan=experiment_params['handle_nan'],
+                train_set=experiment_params['train_set'],
+                sample_rate=experiment_params['sample_rate'],
+                segment_size=experiment_params['segment_size'],
+                metadata_features=experiment_params['metadata_features'],
+                global_features=experiment_params['global_features']
+            )
+            all_results.append(result)
+            
+            # Save intermediate results after each experiment
+            metrics_df = pd.DataFrame(all_results)
+            metrics_df.to_csv(f'{results_dir}/nested_cv_results.csv', index=False)
+            
+            logging.info(f"Completed nested CV experiment {len(all_results)}/{len(experiment_params_list)}")
+            
+            predictor.clear_feature_cache()
+        
+        logging.info("All nested CV experiments completed")
+        return
+    
+    # Regular experiment flow for single_run=False or True
     tables = initialize_tables(config['train_policy'], config['sample_rates'], 
                              config, predictor_type, single_run)
     
@@ -421,5 +503,9 @@ def save_results(tables, train_policy, nan_policy, sample_rates, predictor_type)
                         logging.error(f"Error saving {metric} results: {str(e)}")
 
 if __name__ == "__main__":
-    run_experiments('regression', single_run=False)
-    #run_experiments('classification')
+    #run_experiments('regression', single_run=False)
+    #run_experiments('classification', single_run=False)
+    start_time = time.time()
+    run_experiments('classification', single_run='nested_cv')
+    end_time = time.time()
+    print(f"Total Run Time: {end_time - start_time} seconds")

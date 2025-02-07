@@ -65,8 +65,7 @@ def calculate_motion_derivatives(positions, quaternions, dt=1/30):
 
 def calculate_motion_features(input_path, output_path):
     """
-    Calculate motion features (linear and angular velocities) for both 
-    scene-relative and body-relative coordinates.
+    Calculate motion features (linear and angular velocities) for scene-relative coordinates.
     """
     # Read the CSV file
     df = pd.read_csv(input_path)
@@ -118,73 +117,6 @@ def calculate_motion_features(input_path, output_path):
         df_out[f'{obj}_angular_jerk_y'] = ang_jerk[:, 1]
         df_out[f'{obj}_angular_jerk_z'] = ang_jerk[:, 2]
     
-    # Process body-relative features for hands
-    hands = ['Left', 'Right']
-    for hand in hands:
-        # Verify required columns exist
-        pos_cols_relative = [
-            f'{hand}Hand_position_x_relative',
-            f'{hand}Hand_position_y_relative',
-            f'{hand}Hand_position_z_relative'
-        ]
-        quat_cols_relative = [
-            f'{hand}Hand_quat_w_relative',  # Ensure w component comes first
-            f'{hand}Hand_quat_x_relative',
-            f'{hand}Hand_quat_y_relative',
-            f'{hand}Hand_quat_z_relative'
-        ]
-        
-        if not all(col in df.columns for col in pos_cols_relative + quat_cols_relative):
-            raise ValueError(f"Missing required relative columns for {hand}Hand")
-        
-        # Body-relative velocities
-        pos_relative = df[pos_cols_relative].to_numpy()
-        quat_relative = df[quat_cols_relative].to_numpy()
-        
-        vel_relative, acc_relative, jerk_relative, ang_vel_relative, ang_acc_relative, ang_jerk_relative = calculate_motion_derivatives(pos_relative, quat_relative, dt)
-        
-        # Add all relative motion derivatives
-        df_out[f'{hand}Hand_velocity_x_relative'] = vel_relative[:, 0]
-        df_out[f'{hand}Hand_velocity_y_relative'] = vel_relative[:, 1]
-        df_out[f'{hand}Hand_velocity_z_relative'] = vel_relative[:, 2]
-        df_out[f'{hand}Hand_acceleration_x_relative'] = acc_relative[:, 0]
-        df_out[f'{hand}Hand_acceleration_y_relative'] = acc_relative[:, 1]
-        df_out[f'{hand}Hand_acceleration_z_relative'] = acc_relative[:, 2]
-        df_out[f'{hand}Hand_jerk_x_relative'] = jerk_relative[:, 0]
-        df_out[f'{hand}Hand_jerk_y_relative'] = jerk_relative[:, 1]
-        df_out[f'{hand}Hand_jerk_z_relative'] = jerk_relative[:, 2]
-        df_out[f'{hand}Hand_angular_velocity_x_relative'] = ang_vel_relative[:, 0]
-        df_out[f'{hand}Hand_angular_velocity_y_relative'] = ang_vel_relative[:, 1]
-        df_out[f'{hand}Hand_angular_velocity_z_relative'] = ang_vel_relative[:, 2]
-        df_out[f'{hand}Hand_angular_acceleration_x_relative'] = ang_acc_relative[:, 0]
-        df_out[f'{hand}Hand_angular_acceleration_y_relative'] = ang_acc_relative[:, 1]
-        df_out[f'{hand}Hand_angular_acceleration_z_relative'] = ang_acc_relative[:, 2]
-        df_out[f'{hand}Hand_angular_jerk_x_relative'] = ang_jerk_relative[:, 0]
-        df_out[f'{hand}Hand_angular_jerk_y_relative'] = ang_jerk_relative[:, 1]
-        df_out[f'{hand}Hand_angular_jerk_z_relative'] = ang_jerk_relative[:, 2]
-    
-    # Process head no-yaw quaternion
-    head_no_yaw_quat_cols = [
-        'Head_no_yaw_quat_w',  # Ensure w component comes first
-        'Head_no_yaw_quat_x',
-        'Head_no_yaw_quat_y',
-        'Head_no_yaw_quat_z'
-    ]
-    
-    if all(col in df.columns for col in head_no_yaw_quat_cols):
-        # Calculate angular velocity for head no-yaw rotation
-        head_no_yaw_quat = df[head_no_yaw_quat_cols].to_numpy()
-        _, _, _, ang_vel_no_yaw, _, _ = calculate_motion_derivatives(
-            np.zeros((len(df), 3)),  # Dummy positions since we only need angular velocity
-            head_no_yaw_quat, 
-            dt
-        )
-        
-        # Add head no-yaw angular velocities
-        df_out['Head_no_yaw_angular_velocity_x'] = ang_vel_no_yaw[:, 0]
-        df_out['Head_no_yaw_angular_velocity_y'] = ang_vel_no_yaw[:, 1]
-        df_out['Head_no_yaw_angular_velocity_z'] = ang_vel_no_yaw[:, 2]
-    
     # Save to new CSV file
     df_out.to_csv(output_path, index=False)
     return df_out
@@ -192,8 +124,8 @@ def calculate_motion_features(input_path, output_path):
 # Example usage
 if __name__ == "__main__":
     # Define input and output directories
-    input_dir = "data/FAB/FAB_A_Modified"
-    output_dir = "data/FAB/FAB_A_Modified_Motion"
+    input_dir = "data/FAB/FAB_B_HandRelative"
+    output_dir = "data/FAB/FAB_B_HandRelative_Motion"
     
     # Create output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)

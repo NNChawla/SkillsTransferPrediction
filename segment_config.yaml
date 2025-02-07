@@ -1,0 +1,26 @@
+model:
+  type: knn  # or 'random_forest' or 'knn'
+  model_params:
+    svm:
+      kernel: 'rbf'
+      C: 1.0
+      probability: true
+    random_forest:
+      n_estimators: 100
+      max_depth: 10
+      random_state: 42
+    knn:
+      n_neighbors: 5
+      weights: 'uniform'
+      metric: 'euclidean'
+
+# Feature configuration
+segment_features:
+  Head_velocity_x:
+    features: [Head_velocity_x]
+    statistics: [median, mean, min, max, std]
+    transform: none
+  Head_velocity_z:
+    features: [Head_velocity_z]
+    statistics: [median, mean, min, max, std]
+    transform: none

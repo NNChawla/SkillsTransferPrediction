@@ -104,6 +104,111 @@ Need to add acceleration and jerk features then test again.
 Disabling relative features for now, will explore again if necessary.
 Minimal initial gains from acceleration and jerk. Think the move forward is now EDA and feature selection.
 
-Need to explore transformations (log, sqrt, square, etc.) to observe non-linear effects.
-Need to investigate linear correlation and linear dependence (multicollinearity) of features.
+Key Finding: Need to explore transformations (log, sqrt, square, etc.) to observe non-linear effects.
+Key Finding: Need to investigate linear correlation and linear dependence (multicollinearity) of features.
+
 Use VIF for multicollinearity, pearson correlation for linear correlation. Mutual information for non-linear correlation.
+Ran a 2 combination size experiment with right hand velocity x mean as the required global feature.
+Baseline performance by itself with lightgbm was -0.2488. 6 combinations broke -0.2 barrier.
+These were:
+    - RightHand_quat_x_mean
+    - RightHand_quat_z_median (-0.179, best performer)
+    - RightHand_quat_z_mean
+    - RightHand_velocity_z_min
+    - RightHand_jerk_z_min
+    - Head_jerk_pause_duration_max
+
+Exported new feature table (summary stats for all features on all participants) to csv at results/feature_exports/features_A.csv
+Adding utils for scatter plot generation, correlation matrix, pearson correlation, VIF, and mutual information using the feature table.
+Will analyze for linear/nonlinear correlation, multicollinearity, etc. as previously stated.
+Initial analysis shows that there are some slight but apparent trends in features that are performing well.
+However, the relationship is clearly not linear, so there multiple features will be necessary to account for the variance in the score.
+
+Key Finding: Outliers need to be controlled for.
+Key Finding: Noise in motion features might benefit from some form of filtering like smoothing.
+
+Note: General rule is around sqrt(N) to N-1 features for small datasets. So 10-100 features is potentially acceptable.
+
+Docket:
+    - Time spent above threshold/below threshold for multiple features (velocity, etc)
+    - Time spent in quadrant for position and euler
+    - Examine and apply transformations
+    - Aggregate features
+    - Remove features with poor variance, correlation, and dependence
+
+v4 (Version 4) [Hurdle Model]:
+Applied boxcox transformations across the board; minimal gains and losses.
+Clear that through simple transformations, combinations, and statistics, little performance can be gained.
+Instead requires reframing of the problem, now taking a hurdle model approach.
+The score has a high number of true 0s, so a hurdle model dichotomizes the score into 0 and non-0.
+We train a binary classifier to predict whether the score is 0 or not, and then train a regression model to predict the score given that it is not 0.
+
+So far, binary classification has yielded 0.904 accuracy for most velocity and quaternion features.
+However, precision is around 0.8 for most features, so there is room for improvement.
+RightHand_quat_y_mean and Head_quat_y_mean have slightly lower accuracy and recall (0.895), but higher precision and f1 score.
+Around 1% higher than the rest in f1 score (0.8688 to 0.8595) but almost 4% higher in precision (0.857 to 0.819).
+Low precision says that a participant will have a non-zero error rate when they will not, which of low consequence.
+Of higher consequence is low recall, which says that a participant will have a zero error rate when they should not.
+Will seek to improve the classifier before proceeding with the regression model.
+This has been done with a lightgbm classifier, so other models still need to be explored as well.
+
+"""The negative class (label 'Non-0') represents scores greater than 0
+The positive class (label '0') represents scores of exactly 0
+This means when interpreting metrics like precision, recall, and F1-score:
+True Positives are correctly identified zero scores
+True Negatives are correctly identified non-zero scores
+False Positives are non-zero scores incorrectly classified as zero
+False Negatives are zero scores incorrectly classified as non-zero"""
+
+kNN: RightHand_quat_w_mean and Head_velocity_z_mean have 0.914 accuracy, 0.881 f1 score, 0.92 precision, and 0.914 recall.
+tabPFN and SVM: uniform results, nothing outstanding. Maybe better with more features then?
+
+Boxcox on hurdle model regressor score could reduce skew and improve performance.
+Right hand velocity x median and A build time get 92% accuracy and 0.9086 f1 score.
+More quat or velocity features though reduce these scores.
+Really high mutual information from angular velocity and euler features, which makes sense but hasn't shown in the models.
+
+Supervised PCA didn't provide any out-of-box improvements.
+Neither did unsupervised PCA.
+
+
+Body relative -> head is shifting origin (parent of transform)
+Dominant hand relative -> Right hand is shifting origin (parent of transform)
+Segment approach is not out of box best, but it does provide a way to get more data.
+Need to review mutual information with the segment approach and 0 vs non-0.
+Logistic regression with elastic net regularization is a good candidate for the hurdle model.
+Maybe explore Hi/Lo rather than 0 vs non-0 (more data for each class)
+Cross-validation should be checked out for within A, within segment
+Update output of score from multiple of 2 to 1
+Email ryan to ask for video and step data
+Sliding window approach rather than fixed segment
+Separate by object (head, controller)
+Experiment with thresholds and modes for segmenting
+Maybe prevent undersampling majority since already low number of samples
+Experiment with other segment level features
+Could position of segment in series be useful? (Start, middle , end)
+Maybe number of segments is a feature
+Consider pauses as opposed to velocity segments, and pause duration as a feature
+Component (axis) level thresholding
+Pos rotation etc for segment level features
+Time series prediction as feature? predicting next segment or confidence of next segment as a feature (kind of like a PRM)
+
+--------------------------------
+
+Nested cross validation to prevent overfitting on noise
+Use percent classified correctly for each class as performance heuristic rather than strictly roc auc or pr
+
+Use LOOCV cross validation due to small dataset size
+Embedded (linear model + regularization)
+or Sequential with SVM or GBM
+Balanced accuracy or f1 score as scoring objective due to class imbalance
+Hyperparameter tuning for each fold
+When all combined should be enough to prevent overfitting alongside domain knowledge of features
+
+IMPORTANT: Use confidence of classifier prediction (predict_proba) to discern model quality. Also to use as input feature to regressor (probability the sample is perfect or not)
+IMPORTANT: Ensemble left hand, right hand, head specific classifiers/regressors? (Only given features for each object, majority voting of all 3 models used).
+
+Most common advice is to use domain knowledge. With small dataset bound to overfit if too many features, so hand pick those that make sense
+
+Verify representations of body and head
+Comparison of representations

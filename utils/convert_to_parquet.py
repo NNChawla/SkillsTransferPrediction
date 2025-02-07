@@ -42,13 +42,13 @@ def convert_csvs_to_parquet(input_dir, output_dir):
 if __name__ == "__main__":
     # Example usage
     input_directories = [
-        './data/FAB/FAB_B_Modified_Motion_Pause',
+        './data/FAB/FAB_A_HandRelative_Motion',
         #'./data/FAB/FAB_B_Modified_Motion_Pause',
         #'./data/FAB'  # For metadata.csv
     ]
     
     for input_dir in input_directories:
-        output_dir = './data/FAB/FAB_B_v3'  # Save in same directory
+        output_dir = './data/FAB/FAB_A_HandRelative_Motion_PQ'
         print(f"\nProcessing directory: {input_dir}")
         convert_csvs_to_parquet(input_dir, output_dir)
         
