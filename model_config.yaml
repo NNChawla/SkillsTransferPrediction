@@ -1,0 +1,99 @@
+model:
+  model_params:
+    knn:
+      n_jobs: 1
+      n_neighbors: 5
+      weights: uniform
+    lightgbm:
+      n_estimators: 100
+      n_jobs: 1
+      verbosity: -1
+    random_forest:
+      n_estimators: 100
+      n_jobs: 1
+    svm:
+      kernel: poly
+      probability: true
+  param_grids:
+    knn:
+      metric:
+      - euclidean
+      n_neighbors:
+      - 5
+      - 9
+      - 19
+      weights:
+      - uniform
+    lightgbm:
+      learning_rate:
+      - 0.01
+      - 0.1
+      - 1
+      max_depth:
+      - 3
+      - 5
+      - 7
+      min_samples_leaf:
+      - 1
+      - 2
+      - 5
+      - 10
+      n_estimators:
+      - 50
+      - 100
+      - 200
+      num_leaves:
+      - 31
+      - 50
+      - 100
+    mlp:
+      activation:
+      - relu
+      - tanh
+      hidden_layer_sizes:
+      - - 50
+      - - 100
+      - - 50
+        - 25
+      - - 100
+        - 50
+      learning_rate_init:
+      - 0.001
+      - 0.01
+      max_iter:
+      - 1000
+    random_forest:
+      max_depth:
+      - 10
+      - 25
+      - 50
+      - 100
+      - None
+      min_samples_leaf:
+      - 1
+      - 2
+      - 5
+      - 10
+      min_samples_split:
+      - 2
+      - 5
+      - 10
+      n_estimators:
+      - 25
+      - 50
+      - 100
+    svm:
+      C:
+      - 0.1
+      - 1
+      - 10
+      gamma:
+      - scale
+      - auto
+      kernel:
+      - linear
+      - rbf
+      - poly
+  resampling_strategy: smote_tomek
+  type: lightgbm
+  use_resampling: false

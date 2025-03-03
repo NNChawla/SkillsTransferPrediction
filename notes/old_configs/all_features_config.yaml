@@ -1,0 +1,84 @@
+nan_policy:
+  - impute
+
+train_policy:
+  - A
+  - B
+
+segment_policy:
+  - full
+
+sample_rates:
+  - null
+
+metadata_fields:
+  - Gender
+  - A_Build_Time
+  - B_Build_Time
+  
+# Define individual measurement types
+measurements:
+  position: [_position_x, _position_y, _position_z]
+  euler: [_euler_x, _euler_y, _euler_z]
+  quat: [_quat_x, _quat_y, _quat_z, _quat_w]
+  sixD: [_sixD_a, _sixD_b, _sixD_c, _sixD_d, _sixD_e, _sixD_f]
+  velocity: [_velocity_x, _velocity_y, _velocity_z]
+  angular_velocity: [_angular_velocity_x, _angular_velocity_y, _angular_velocity_z]
+  pause_duration: [_pause_duration]
+  time_since_pause: [_time_since_pause]
+
+# Define global features (not tracker-specific)
+global_features:
+  LeftHand_position_relative: [LeftHand_position_x_relative, LeftHand_position_y_relative, LeftHand_position_z_relative]
+  RightHand_position_relative: [RightHand_position_x_relative, RightHand_position_y_relative, RightHand_position_z_relative]
+  LeftHand_quat_relative: [LeftHand_quat_w_relative, LeftHand_quat_x_relative, LeftHand_quat_y_relative, LeftHand_quat_z_relative]
+  RightHand_quat_relative: [RightHand_quat_w_relative, RightHand_quat_x_relative, RightHand_quat_y_relative, RightHand_quat_z_relative]
+  Head_quat_relative: [Head_no_yaw_quat_w, Head_no_yaw_quat_x, Head_no_yaw_quat_y, Head_no_yaw_quat_z]
+  LeftHand_velocity_relative: [LeftHand_velocity_x_relative, LeftHand_velocity_y_relative, LeftHand_velocity_z_relative]
+  RightHand_velocity_relative: [RightHand_velocity_x_relative, RightHand_velocity_y_relative, RightHand_velocity_z_relative]
+  LeftHand_angular_velocity_relative: [LeftHand_angular_velocity_x_relative, LeftHand_angular_velocity_y_relative, LeftHand_angular_velocity_z_relative]
+  RightHand_angular_velocity_relative: [RightHand_angular_velocity_x_relative, RightHand_angular_velocity_y_relative, RightHand_angular_velocity_z_relative]
+  Head_angular_velocity_relative: [Head_no_yaw_angular_velocity_x, Head_no_yaw_angular_velocity_y, Head_no_yaw_angular_velocity_z]
+  LeftHand_pause_relative: [LeftHand_pause_duration_relative, LeftHand_time_since_pause_relative]
+  RightHand_pause_relative: [RightHand_pause_duration_relative, RightHand_time_since_pause_relative]
+  Head_pause_relative: [Head_no_yaw_pause_duration, Head_no_yaw_time_since_pause]
+  
+
+# Define individual trackers
+trackers:
+  - Head
+  - LeftHand
+  - RightHand
+
+model:
+  type: 'knn'  # 'knn', 'random_forest', 'svm', 'lightgbm', or 'mlp'
+  model_params:
+    knn:
+      n_neighbors: 5
+      weights: 'uniform'
+      n_jobs: 1
+    
+    random_forest:
+      n_estimators: 100
+      n_jobs: 1
+    
+    svm:
+      kernel: 'poly'
+    
+    lightgbm:
+      n_estimators: 100
+      n_jobs: 1
+    
+    mlp:
+      hidden_layer_sizes: (100, 50)  # Two hidden layers with 100 and 50 neurons
+      activation: 'relu'  # Options: 'identity', 'logistic', 'tanh', 'relu'
+      solver: 'adam'  # Options: 'lbfgs', 'sgd', 'adam'
+      max_iter: 1000
+      # Optional parameters:
+      # learning_rate: 'adaptive'  # Options: 'constant', 'invscaling', 'adaptive'
+      # learning_rate_init: 0.001
+      # alpha: 0.0001  # L2 penalty
+      # batch_size: 'auto'
+      # early_stopping: False
+      # validation_fraction: 0.1  # Only used if early_stopping=True
+      # random_state: 42

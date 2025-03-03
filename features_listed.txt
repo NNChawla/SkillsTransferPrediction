@@ -1,0 +1,299 @@
+Variables:
+
+bounding box volume of session
+bounding box volume of step
+bounding box volume of substep
+bounding box volume of substep type
+bounding convex hull volume of session
+bounding convex hull volume of step
+bounding convex hull volume of substep
+bounding convex hull volume of substep type
+total rotation traveled of session
+total rotation traveled of step
+total rotation traveled of substep
+total rotation traveled of substep type
+total distance traveled of session
+total distance traveled of step
+total distance traveled of substep
+total distance traveled of substep type
+3D distance between left and right hand
+3D distance between left and right hand per step
+3D distance between left and right hand per substep
+3D distance between left and right hand per substep type
+3D distance between head and right hand
+3D distance between head and right hand per step
+3D distance between head and right hand per substep
+3D distance between head and right hand per substep type
+3D distance between left and head
+3D distance between left and head per step
+3D distance between left and head per substep
+3D distance between left and head per substep type
+x distance between left and right hand
+x distance between left and right hand per step
+x distance between left and right hand per substep
+x distance between left and right hand per substep type
+y distance between left and right hand
+y distance between left and right hand per step
+y distance between left and right hand per substep
+y distance between left and right hand per substep type
+z distance between left and right hand
+z distance between left and right hand per step
+z distance between left and right hand per substep
+z distance between left and right hand per substep type
+x distance between head and right hand
+x distance between head and right hand per step
+x distance between head and right hand per substep
+x distance between head and right hand per substep type
+y distance between head and right hand
+y distance between head and right hand per step
+y distance between head and right hand per substep
+y distance between head and right hand per substep type
+z distance between head and right hand
+z distance between head and right hand per step
+z distance between head and right hand per substep
+z distance between head and right hand per substep type
+x distance between left and head
+x distance between left and head per step
+x distance between left and head per substep
+x distance between left and head per substep type
+y distance between left and head
+y distance between left and head per step
+y distance between left and head per substep
+y distance between left and head per substep type
+z distance between left and head
+z distance between left and head per step
+z distance between left and head per substep
+z distance between left and head per substep type
+
+
+Bounding box volume of max step
+Bounding convex hull volume of max step
+Total rotation traveled of max step
+Total distance traveled of max step
+Distance between left and right hand of max step
+Distance between head and right hand of max step
+Distance between left and head of max step
+Distance between left and right hand of max step x
+Distance between head and right hand of max step x
+Distance between left and head of max step x
+Distance between left and right hand of max step y
+Distance between head and right hand of max step y
+Distance between left and head of max step y
+Distance between left and right hand of max step z
+Distance between head and right hand of max step z
+Distance between left and head of max step z
+
+
+Step of max bounding box volume
+Step of max bounding convex hull volume
+Step of max of total rotation traveled
+Step of max of total distance traveled
+Distance between left and right hand of max step
+Distance between head and right hand of max step
+Distance between left and head of max step
+Distance between left and right hand of max step x
+Distance between head and right hand of max step x
+Distance between left and head of max step x
+Distance between left and right hand of max step y
+Distance between head and right hand of max step y
+Distance between left and head of max step y
+Distance between left and right hand of max step z
+Distance between head and right hand of max step z
+Distance between left and head of max step z
+
+Substep of max bounding box volume
+Substep of max bounding convex hull volume
+Substep of max total rotation traveled
+Substep of max of total distance traveled
+Distance between left and right hand of max substep
+Distance between head and right hand of max substep
+Distance between left and head of max substep
+Distance between left and right hand of max substep x
+Distance between head and right hand of max substep x
+Distance between left and head of max substep x
+Distance between left and right hand of max substep y
+Distance between head and right hand of max substep y
+Distance between left and head of max substep y
+Distance between left and right hand of max substep z
+Distance between head and right hand of max substep z
+Distance between left and head of max substep z
+
+
+Bounding box volume of min step
+Bounding convex hull volume of min step
+Total rotation traveled of min step
+Total distance traveled of min step
+Distance between left and right hand of min step
+Distance between head and right hand of min step
+Distance between left and head of min step
+Distance between left and right hand of min step x
+Distance between head and right hand of min step x
+Distance between left and head of min step x
+Distance between left and right hand of min step y
+Distance between head and right hand of min step y
+Distance between left and head of min step y
+Distance between left and right hand of min step z
+Distance between head and right hand of min step z
+Distance between left and head of min step z
+
+Step of min bounding box volume
+Step of min bounding convex hull volume
+Step of min of total rotation traveled
+Step of min of total distance traveled
+Step of min of distance between left and right hand
+Step of min of distance between head and right hand
+Step of min of distance between left and head
+Step of min of distance between left and right hand x
+Step of min of distance between head and right hand x
+Step of min of distance between left and head x
+Step of min of distance between left and right hand y
+Step of min of distance between head and right hand y
+Step of min of distance between left and head y
+Step of min of distance between left and right hand z
+Step of min of distance between head and right hand z
+Step of min of distance between left and head z
+
+Substep of min bounding box volume
+Substep of min bounding convex hull volume
+Substep of min total rotation traveled
+Substep of min of total distance traveled
+Substep of min of distance between left and right hand
+Substep of min of distance between head and right hand
+Substep of min of distance between left and head
+Substep of min of distance between left and right hand x
+Substep of min of distance between head and right hand x
+Substep of min of distance between left and head x
+Substep of min of distance between left and right hand y
+Substep of min of distance between head and right hand y
+Substep of min of distance between left and head y
+Substep of min of distance between left and right hand z
+Substep of min of distance between head and right hand z
+Substep of min of distance between left and head z
+
+
+slope of linear regression of session bounding box volume vector
+slope of linear regression of step bounding box volume vector
+slope of linear regression of substep bounding box volume vector
+slope of linear regression of substep type bounding box volume vector
+slope of linear regression of session bounding convex hull volume vector
+slope of linear regression of step bounding convex hull volume vector
+slope of linear regression of substep bounding convex hull volume vector
+slope of linear regression of substep type bounding convex hull volume vector
+slope of linear regression of session total rotation traveled vector
+slope of linear regression of step total rotation traveled vector
+slope of linear regression of substep total rotation traveled vector
+slope of linear regression of substep type total rotation traveled vector
+slope of linear regression of session total distance traveled vector
+slope of linear regression of step total distance traveled vector
+slope of linear regression of substep total distance traveled vector
+slope of linear regression of substep type total distance traveled vector
+slope of linear regression of session distance between left and right hand vector
+slope of linear regression of session distance between head and right hand vector
+slope of linear regression of session distance between left and head vector
+slope of linear regression of session distance between left and right hand x vector
+slope of linear regression of session distance between head and right hand x vector
+slope of linear regression of session distance between left and head x vector
+slope of linear regression of session distance between left and right hand y vector
+slope of linear regression of session distance between head and right hand y vector
+slope of linear regression of session distance between left and head y vector
+slope of linear regression of session distance between left and right hand z vector
+slope of linear regression of session distance between head and right hand z vector
+slope of linear regression of session distance between left and head z vector
+slope of linear regression of step distance between left and right hand vector
+slope of linear regression of step distance between head and right hand vector
+slope of linear regression of step distance between left and head vector
+slope of linear regression of step distance between left and right hand x vector
+slope of linear regression of step distance between head and right hand x vector
+slope of linear regression of step distance between left and head x vector
+slope of linear regression of step distance between left and right hand y vector
+slope of linear regression of step distance between head and right hand y vector
+slope of linear regression of step distance between left and head y vector
+slope of linear regression of step distance between left and right hand z vector
+slope of linear regression of step distance between head and right hand z vector
+slope of linear regression of step distance between left and head z vector
+slope of linear regression of substep distance between left and right hand vector
+slope of linear regression of substep distance between head and right hand vector
+slope of linear regression of substep distance between left and head vector
+slope of linear regression of substep distance between left and right hand x vector
+slope of linear regression of substep distance between head and right hand x vector
+slope of linear regression of substep distance between left and head x vector
+slope of linear regression of substep distance between left and right hand y vector
+slope of linear regression of substep distance between head and right hand y vector
+slope of linear regression of substep distance between left and head y vector
+slope of linear regression of substep distance between left and right hand z vector
+slope of linear regression of substep distance between head and right hand z vector
+slope of linear regression of substep distance between left and head z vector
+slope of linear regression of substep type distance between left and right hand vector
+slope of linear regression of substep type distance between head and right hand vector
+slope of linear regression of substep type distance between left and head vector
+slope of linear regression of substep type distance between left and right hand x vector
+slope of linear regression of substep type distance between head and right hand x vector
+slope of linear regression of substep type distance between left and head x vector
+slope of linear regression of substep type distance between left and right hand y vector
+slope of linear regression of substep type distance between head and right hand y vector
+slope of linear regression of substep type distance between left and head y vector
+slope of linear regression of substep type distance between left and right hand z vector
+slope of linear regression of substep type distance between head and right hand z vector
+slope of linear regression of substep type distance between left and head z vector
+
+
+coefficient of variation of step bounding box volume
+coefficient of variation of substep bounding box volume
+coefficient of variation of substep type bounding box volume
+coefficient of variation of step bounding convex hull volume
+coefficient of variation of substep bounding convex hull volume
+coefficient of variation of substep type bounding convex hull volume
+coefficient of variation of step total rotation traveled
+coefficient of variation of substep total rotation traveled
+coefficient of variation of substep type total rotation traveled
+coefficient of variation of step total distance traveled
+coefficient of variation of substep total distance traveled
+coefficient of variation of substep type total distance traveled
+coefficient of variation of step distance between left and right hand
+coefficient of variation of substep distance between left and right hand
+coefficient of variation of substep type distance between left and right hand
+coefficient of variation of step distance between head and right hand
+coefficient of variation of substep distance between head and right hand
+coefficient of variation of substep type distance between head and right hand
+coefficient of variation of step distance between left and head
+coefficient of variation of substep distance between left and head
+coefficient of variation of substep type distance between left and head
+coefficient of variation of step distance between left and right hand x
+coefficient of variation of substep distance between left and right hand x
+coefficient of variation of substep type distance between left and right hand x
+coefficient of variation of step distance between left and right hand y
+coefficient of variation of substep distance between left and right hand y
+coefficient of variation of substep type distance between left and right hand y
+coefficient of variation of step distance between left and right hand z
+coefficient of variation of substep distance between left and right hand z
+coefficient of variation of substep type distance between left and right hand z
+
+
+Vectors:
+position vector [x, y, z]
+position per step vector [x_0, y_0, z_0, x_1, y_1, z_1, etc.]
+position per substep type vector [x_AttachPiece, y_AttachPiece, z_AttachPiece, x_InsertScrew, y_InsertScrew, z_InsertScrew, x_UseKey, y_UseKey, z_UseKey]
+bounding box volume vector
+bounding box volume per step vector
+bounding box volume per substep type vector
+bounding convex hull volume vector
+bounding convex hull volume per step vector
+bounding convex hull volume per substep type vector
+total rotation traveled vector
+total rotation traveled per step vector
+total rotation traveled per substep type vector
+total distance traveled vector
+total distance traveled per step vector
+total distance traveled per substep type vector
+total distance between left and right hand vector
+total distance between head and right hand vector
+total distance between left and head vector
+total distance between left and right hand x vector
+total distance between head and right hand x vector
+total distance between left and head x vector
+total distance between left and right hand y vector
+total distance between head and right hand y vector
+total distance between left and head y vector
+total distance between left and right hand z vector
+total distance between head and right hand z vector
+total distance between left and head z vector

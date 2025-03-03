@@ -1,0 +1,78 @@
+Pauses (x, y, z axes and xyz) below velocity/magnitude (speed) threshold (e.g. 0.05 m/s) above minimum duration threshold (e.g. 0.5 s)
+    - [per session, per object, per step, per substep type, per velocity window]
+    - {frequency, variance, duration, time_of_max, duration_of_max, time_between_consecutive,
+     step_of_max, slope_linear_regression, coefficient_of_variation, approximate_entropy_cross_step, autocorrelation_cross_step
+     lyapunov_exponent}
+Step Latency (at start of step)
+    - [per session, per object, per step, per substep type, per velocity window]
+    - {frequency, variance, duration, time_of_max, duration_of_max, step_of_max,
+     slope_linear_regression, coefficient_of_variation, approximate_entropy_cross_step, autocorrelation_cross_step
+     lyapunov_exponent}
+Velocity (x, y, z axes and xyz)
+    - [per object, per step, per substep type]
+    - {variance, time_of_max, duration_of_max, frequency_steps_above_speed_threshold, velocity_peak, smoothness_num_velocity_peaks,
+     step_of_max, slope_linear_regression, coefficient_of_variation, approximate_entropy, autocorrelation
+     lyapunov_exponent}
+Acceleration (x, y, z axes and xyz)
+    - [per object, per step, per substep type]
+    - {variance, time_of_max, duration_of_max, frequency_steps_above_speed_threshold, step_of_max,
+     slope_linear_regression, coefficient_of_variation, approximate_entropy, autocorrelation
+     lyapunov_exponent}
+Cross-correlation
+    - [cross objects, cross steps, cross substeps]
+    - {normalized_correlation}
+
+Questionnaire responses
+    - [per session]
+    - {onehot encoded}
+Demographics
+    - [per session]
+    - {onehot encoded}
+Time of day
+    - [per session]
+Duration
+    - [per session, per step, per substep type]
+    - {variance, time_of_max, duration_of_max, step_of_max, slope_linear_regression,
+     difference_between_consecutive, autocorrelation_cross_step,
+     approximate_entropy_cross_step, lyapunov_exponent}
+Position (x, y, z axes)
+    - [per object, per step, per substep type]
+    - {variance, autocorrelation,
+     approximate_entropy, lyapunov_exponent}
+Bounding_box_volume (based on position xyz)
+    - [per object, cross_objects, per step, cross_steps, per substep type]
+    - {linear_regression_slope}
+Bounding_convex_hull_volume (based on position xyz)
+    - [per object, cross_objects, per step, cross_steps, per substep type]
+    - {linear_regression_slope}
+Total Distance Traveled (based on position xyz)
+    - [per session, per object, per step, per substep type]
+    - {variance, step_of_max, slope_linear_regression, coefficient_of_variation, autocorrelation,
+     approximate_entropy, lyapunov_exponent}
+Distance between objects (based on position xyz and x, y, z axes)
+    - [per session, cross objects, per step, per substep type]
+    - {variance, step_of_max, slope_linear_regression, coefficient_of_variation, autocorrelation,
+     approximate_entropy, lyapunov_exponent}
+Rotation (x, y, z axes)
+    - [per object, per step, per substep type]
+    - {variance, autocorrelation,
+     approximate_entropy, lyapunov_exponent}
+Total Rotation Traveled (based on rotation xyz)
+    - [per session, per object, per step, per substep type]
+    - {variance, step_of_max, slope_linear_regression, coefficient_of_variation, autocorrelation,
+     approximate_entropy, lyapunov_exponent}
+
+###########################################################################################################################################################
+
+Coefficient of Variation:
+    - For each substep type, calculate the standard deviation divided by the mean completion time.
+    - Example: Coefficient of variation for attaching pieces = (standard deviation of attach times) / (mean attach time).
+    - This normalizes variability, accounting for differences in task difficulty or average speed, making it comparable across users.
+Step-wise Improvement:
+    Calculate the difference in total completion times between consecutive steps.
+    Example: Completion time of Step 2 minus Step 1, Step 3 minus Step 2, etc.
+    Consistent negative differences (faster times) might indicate learning, while positive differences (slower times) could suggest fatigue or increased difficulty.
+    Aggregate these differences (e.g., mean or median improvement) as a feature.
+
+###########################################################################################################################################################
+

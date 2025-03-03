@@ -212,3 +212,91 @@ Most common advice is to use domain knowledge. With small dataset bound to overf
 
 Verify representations of body and head
 Comparison of representations
+
+Notes on full battery of experiments for knn:
+    - Top features (>0.24 mcc, top is 0.25 mcc)
+    - Parameters (model[knn], dataset[v3, BodyRelative_Motion_PQ], cross_task[True, False],
+     outer_cv_k[5, 10], inner_cv_k[4, 5], use_resampling[True, False], cls_score_threshold[0, 4, 6, 8], train_policy[A, B])
+    - datasets: 50% v3, 50% BodyRelative_Motion_PQ | 0.25 mcc v3
+    - cross_task: 50% True, 50% False | 0.25 mcc False
+    - outer_cv_k: 6/8 5, 2/8 10 | 0.25 mcc 5
+    - inner_cv_k: 6/8 5, 2/8 4 | 0.25 mcc 4 | top 2 were 4
+    - use_resampling: 50% True, 50% False | 0.25 mcc True
+    - cls_score_threshold: 50% 0, 50% 6 | 0.25 mcc 6
+    - train_policy: 50% A, 50% B | 0.25 mcc B
+
+Linearly shifting break point to find optimal split between scores [Done]
+Matthews Correlation Coefficient [Done]
+Add cross validation to single run for cross task [Done]
+Add nested cross validation to single run for within task [Done]
+Add hyperparameter optimization for single run [Done]
+Change lists to variables [Done]
+Add within vs cross task for single run [Done]
+Test both ways (A->B and B->A) for single_run [Done]
+^ run_experiments add looping through datasets, training sets, other parameters [Done]
+make required features and combination sizes only when manual [Done]
+Separate classification predictor from regression predictor and score_prediction_base [Done]
+add functional results logging using table [Done]
+recalculate scores and output as single point rather than actual cost for each operation [Done]
+return results from run_experiments and compile into table in run_experiments.py [Done]
+
+Correlation matrix of features for all representations {scene complete (v3), head dominant, hand dominant}
+Analyze results of knn and random forest for cross task and within task
+Test knn and random forest on linear score
+Fix SVM classification
+One hot encode categorical features
+Optuna (on best model) after decent performance is achieved; hyperparameters are just to optimize performance
+Add suggested hyperparameters as well as optional hyperparameters (class balance)
+Do A->B and B->A for manual
+    - Manual testing may work better because I highly deprioritize variables from the same object-axis pairing (i.e. Head_quat_x_mean, Head_quat_x_median, etc.)
+    - This prevents overfitting on noise
+    - Manual testing needs to be done over all important parameters in run_experiments.py, just like automatic
+    - Cannot sustainably pore over all confusion matrices; need to use multi-level scoring
+        - Begin with Sensitivity (TP / TP + FN), once satisfactory level achieved, maintain while maximizing Specificity (TN / TN + FP)
+    - Need to maintain cross validation (repeated? stratified k fold)
+
+Ensemble 9 models, one trained on each substep (all actions for each substep) for each participant.
+Refactor to separate initialization, training, andvalidation phases into separate methods.
+
+vvv Features and Representations vvv
+Unified hand representation
+    - Right hand dominant feature predictions will always exclude the left hand learners, so a unified represenation might help (ask GPT)
+Segment level features:
+    - Pause duration
+    - Start, middle, end specific summaries of all statistics
+    - Number of segments given threshold
+    - Time spent below/above threshold (position, speed, etc)
+    - Quadrant time analysis (position)
+Substep features:
+    - Frequency of step
+    - Time between steps
+    - start middle end substep rate
+Variance of speed between periods (start, middle, end) or substeps segments?
+Ensemble left, right, head specific models
+
+Temporal features:
+    - Total completion time: How long did it take each user to finish the tutorial?
+    - Average step time: The mean duration per step.
+    - Variance/standard deviation of step times: Do some users have more consistent timing? Consistency might indicate a clear understanding of the task.
+    - Time per critical step: If some steps are known to be more “memory–demanding” later on (e.g., those that build up the structure), then the time taken on these may be especially informative.
+    - Time between high activity periods
+    - Pause time between substeps (could indicate taking more time to absorb steps)
+    - Pause time at end or beginning of tutorial or in each segment (start, middle, end)?
+    - Time differences between successive steps: These “delta times” might show hesitation or a need for correction. For example, a sudden increase in time might indicate uncertainty.
+    - Learning curve indicators: If you can compute the change in step times from the beginning to the end of the tutorial, that might reflect how quickly a user “gets it” – perhaps a steep improvement correlates with a more robust memory of the procedure.
+
+Edit distance / sequence alignment: Compare the sequence of actions (e.g., “place pipe,” “rotate connector,” “remove pipe,” etc.) with the ideal tutorial sequence. A larger edit distance (or more “corrections”) may signal that the user did not internalize the procedure perfectly.
+Count of corrections or “undo” actions: A high count might indicate that the user was uncertain, which may translate to poorer memory of the structure.
+Deviations from the ideal sequence: Not just the count of errors, but when they occur (early vs. late in the sequence) may be predictive.
+Path efficiency: If users take a convoluted route to complete a step (e.g., unnecessary movements), that might indicate cognitive load.
+
+Transition between levels of fidelity: 2d game, 2d without color
+
+UMAP embeddings for visualization and as features
+Wavelet transform for time series features
+Dynamic time warping for gold standard time series comparison
+Poincare sections for motion features
+Markov chains for step transition
+
+Grok feature analysis and engineering
+Features in Notes
