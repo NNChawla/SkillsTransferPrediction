@@ -5,6 +5,9 @@ figures/
 logs/
 *.png
 results/shap_analysis/
+experimentData/
+papers/
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

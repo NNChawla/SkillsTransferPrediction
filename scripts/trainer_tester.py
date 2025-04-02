@@ -9,6 +9,27 @@ from .processor import Processor
 class TrainerTester(Processor):
     def __init__(self):
         super().__init__()
+
+    def get_feature_names(self, metadata_features, global_features):
+        """Generate feature names in the same order as they're created"""
+        feature_names = []
+        
+        # Add metadata feature names
+        if metadata_features:
+            feature_names.extend([f for f in metadata_features 
+                                if not ((f == 'A_Build_Time' and self.train_set != 'A') or 
+                                      (f == 'B_Build_Time' and self.train_set != 'B'))])
+        
+        # Add global feature names
+        if global_features:
+            for feature_type, feature_config in global_features.items():
+                cols = feature_config['features']
+                statistics = feature_config.get('statistics', ['min', 'max', 'median', 'mean', 'std'])
+                
+                for col in cols:
+                    feature_names.extend([f"{col}_{stat}" for stat in statistics])
+        
+        return feature_names
     
     def train_model(self, model, train_set, metadata_features, global_features, cross_task=True, pids_to_exclude=[], step=-1):
         self.train_set = train_set
