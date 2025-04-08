@@ -4,6 +4,8 @@ data/
 figures/
 logs/
 *.png
+*.pkl
+results_server/
 results/shap_analysis/
 experimentData/
 papers/

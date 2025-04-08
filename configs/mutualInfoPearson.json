@@ -1,0 +1,11 @@
+[
+    "substep35_Head_angvel_y_201_pause_1.25_durations_median", 
+    "step3_LeftHand_linvel_magnitude_13_pause_1.25_durations_iqr",
+    "substep10_LeftHand_angacc_x_51_pause_0.75_durations_slope",
+    "substep10_Head_angacc_magnitude_7_pause_1_time_to_min_duration",
+    "step9_Head_linacc_z_35_pause_1.25_durations_kurtosis",
+    "step5_Head_linacc_z_35_pause_0.5_durations_skewness",
+    "substep13_Head_angacc_z_201_pause_1.25_durations_max",
+    "substep32_LeftHand_linvel_x_13_pause_1.25_durations_max",
+    "substep12_Head_linacc_magnitude_51_pause_0.75_durations_sum"
+]

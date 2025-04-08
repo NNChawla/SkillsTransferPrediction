@@ -87,6 +87,14 @@ mdf_A = mdf_A[metadata_A_features]
 mdf_B = mdf_B[metadata_B_features]
 
 PID = tabulated_dataframe["PID"]
+unscaled_tabulated_dataframe = tabulated_dataframe.drop(columns=["PID"])
+unscaled_tabulated_dataframe = drop_high_na_columns(unscaled_tabulated_dataframe, int(unscaled_tabulated_dataframe.shape[0] * 0.2))
+unscaled_tabulated_dataframe = variance_filter(unscaled_tabulated_dataframe)
+unscaled_tabulated_dataframe = pd.DataFrame(imputer.fit_transform(unscaled_tabulated_dataframe), columns=unscaled_tabulated_dataframe.columns)
+unscaled_tabulated_dataframe = pd.concat([PID, unscaled_tabulated_dataframe], axis=1)
+utdf = unscaled_tabulated_dataframe.iloc[:,1:].copy()
+
+PID = tabulated_dataframe["PID"]
 tabulated_dataframe = tabulated_dataframe.drop(columns=["PID"])
 tabulated_dataframe = drop_high_na_columns(tabulated_dataframe, int(tabulated_dataframe.shape[0] * 0.2))
 tabulated_dataframe = variance_filter(tabulated_dataframe)
@@ -101,6 +109,8 @@ features_A = [f"{i}_A" for i in unique_features]
 features_B = [f"{i}_B" for i in unique_features]
 tdf_A = tdf[features_A]
 tdf_B = tdf[features_B]
+utdf_A = utdf[features_A]
+utdf_B = utdf[features_B]
 
 ###########################################################################################
 # F-Statistic
@@ -213,8 +223,8 @@ with open("/srv/STP/top_valid_within_pearson_features.csv", "w") as f:
 # Mutual Information
 ###########################################################################################
 
-mutual_information_cross_A = mutual_info_classif(tdf_A, score_B, discrete_features='auto', n_neighbors=3, n_jobs=-1)
-mutual_information_cross_B = mutual_info_classif(tdf_B, score_A, discrete_features='auto', n_neighbors=3, n_jobs=-1)
+mutual_information_cross_A = mutual_info_classif(utdf_A, score_B, discrete_features='auto', n_neighbors=3, n_jobs=-1)
+mutual_information_cross_B = mutual_info_classif(utdf_B, score_A, discrete_features='auto', n_neighbors=3, n_jobs=-1)
 filter_mutual_information_cross_A_indices = set([i for i in range(len(mutual_information_cross_A)) if mutual_information_cross_A[i] >= 0.05])
 filter_mutual_information_cross_B_indices = set([i for i in range(len(mutual_information_cross_B)) if mutual_information_cross_B[i] >= 0.05])
 filter_mutual_information_cross_indices = sorted(list(filter_mutual_information_cross_A_indices.intersection(filter_mutual_information_cross_B_indices)))
@@ -229,8 +239,8 @@ with open("/srv/STP/top_valid_cross_mutual_information_features.csv", "w") as f:
     writer.writerow(["Feature", "Mutual Information_A", "Mutual Information_B", "Harmonic Mean"])
     writer.writerows(sorted_top_valid_cross_mutual_information_features)
 
-mutual_information_within_A = mutual_info_classif(tdf_A, score_A, discrete_features='auto', n_neighbors=3, n_jobs=-1)
-mutual_information_within_B = mutual_info_classif(tdf_B, score_B, discrete_features='auto', n_neighbors=3, n_jobs=-1)
+mutual_information_within_A = mutual_info_classif(utdf_A, score_A, discrete_features='auto', n_neighbors=3, n_jobs=-1)
+mutual_information_within_B = mutual_info_classif(utdf_B, score_B, discrete_features='auto', n_neighbors=3, n_jobs=-1)
 filter_mutual_information_within_A_indices = set([i for i in range(len(mutual_information_within_A)) if mutual_information_within_A[i] >= 0.05])
 filter_mutual_information_within_B_indices = set([i for i in range(len(mutual_information_within_B)) if mutual_information_within_B[i] >= 0.05])
 filter_mutual_information_within_indices = sorted(list(filter_mutual_information_within_A_indices.intersection(filter_mutual_information_within_B_indices)))
@@ -389,54 +399,66 @@ with open("/srv/STP/top_valid_within_chisq_features.csv", "w") as f:
 # Distribution of Features
 ###########################################################################################
 
-with open("/srv/STP/top_valid_cross_fstat_features.csv", "r") as f:
+with open("/srv/STP/_within_task_statistic_results/top_valid_within_fstat_features.csv", "r") as f:
     reader = csv.reader(f)
-    fstat_cross_features = [tpl for tpl in reader][1:]
-    fstat_cross_features = [[i[0], float(i[1]), float(i[2]), metric_harmonic_mean(float(i[1]), float(i[2]))] for i in fstat_cross_features]
-    fstat_cross_features = sorted(fstat_cross_features, key=lambda x: x[3], reverse=True)
+    fstat_within_features = [tpl for tpl in reader][1:]
+    fstat_within_features = [[i[0], float(i[1]), float(i[2]), metric_harmonic_mean(float(i[1]), float(i[2]))] for i in fstat_within_features]
+    fstat_within_features = sorted(fstat_within_features, key=lambda x: x[3], reverse=True)
 
-with open("/srv/STP/top_valid_cross_spearman_features.csv", "r") as f:
+with open("/srv/STP/_within_task_statistic_results/top_valid_within_spearman_features.csv", "r") as f:
     reader = csv.reader(f)
-    spearman_cross_features = [tpl for tpl in reader][1:]
-    spearman_cross_features = [[i[0], float(i[1]), float(i[2]), metric_harmonic_mean(float(i[1]), float(i[2]))] for i in spearman_cross_features]
-    spearman_cross_features = sorted(spearman_cross_features, key=lambda x: x[3], reverse=True)
+    spearman_within_features = [tpl for tpl in reader][1:]
+    spearman_within_features = [[i[0], float(i[1]), float(i[2]), metric_harmonic_mean(float(i[1]), float(i[2]))] for i in spearman_within_features]
+    spearman_within_features = sorted(spearman_within_features, key=lambda x: x[3], reverse=True)
 
-with open("/srv/STP/top_valid_cross_point_biserial_features.csv", "r") as f:
+with open("/srv/STP/_within_task_statistic_results/top_valid_within_point_biserial_features.csv", "r") as f:
     reader = csv.reader(f)
-    point_biserial_cross_features = [tpl for tpl in reader][1:]
-    point_biserial_cross_features = [[i[0], float(i[1]), float(i[2]), metric_harmonic_mean(float(i[1]), float(i[2]))] for i in point_biserial_cross_features]
-    point_biserial_cross_features = sorted(point_biserial_cross_features, key=lambda x: x[3], reverse=True)
+    point_biserial_within_features = [tpl for tpl in reader][1:]
+    point_biserial_within_features = [[i[0], float(i[1]), float(i[2]), metric_harmonic_mean(float(i[1]), float(i[2]))] for i in point_biserial_within_features]
+    point_biserial_within_features = sorted(point_biserial_within_features, key=lambda x: x[3], reverse=True)
 
-with open("/srv/STP/top_valid_cross_ks_stat_features.csv", "r") as f:
+with open("/srv/STP/_within_task_statistic_results/top_valid_within_ks_stat_features.csv", "r") as f:
     reader = csv.reader(f)
-    ks_stat_cross_features = [tpl for tpl in reader][1:]
-    ks_stat_cross_features = [[i[0], float(i[1]), float(i[2]), metric_harmonic_mean(float(i[1]), float(i[2]))] for i in ks_stat_cross_features]
-    ks_stat_cross_features = sorted(ks_stat_cross_features, key=lambda x: x[3], reverse=True)
+    ks_stat_within_features = [tpl for tpl in reader][1:]
+    ks_stat_within_features = [[i[0], float(i[1]), float(i[2]), metric_harmonic_mean(float(i[1]), float(i[2]))] for i in ks_stat_within_features]
+    ks_stat_within_features = sorted(ks_stat_within_features, key=lambda x: x[3], reverse=True)
+
+with open("/srv/STP/_within_task_statistic_results/top_valid_within_mutual_information_features.csv", "r") as f:
+    reader = csv.reader(f)
+    mutual_information_within_features = [tpl for tpl in reader][1:]
+    mutual_information_within_features = [[i[0], float(i[1]), float(i[2]), metric_harmonic_mean(float(i[1]), float(i[2]))] for i in mutual_information_within_features]
+    mutual_information_within_features = sorted(mutual_information_within_features, key=lambda x: x[3], reverse=True)
 
 feature_distribution = {}
-for i in range(len(fstat_cross_features)):
-    if fstat_cross_features[i][0] not in feature_distribution:
-        feature_distribution[fstat_cross_features[i][0]] = [i]
+for i in range(len(fstat_within_features)):
+    if fstat_within_features[i][0] not in feature_distribution:
+        feature_distribution[fstat_within_features[i][0]] = [i]
     else:
-        feature_distribution[fstat_cross_features[i][0]].append(i)
+        feature_distribution[fstat_within_features[i][0]].append(i)
 
-for i in range(len(spearman_cross_features)):
-    if spearman_cross_features[i][0] not in feature_distribution:
-        feature_distribution[spearman_cross_features[i][0]] = [i]
+for i in range(len(spearman_within_features)):
+    if spearman_within_features[i][0] not in feature_distribution:
+        feature_distribution[spearman_within_features[i][0]] = [i]
     else:
-        feature_distribution[spearman_cross_features[i][0]].append(i)
+        feature_distribution[spearman_within_features[i][0]].append(i)
 
-for i in range(len(point_biserial_cross_features)):
-    if point_biserial_cross_features[i][0] not in feature_distribution:
-        feature_distribution[point_biserial_cross_features[i][0]] = [i]
+for i in range(len(point_biserial_within_features)):
+    if point_biserial_within_features[i][0] not in feature_distribution:
+        feature_distribution[point_biserial_within_features[i][0]] = [i]
     else:
-        feature_distribution[point_biserial_cross_features[i][0]].append(i)
+        feature_distribution[point_biserial_within_features[i][0]].append(i)
 
-for i in range(len(ks_stat_cross_features)):
-    if ks_stat_cross_features[i][0] not in feature_distribution:
-        feature_distribution[ks_stat_cross_features[i][0]] = [i]
+for i in range(len(ks_stat_within_features)):
+    if ks_stat_within_features[i][0] not in feature_distribution:
+        feature_distribution[ks_stat_within_features[i][0]] = [i]
     else:
-        feature_distribution[ks_stat_cross_features[i][0]].append(i)
+        feature_distribution[ks_stat_within_features[i][0]].append(i)
+
+for i in range(len(mutual_information_within_features)):
+    if mutual_information_within_features[i][0] not in feature_distribution:
+        feature_distribution[mutual_information_within_features[i][0]] = [i]
+    else:
+        feature_distribution[mutual_information_within_features[i][0]].append(i)
     
 feature_distribution_list = []
 for key, value in feature_distribution.items():
@@ -464,8 +486,8 @@ feature_component_distribution_list = sorted(feature_component_distribution_list
 
 top_k = 100
 fstat_component_distribution = {}
-for i in range(len(fstat_cross_features[:top_k])):
-    distributed_feature_name = fstat_cross_features[i][0]
+for i in range(len(fstat_within_features[:top_k])):
+    distributed_feature_name = fstat_within_features[i][0]
     distributed_feature_name_components = distributed_feature_name.split("_")
     for component in distributed_feature_name_components:
         if component not in fstat_component_distribution:
@@ -479,8 +501,8 @@ for key, value in fstat_component_distribution.items():
 fstat_component_distribution_list = sorted(fstat_component_distribution_list, key=lambda x: x[1], reverse=True)
 
 spearman_component_distribution = {}
-for i in range(len(spearman_cross_features[:top_k])):
-    distributed_feature_name = spearman_cross_features[i][0]
+for i in range(len(spearman_within_features[:top_k])):
+    distributed_feature_name = spearman_within_features[i][0]
     distributed_feature_name_components = distributed_feature_name.split("_")
     for component in distributed_feature_name_components:
         if component not in spearman_component_distribution:
@@ -494,8 +516,8 @@ for key, value in spearman_component_distribution.items():
 spearman_component_distribution_list = sorted(spearman_component_distribution_list, key=lambda x: x[1], reverse=True)
 
 point_biserial_component_distribution = {}
-for i in range(len(point_biserial_cross_features[:top_k])):
-    distributed_feature_name = point_biserial_cross_features[i][0]
+for i in range(len(point_biserial_within_features[:top_k])):
+    distributed_feature_name = point_biserial_within_features[i][0]
     distributed_feature_name_components = distributed_feature_name.split("_")
     for component in distributed_feature_name_components:
         if component not in point_biserial_component_distribution:
@@ -509,8 +531,8 @@ for key, value in point_biserial_component_distribution.items():
 point_biserial_component_distribution_list = sorted(point_biserial_component_distribution_list, key=lambda x: x[1], reverse=True)
 
 ks_stat_component_distribution = {}
-for i in range(len(ks_stat_cross_features[:top_k])):
-    distributed_feature_name = ks_stat_cross_features[i][0]
+for i in range(len(ks_stat_within_features[:top_k])):
+    distributed_feature_name = ks_stat_within_features[i][0]
     distributed_feature_name_components = distributed_feature_name.split("_")
     for component in distributed_feature_name_components:
         if component not in ks_stat_component_distribution:
@@ -522,3 +544,20 @@ ks_stat_component_distribution_list = []
 for key, value in ks_stat_component_distribution.items():
     ks_stat_component_distribution_list.append([key, value])
 ks_stat_component_distribution_list = sorted(ks_stat_component_distribution_list, key=lambda x: x[1], reverse=True)
+
+mutual_information_component_distribution = {}
+for i in range(len(mutual_information_within_features[:top_k])):
+    distributed_feature_name = mutual_information_within_features[i][0]
+    distributed_feature_name_components = distributed_feature_name.split("_")
+    for component in distributed_feature_name_components:
+        if component not in mutual_information_component_distribution:
+            mutual_information_component_distribution[component] = 1
+        else:
+            mutual_information_component_distribution[component] += 1
+
+mutual_information_component_distribution_list = []
+for key, value in mutual_information_component_distribution.items():
+    mutual_information_component_distribution_list.append([key, value])
+mutual_information_component_distribution_list = sorted(mutual_information_component_distribution_list, key=lambda x: x[1], reverse=True)
+
+
