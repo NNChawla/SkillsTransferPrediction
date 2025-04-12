@@ -1,0 +1,13 @@
+['step0_RightHand_linvel_x_13_pause_0.5_durations_median',
+ 'step1_RightHand_angacc_z_13_pause_1_time_to_min_duration',
+ 'step2_RightHand_linacc_z_7_pause_1.25_durations_std',
+ 'step3_RightHand_angvel_y_13_pause_1_time_to_min_duration',
+ 'step4_Head_linvel_z_7_pause_1.25_durations_coeff_of_var',
+ 'step5_LeftHand_linacc_z_7_pause_0.5_duration_frequency',
+ 'step6_RightHand_angacc_x_7_pause_1_time_to_min_duration',
+ 'step7_Head_angvel_y_531_pause_0.75_durations_slope',
+ 'step8_RightHand_angvel_y_13_pause_0.5_durations_coeff_of_var',
+ 'step9_Head_linvel_x_201_pause_0.5_durations_var',
+ 'step10_LeftHand_linvel_magnitude_35_pause_1.25_durations_mean',
+ 'step11_RightHand_angvel_z_201_pause_1_durations_mean',
+ 'substep36_Head_linacc_y_531_pause_0.5_durations_iqr']

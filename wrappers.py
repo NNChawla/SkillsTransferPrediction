@@ -57,8 +57,10 @@ def evaluate_predictions(y_true, y_pred, score_fn):
         'specificity': specificity,
         'joint_mcc': joint_mcc,
         'confusion_matrix': cm,
-        'y_true': y_true,
-        'y_pred': y_pred
+        'y_true_A': y_true_A,
+        'y_pred_A': y_pred_A,
+        'y_true_B': y_true_B,
+        'y_pred_B': y_pred_B
     }
     return result
 

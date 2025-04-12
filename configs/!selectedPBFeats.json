@@ -1,0 +1,8 @@
+["step1_RightHand_linacc_x_51_pause_1.25_time_to_min_duration",
+ "substep13_RightHand_linacc_z_7_pause_1.25_durations_coeff_of_var",
+ "substep14_LeftHand_angvel_magnitude_201_pause_0.75_durations_iqr",
+ "substep28_LeftHand_angvel_y_201_coeff_of_var",
+ "substep29_LeftHand_linacc_y_21_pause_1.25_durations_median",
+ "substep36_RightHand_angacc_x_51_pause_1_durations_kurtosis",
+ "substep36_RightHand_linacc_z_35_pause_0.5_durations_skewness",
+ "substep36_RightHand_linvel_z_531_pause_1_duration_count"]

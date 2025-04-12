@@ -11,7 +11,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import make_scorer
 from wrappers import *
-import pickle, time, gc, sys, os, json
+import pickle, time, gc, sys, os, json, math, random
+from itertools import combinations, product
 from tqdm import tqdm
 import pandas as pd
 import numpy as np
@@ -48,14 +49,28 @@ def scale_impute_df(input_df, scaler, imputer):
 imputer = SimpleImputer(strategy='median')
 scaler = StandardScaler()
 random_state = 25
+
+# Optuna Parameters
 total_run_time = 60
 trial_run_time = None
-trial_num = 100
+trial_num = 5
+
+# Feature Reduction Parameters
 na_threshold = 0.2
+
+# SFS Parameters
 num_features = 5
-sfs_n_jobs = -1
-study_n_jobs = 1
-override_feature_removal = False
+
+# Parallelization Parameters
+sfs_n_jobs = 1 # fine set to 1, coarse set to -1
+study_n_jobs = 1 # fine set to -1, coarse set to 1
+
+# Manual Feature Search Parameters
+override_feature_removal = True
+manual_feature_combination = True
+manual_feature_search_method = "greedy_fixed_length" # "greedy"
+manual_greedy_floating_step = False
+manual_max_combination_size = None
 
 tab_path = "./experimentData/tabulated_dataframe.pkl"
 md_path = "./experimentData/metadata.csv"
@@ -177,9 +192,7 @@ def _run_cross_validation(subset_df_A, subset_df_B, metadata_df_A,
                           metadata_df_B, score_A, score_B,
                           run_cross_task, feature_selection_method,
                           scoring_function_to_use, label_desc, inner_cv,
-                          outer_cv, model_name, seed):
-    start_time = time.time()
-    
+                          outer_cv, model_name, seed):    
     # Outer CV splits (if run_cross_task then use all data; otherwise use outer_cv splits)
     col_indices = np.arange(len(subset_df_A))
     splits = [(col_indices, col_indices)] if run_cross_task else list(outer_cv.split(subset_df_A, score_A))
@@ -363,10 +376,10 @@ def _run_cross_validation(subset_df_A, subset_df_B, metadata_df_A,
         best_trial = study.best_trial
         best_params = best_trial.params
         selected_feature_indices = best_trial.user_attrs.get("selected_features", None)
-        with open(f"./results_server/{label_desc}_study_{split_num}.pkl", "wb") as f:
-            pickle.dump(study, f)
-
-        split_num += 1
+        if manual_feature_combination is False:
+            with open(f"./results_server/{label_desc}_study_{split_num}.pkl", "wb") as f:
+                pickle.dump(study, f)
+            split_num += 1
 
         # Helper to rebuild pipeline from best_params
         def build_pipeline_from_params(params, selected_feature_indices=None):
@@ -452,6 +465,8 @@ def _run_cross_validation(subset_df_A, subset_df_B, metadata_df_A,
         selected_feature_names = None
         if selected_feature_indices is not None:
             selected_feature_names = unique_feature_names[selected_feature_indices]
+        else:
+            selected_feature_names = unique_feature_names
 
         if run_cross_task:
             raise NotImplementedError("Cross task prediction evaluation not implemented")
@@ -488,13 +503,17 @@ def _run_cross_validation(subset_df_A, subset_df_B, metadata_df_A,
         result = evaluate_predictions(None, y_pred, scoring_function_to_use)
         result['best_params'] = best_params
         result['selected_features'] = selected_feature_names
-        print(f"Performance: {result['joint_mcc']} | best_params: {best_params} | selected_features: {selected_feature_names}")
+        result['y_true_A'] = test_score_A
+        result['y_pred_A'] = y_pred
+        result['y_true_B'] = test_score_B
+        result['y_pred_B'] = y_pred
+        result['train_PIDs'] = PID[train_idx]
+        result['test_PIDs'] = PID[test_idx]
+        if not manual_feature_combination:
+            print(f"Performance: {result['joint_mcc']} | best_params: {best_params} | selected_features: {selected_feature_names}")
         results.append(result)
-        print(f"Split time: {time.time() - split_time}")
-
-        # if result['joint_mcc'] < 0.01:
-        #     print(f"Early stopping at split {len(results)}")
-        #     break
+        if not manual_feature_combination:
+            print(f"Split time: {time.time() - split_time}")
 
     # Aggregate CV metrics
     cv_metrics = {
@@ -567,29 +586,265 @@ def _run_cross_validation(subset_df_A, subset_df_B, metadata_df_A,
         'feature_counts': feature_counts,
         'hyperparameter_tuning': param_counts,
         'avg_confusion_matrix': avg_cm,
-        'std_confusion_matrix': std_cm
+        'std_confusion_matrix': std_cm,
+        'split_results': results
     }
-
-    print(f"Final Average MCC: {avg_metrics['joint_mcc']}")
-
-    with open(f"./results_server/{label_desc}_avg_metrics.pkl", "wb") as f:
-        pickle.dump(avg_metrics, f)
-
-    print(f"Total run time: {time.time() - start_time}")
+    
+    return avg_metrics
 
 def _run_experiment(parameters):
+    start_time = time.time()
     feature_set, cross_task, feature_selection, model_name, clf_func, label, scoring_function = parameters
+
+    combined_feature_set = [item for sublist in feature_set for item in sublist] if all(isinstance(item, list) for item in feature_set) else feature_set
+
     print(f"Running experiment for {label}")
-    subset_df_A, subset_df_B, metadata_df_A, metadata_df_B = _init_subset_data(feature_set, feature_selection, use_metadata_features=False)
-    
-    if (len(subset_df_A.columns) < 2) and (feature_selection != "manual"):
-        print(f"Skipping {label} because it has less than 2 features")
-        return
-    
+    subset_df_A, subset_df_B, metadata_df_A, metadata_df_B = _init_subset_data(combined_feature_set, feature_selection, use_metadata_features=False)    
     score_A, score_B, inner_cv, outer_cv = _init_cross_validation(cross_task, clf_func, random_state)
-    _run_cross_validation(subset_df_A, subset_df_B, metadata_df_A, metadata_df_B,
+
+    if feature_selection == "manual" and manual_feature_combination:
+        optuna.logging.set_verbosity(optuna.logging.WARNING)
+
+        available_features = [i.replace("_A", "") for i in subset_df_A.columns]
+        feature_mapping = {j: i for i, j in enumerate(available_features)}
+        feature_combination_performance = {}
+
+        max_combo_size = min(manual_max_combination_size, len(available_features)) if manual_max_combination_size is not None else None
+
+        if manual_feature_search_method == "exhaustive":
+
+            if max_combo_size is not None:
+                L_range = [max_combo_size]
+                num_combinations = math.comb(len(available_features), max_combo_size)
+            elif type(feature_set[0]) == list:
+                num_combinations = len(feature_set[0]) ** len(feature_set)
+            else:
+                L_range = list(range(1, len(available_features) + 1))
+                num_combinations = 2 ** len(available_features) - 1
+
+            combination_iterators = []
+            if type(feature_set[0]) == list:
+                combination_iterators = [product(*feature_set)]
+            else:
+                for L in L_range:
+                    combination_iterators.append(combinations(available_features, L))
+
+            pbar = tqdm(total=num_combinations, desc="Current: None -> 0.0 | Best: None -> 0.0")
+
+            best_combo = {'joint_mcc': -float('inf'), 'combo_map': None}
+            for combination_iterator in combination_iterators:
+                for combo in combination_iterator:
+                    combo_map = '_'.join(str(feature_mapping[feature]) for feature in combo)
+
+                    subset_df_A_combo = subset_df_A[[f"{i}_A" for i in combo]]
+                    subset_df_B_combo = subset_df_B[[f"{i}_B" for i in combo]]
+
+                    # print(f"Running experiment for {combo_map}")
+                    combo_avg_metrics = _run_cross_validation(subset_df_A_combo, subset_df_B_combo, metadata_df_A, metadata_df_B,
+                                        score_A, score_B, cross_task, feature_selection,
+                                        scoring_function, label, inner_cv, outer_cv, model_name, random_state)
+                    
+                    if combo_avg_metrics['joint_mcc'] > best_combo['joint_mcc']:
+                        best_combo = combo_avg_metrics
+                        best_combo['combo_map'] = combo_map
+
+                    progress_bar_str = f"Current: {combo_map} -> {combo_avg_metrics['joint_mcc']} | Best: {best_combo['combo_map']} -> {best_combo['joint_mcc']}"
+                    pbar.set_description(progress_bar_str)
+                    feature_combination_performance[combo_map] = combo_avg_metrics
+                    pbar.update(1)
+            pbar.close()
+        
+        elif manual_feature_search_method == "greedy":
+            
+            best_overall_combo = []
+            best_overall_metric = -float('inf')
+            
+            max_greedy_size = manual_max_combination_size if manual_max_combination_size is not None else len(available_features)
+
+            if (type(feature_set[0]) == list):
+                combos = product(*feature_set)
+                max_greedy_size = len(feature_set)
+                num_combos = len(feature_set[0]) ** len(feature_set)
+            else:
+                combos = [feature_set]
+                num_combos = 1
+
+            for subset in combos:
+                current_features = []
+                while len(current_features) < max_greedy_size:
+                    candidate_feature = None
+                    best_candidate_metric = -float('inf')
+
+                    for candidate in subset:
+                        if candidate in current_features:
+                            continue
+
+                        candidate_set = current_features + [candidate]
+                        candidate_combo_map = '_'.join(str(feature_mapping[i]) for i in candidate_set)
+                        
+                        subset_df_A_combo = subset_df_A[[f"{i}_A" for i in candidate_set]]
+                        subset_df_B_combo = subset_df_B[[f"{i}_B" for i in candidate_set]]
+                        
+                        combo_avg_metrics = _run_cross_validation(
+                            subset_df_A_combo, subset_df_B_combo, metadata_df_A, metadata_df_B,
+                            score_A, score_B, cross_task, feature_selection,
+                            scoring_function, label, inner_cv, outer_cv, model_name, random_state
+                        )
+                        feature_combination_performance[candidate_combo_map] = combo_avg_metrics
+
+                        if combo_avg_metrics['joint_mcc'] > best_candidate_metric:
+                            best_candidate_metric = combo_avg_metrics['joint_mcc']
+                            candidate_feature = candidate
+                    
+                    if candidate_feature is None:
+                        print("No candidate feature available to add; stopping greedy search.")
+                        break
+                    
+                    current_features.append(candidate_feature)
+                    print(f"{len(current_features)}/{len(subset)} | Added feature {candidate_feature} with metric: {best_candidate_metric}")
+
+                    # ===== Floating Step: Attempt to remove features if it improves performance =====
+                    if manual_greedy_floating_step and len(current_features) > 1:
+                        removal_improved = True
+                        # Continue removal attempts until no single removal yields improvement.
+                        while removal_improved:
+                            removal_improved = False
+                            # Work on a copy since we might modify current_features during iteration.
+                            for feature in current_features.copy():
+                                candidate_set = [f for f in current_features if f != feature]
+                                candidate_combo_map = '_'.join(str(feature_mapping[i]) for i in candidate_set)
+                                
+                                subset_df_A_combo = subset_df_A[[f"{i}_A" for i in candidate_set]]
+                                subset_df_B_combo = subset_df_B[[f"{i}_B" for i in candidate_set]]
+                                
+                                combo_avg_metrics = _run_cross_validation(
+                                    subset_df_A_combo, subset_df_B_combo, metadata_df_A, metadata_df_B,
+                                    score_A, score_B, cross_task, feature_selection,
+                                    scoring_function, label, inner_cv, outer_cv, model_name, random_state
+                                )
+                                feature_combination_performance[candidate_combo_map] = combo_avg_metrics
+
+                                # If removal improves the joint_mcc relative to the current candidate set performance...
+                                if combo_avg_metrics['joint_mcc'] > best_candidate_metric:
+                                    print(f"Floating removal: Removing feature {feature} improved joint_mcc from {best_candidate_metric} to {combo_avg_metrics['joint_mcc']}")
+                                    current_features.remove(feature)
+                                    best_candidate_metric = combo_avg_metrics['joint_mcc']
+                                    removal_improved = True
+                                    # Restart removal evaluation after any change.
+                                    break
+
+                    if best_candidate_metric > best_overall_metric:
+                        best_overall_metric = best_candidate_metric
+                        best_overall_combo = current_features.copy()
+
+            best_combo = {
+                'joint_mcc': best_overall_metric,
+                'combo_map': '_'.join(str(feature_mapping[i]) for i in best_overall_combo)
+            }
+            print(f"Best combo found: {best_combo['combo_map']} -> {best_combo['joint_mcc']}")
+
+        elif manual_feature_search_method == "greedy_fixed_length":
+            # current_selection = [group[0] for group in feature_set]
+            current_selection = [random.choice(group) for group in feature_set]
+            best_overall_combo = current_selection.copy()
+            best_overall_metric = -float('inf')
+            
+            # Evaluate the initial combination.
+            candidate_combo_map = '_'.join(str(feature_mapping[feat]) for feat in current_selection)
+            subset_df_A_combo = subset_df_A[[f"{feat}_A" for feat in current_selection]]
+            subset_df_B_combo = subset_df_B[[f"{feat}_B" for feat in current_selection]]
+            
+            current_metrics = _run_cross_validation(
+                subset_df_A_combo, subset_df_B_combo, metadata_df_A, metadata_df_B,
+                score_A, score_B, cross_task, feature_selection,
+                scoring_function, label, inner_cv, outer_cv, model_name, random_state
+            )
+            best_overall_metric = current_metrics['joint_mcc']
+            print(f"Initial fixed-length combo: {candidate_combo_map} -> {best_overall_metric}")
+
+            direction = 0
+
+            # Greedy coordinate descent: iterate over groups and try to improve the metric by changing one group's feature.
+            improved = True
+            while improved:
+                improved = False
+
+                group_order = list(range(len(feature_set)))
+
+                # If randomizing
+                # random.shuffle(group_order)
+                # If back to front
+                # if direction == 1:
+                    # group_order.reverse()
+                    # direction = 0
+                # else:
+                    # direction = 1
+
+                # Iterate over each group (each coordinate).
+                for group_idx in group_order:
+                    original_feature = current_selection[group_idx]
+                    best_candidate_in_group = original_feature
+                    # Start with the current overall performance as the baseline for this group's decision.
+                    best_candidate_metric_in_group = best_overall_metric
+                    
+                    # For each candidate in the current group:
+                    for candidate in feature_set[group_idx]:
+                        if candidate == original_feature:
+                            continue
+                        
+                        # Form a candidate selection by substituting the current group's feature.
+                        candidate_selection = current_selection.copy()
+                        candidate_selection[group_idx] = candidate
+                        candidate_combo_map = '_'.join(str(feature_mapping[feat]) for feat in candidate_selection)
+                        
+                        # Evaluate the candidate feature set.
+                        subset_df_A_combo = subset_df_A[[f"{feat}_A" for feat in candidate_selection]]
+                        subset_df_B_combo = subset_df_B[[f"{feat}_B" for feat in candidate_selection]]
+                        candidate_metrics = _run_cross_validation(
+                            subset_df_A_combo, subset_df_B_combo, metadata_df_A, metadata_df_B,
+                            score_A, score_B, cross_task, feature_selection,
+                            scoring_function, label, inner_cv, outer_cv, model_name, random_state
+                        )
+                        
+                        # If this candidate improves the metric for this group, update our best candidate.
+                        if candidate_metrics['joint_mcc'] > best_candidate_metric_in_group:
+                            best_candidate_metric_in_group = candidate_metrics['joint_mcc']
+                            best_candidate_in_group = candidate
+                    
+                    # Update the current selection if a better candidate was found in this group.
+                    if best_candidate_in_group != original_feature:
+                        print(f"Group {group_idx}: Replacing {original_feature} with {best_candidate_in_group} improved metric to {best_candidate_metric_in_group}")
+                        current_selection[group_idx] = best_candidate_in_group
+                        if best_candidate_metric_in_group > best_overall_metric:
+                            best_overall_metric = best_candidate_metric_in_group
+                            best_overall_combo = current_selection.copy()
+                        improved = True   # Mark that we have made an improvement.
+            
+            best_combo = {
+                'joint_mcc': best_overall_metric,
+                'combo_map': '_'.join(str(feature_mapping[feat]) for feat in best_overall_combo)
+            }
+            print(f"Best fixed-length combo found: {best_combo['combo_map']} -> {best_combo['joint_mcc']}")
+
+        else:
+            raise ValueError("search_method must be either 'exhaustive' or 'greedy'")
+            
+        inv_feature_mapping = {v: k for k, v in feature_mapping.items()}
+        combo_metrics = {
+            'map': inv_feature_mapping,
+            'performance': feature_combination_performance
+        }
+        
+        with open(f"./results_server/{label}_{manual_feature_search_method}_combo_metrics.pkl", "wb") as f:
+            pickle.dump(combo_metrics, f)
+    else:
+        avg_metrics = _run_cross_validation(subset_df_A, subset_df_B, metadata_df_A, metadata_df_B,
                           score_A, score_B, cross_task, feature_selection,
                           scoring_function, label, inner_cv, outer_cv, model_name, random_state)
+        print(f"Final Average MCC: {avg_metrics['joint_mcc']}")
+        with open(f"./results_server/{label}_avg_metrics.pkl", "wb") as f:
+            pickle.dump(avg_metrics, f)
+    print(f"Total run time: {time.time() - start_time}")
 
 config_path = "./experimentConfigs"
 experiment_configs = os.listdir(config_path)
@@ -606,14 +861,18 @@ for file_name in experiment_configs:
     experiment_features = []
     for line in config:
         if type(line) == list:
-            experiment_features.extend(get_strings_with_substrings(line, unique_features))
+            if line[0] == "prod":
+                line.pop(0)
+                experiment_features.append(line)
+            else:
+                experiment_features.extend(get_strings_with_substrings(line, unique_features))
         elif type(line) == str:
             experiment_features.append(line)
 
     feature_sets.append(experiment_features)
 
 cross_tasks = [False]
-feature_selections_models = [("sfs", "linsvc")] # [("sfs", "xgboost")]
+feature_selections_models = [("manual", "linsvc")] # [("sfs", "xgboost")]
 clf_funcs = [lambda x: 0 if x > 0 else 1]
 scoring_function = joint_scorer
 
