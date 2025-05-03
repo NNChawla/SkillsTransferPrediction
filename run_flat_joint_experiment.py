@@ -51,27 +51,21 @@ scaler = StandardScaler()
 random_state = 25
 
 # Optuna Parameters
-total_run_time = 60
-trial_run_time = None
 trial_num = 1
 
 # Feature Reduction Parameters
 na_threshold = 0.2
 
-# SFS Parameters
-num_features = 5
-
 # Parallelization Parameters
-sfs_n_jobs = 1 # fine set to 1, coarse set to -1
-study_n_jobs = 1 # fine set to -1, coarse set to 1
+study_n_jobs = 1
 
 # Manual Feature Search Parameters
 override_feature_removal = True
 manual_feature_combination = True
-manual_feature_search_method = "greedy_fixed_length" # "greedy"
+manual_feature_search_method = "greedy_fixed_length"
 manual_greedy_floating_step = False
 manual_max_combination_size = None
-num_experiment_runs = 10
+num_experiment_runs = 100
 
 tab_path = "./experimentData/tabulated_dataframe.pkl"
 md_path = "./experimentData/metadata.csv"
@@ -172,352 +166,155 @@ def _init_cross_validation(run_cross_task, clf_function_to_use, seed):
     else:
         score_A = metadata_dataframe["Score_A_Linear"].apply(clf_function_to_use)
         score_B = metadata_dataframe["Score_B_Linear"].apply(clf_function_to_use)
-
-    inner_cv = (RepeatedStratifiedKFold(n_splits=5, n_repeats=3, random_state=seed)
-                if run_cross_task 
-                else StratifiedKFold(n_splits=4, shuffle=True, random_state=seed))
     
-    outer_cv = StratifiedKFold(n_splits=4, shuffle=True, random_state=random_state)
-
-    if run_cross_task:
-        n_splits = inner_cv.n_splits * inner_cv.n_repeats
-    else:
-        n_splits = inner_cv.n_splits * outer_cv.n_splits
-    trial_run_time = total_run_time / n_splits
-    if trial_num is None:
-        print(f"Using per trial run time: {trial_run_time}")    
+    flat_cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=random_state)
     
-    return score_A, score_B, inner_cv, outer_cv
+    return score_A, score_B, flat_cv
 
 def _run_cross_validation(subset_df_A, subset_df_B, metadata_df_A,
                           metadata_df_B, score_A, score_B,
-                          run_cross_task, feature_selection_method,
-                          scoring_function_to_use, label_desc, inner_cv,
-                          outer_cv, model_name, seed):    
-    # Outer CV splits (if run_cross_task then use all data; otherwise use outer_cv splits)
-    col_indices = np.arange(len(subset_df_A))
-    splits = [(col_indices, col_indices)] if run_cross_task else list(outer_cv.split(subset_df_A, score_A))
+                          scoring_function_to_use,
+                          flat_cv, model_name, seed):
 
-    results = []
-    split_num = 0
-    for train_idx, test_idx in splits:
-        split_time = time.time()
+    def objective(trial):            
+        if model_name == "linsvc":
+            penalty = trial.suggest_categorical("model__penalty", ['l2'])
+            # C = trial.suggest_float("model__C", 0.001, 0.1, log=True)
+            C = trial.suggest_categorical("model__C", [0.05])
+            # max_iter = trial.suggest_categorical("model__max_iter", [10, 100, 1000, 5000, 10000])
+            max_iter = trial.suggest_categorical("model__max_iter", [1000])
+            model_instance = JointEstimator(LinearSVC(penalty=penalty, C=C, class_weight='balanced',
+                                        random_state=seed, max_iter=max_iter),
+                                        None, None, None, None)
+        elif model_name == "logreg":
+            penalty = trial.suggest_categorical("model__penalty", ['l2'])
+            C = trial.suggest_float("model__C", 0.001, 0.1, log=True)
+            max_iter = trial.suggest_categorical("model__max_iter", [10, 100, 1000, 5000, 10000])
+            solver = trial.suggest_categorical("model__solver", ['liblinear'])
+            model_instance = JointEstimator(LogisticRegression(penalty=penalty, C=C, class_weight='balanced',
+                                                random_state=seed, max_iter=max_iter, n_jobs=1, solver=solver),
+                                        None, None, None, None)
+        elif model_name == "knn":
+            n_neighbors = trial.suggest_int("model__n_neighbors", 3, 21, step=2)
+            metric = trial.suggest_categorical("model__metric", ['euclidean', 'manhattan'])
+            weights = trial.suggest_categorical("model__weights", ['uniform', 'distance'])
+            model_instance = JointEstimator(KNeighborsClassifier(n_neighbors=n_neighbors, metric=metric, weights=weights),
+                                        None, None, None, None)
+        elif model_name == "random_forest":
+            n_estimators = trial.suggest_int("model__n_estimators", 10, 1000, step=10)
+            max_depth = trial.suggest_int("model__max_depth", 1, 100)
+            model_instance = JointEstimator(RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth, random_state=seed),
+                                        None, None, None, None)
+        elif model_name == "extra_trees":
+            n_estimators = trial.suggest_int("model__n_estimators", 10, 1000, step=10)
+            max_depth = trial.suggest_int("model__max_depth", 1, 100)
+            min_samples_split = trial.suggest_int("model__min_samples_split", 2, 10)
+            min_samples_leaf = trial.suggest_int("model__min_samples_leaf", 1, 5)
+            class_weight = trial.suggest_categorical("model__class_weight", ['balanced', None])
+            model_instance = JointEstimator(ExtraTreesClassifier(n_estimators=n_estimators, max_depth=max_depth, min_samples_split=min_samples_split,
+                                                                    min_samples_leaf=min_samples_leaf, class_weight=class_weight, random_state=seed),
+                                        None, None, None, None)
+        elif model_name == "xgboost":
+            imbalance_ratio = np.sum(train_score_A_array == 0) / np.sum(train_score_A_array == 1)
+            n_estimators = trial.suggest_int("model__n_estimators", 10, 1000, step=10)
+            max_depth = trial.suggest_int("model__max_depth", 1, 100)
+            learning_rate = trial.suggest_float("model__learning_rate", 0.001, 1, log=True)
+            # scale_pos_weight = trial.suggest_categorical("model__scale_pos_weight", [imbalance_ratio, imbalance_ratio * 0.5, imbalance_ratio * 0.1, imbalance_ratio * 2, imbalance_ratio * 10])
+            scale_pos_weight = trial.suggest_float("model__scale_pos_weight", 0.001, 1000)
 
-        # Prepare training data
-        train_data_A = subset_df_A.iloc[train_idx].copy()
-        train_data_A = scale_impute_df(train_data_A, scaler, imputer)
-        if metadata_df_A is not None:
-            train_metadata_A = metadata_df_A.iloc[train_idx].copy()
-            train_data_A = pd.concat([train_data_A, train_metadata_A], axis=1)
-        train_score_A = score_A.iloc[train_idx].copy()
-
-        train_data_B = subset_df_B.iloc[train_idx].copy()
-        train_data_B = scale_impute_df(train_data_B, scaler, imputer)
-        if metadata_df_B is not None:
-            train_metadata_B = metadata_df_B.iloc[train_idx].copy()
-            train_data_B = pd.concat([train_data_B, train_metadata_B], axis=1)
-        train_score_B = score_B.iloc[train_idx].copy()
-
-        # Prepare testing data
-        test_data_A = subset_df_A.iloc[test_idx].copy()
-        test_data_A = scale_impute_df(test_data_A, scaler, imputer)
-        if metadata_df_A is not None:
-            test_metadata_A = metadata_df_A.iloc[test_idx].copy()
-            test_data_A = pd.concat([test_data_A, test_metadata_A], axis=1)
-        test_score_A = score_A.iloc[test_idx].copy()
-
-        test_data_B = subset_df_B.iloc[test_idx].copy()
-        test_data_B = scale_impute_df(test_data_B, scaler, imputer)
-        if metadata_df_B is not None:
-            test_metadata_B = metadata_df_B.iloc[test_idx].copy()
-            test_data_B = pd.concat([test_data_B, test_metadata_B], axis=1)
-        test_score_B = score_B.iloc[test_idx].copy()
-
-        train_data_A_array = train_data_A.to_numpy(copy=True)
-        train_data_B_array = train_data_B.to_numpy(copy=True)
-        train_score_A_array = train_score_A.to_numpy(copy=True)
-        train_score_B_array = train_score_B.to_numpy(copy=True)
-        test_data_A_array = test_data_A.to_numpy(copy=True)
-        test_data_B_array = test_data_B.to_numpy(copy=True)
-        test_score_A_array = test_score_A.to_numpy(copy=True)
-        test_score_B_array = test_score_B.to_numpy(copy=True)
-
-        imbalance_ratio = np.sum(train_score_A_array == 0) / np.sum(train_score_A_array == 1)
-
-        def objective(trial):            
-            if model_name == "linsvc":
-                penalty = trial.suggest_categorical("model__penalty", ['l2'])
-                # C = trial.suggest_float("model__C", 0.001, 0.1, log=True)
-                C = trial.suggest_categorical("model__C", [0.03])
-                # max_iter = trial.suggest_categorical("model__max_iter", [10, 100, 1000, 5000, 10000])
-                max_iter = trial.suggest_categorical("model__max_iter", [1000])
-                model_instance = JointEstimator(LinearSVC(penalty=penalty, C=C, class_weight='balanced',
-                                           random_state=seed, max_iter=max_iter),
-                                           train_data_A_array, train_data_B_array,
-                                           train_score_A_array, train_score_B_array)
-            elif model_name == "logreg":
-                penalty = trial.suggest_categorical("model__penalty", ['l2'])
-                C = trial.suggest_float("model__C", 0.001, 0.1, log=True)
-                max_iter = trial.suggest_categorical("model__max_iter", [10, 100, 1000, 5000, 10000])
-                solver = trial.suggest_categorical("model__solver", ['liblinear'])
-                model_instance = JointEstimator(LogisticRegression(penalty=penalty, C=C, class_weight='balanced',
-                                                    random_state=seed, max_iter=max_iter, n_jobs=1, solver=solver),
-                                           train_data_A_array, train_data_B_array,
-                                           train_score_A_array, train_score_B_array)
-            elif model_name == "knn":
-                n_neighbors = trial.suggest_int("model__n_neighbors", 3, 21, step=2)
-                metric = trial.suggest_categorical("model__metric", ['euclidean', 'manhattan'])
-                weights = trial.suggest_categorical("model__weights", ['uniform', 'distance'])
-                model_instance = JointEstimator(KNeighborsClassifier(n_neighbors=n_neighbors, metric=metric, weights=weights),
-                                           train_data_A_array, train_data_B_array,
-                                           train_score_A_array, train_score_B_array)
-            elif model_name == "random_forest":
-                n_estimators = trial.suggest_int("model__n_estimators", 10, 1000, step=10)
-                max_depth = trial.suggest_int("model__max_depth", 1, 100)
-                model_instance = JointEstimator(RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth, random_state=seed),
-                                           train_data_A_array, train_data_B_array,
-                                           train_score_A_array, train_score_B_array)
-            elif model_name == "extra_trees":
-                n_estimators = trial.suggest_int("model__n_estimators", 10, 1000, step=10)
-                max_depth = trial.suggest_int("model__max_depth", 1, 100)
-                min_samples_split = trial.suggest_int("model__min_samples_split", 2, 10)
-                min_samples_leaf = trial.suggest_int("model__min_samples_leaf", 1, 5)
-                class_weight = trial.suggest_categorical("model__class_weight", ['balanced', None])
-                model_instance = JointEstimator(ExtraTreesClassifier(n_estimators=n_estimators, max_depth=max_depth, min_samples_split=min_samples_split,
-                                                                     min_samples_leaf=min_samples_leaf, class_weight=class_weight, random_state=seed),
-                                           train_data_A_array, train_data_B_array,
-                                           train_score_A_array, train_score_B_array)
-            elif model_name == "xgboost":
-                n_estimators = trial.suggest_int("model__n_estimators", 10, 1000, step=10)
-                max_depth = trial.suggest_int("model__max_depth", 1, 100)
-                learning_rate = trial.suggest_float("model__learning_rate", 0.001, 1, log=True)
-                # scale_pos_weight = trial.suggest_categorical("model__scale_pos_weight", [imbalance_ratio, imbalance_ratio * 0.5, imbalance_ratio * 0.1, imbalance_ratio * 2, imbalance_ratio * 10])
-                scale_pos_weight = trial.suggest_float("model__scale_pos_weight", 0.001, 1000)
-
-                model_instance = JointEstimator(
-                    XGBClassifier(
-                        n_estimators=n_estimators, max_depth=max_depth,
-                        random_state=seed, learning_rate=learning_rate,
-                        scale_pos_weight=imbalance_ratio * scale_pos_weight
-                    ),
-                    train_data_A_array, train_data_B_array,
-                    train_score_A_array, train_score_B_array
-                )
-            else:
-                raise ValueError("Unknown model name")
-
-            steps = []
-            if feature_selection_method == "sfs":
-                floating = trial.suggest_categorical("fs__floating", [False])
-                forward = trial.suggest_categorical("fs__forward", [True])
-                steps.append(('fs', JointSFSSelector(estimator=model_instance,
-                                                k_features=num_features,
-                                                forward=forward,
-                                                floating=floating,
-                                                scoring=make_scorer(scoring_function_to_use),
-                                                cv=inner_cv,
-                                                fixed_features=None,
-                                                feature_groups=None,
-                                                n_jobs=sfs_n_jobs)))
-                steps.append(('model', model_instance))
-            elif feature_selection_method == "rfe":
-                n_features_to_select = trial.suggest_int("fs__n_features_to_select", 1, num_features)
-                step = trial.suggest_categorical("fs__step", [1, 2, 5, 7, 10])
-                rfe = RFE(estimator=model_instance, n_features_to_select=n_features_to_select, step=step)
-                steps.append(('fs', rfe))
-                steps.append(('model', model_instance))
-            elif feature_selection_method == "manual":
-                steps.append(('tf', JointDummyTransformer()))
-                steps.append(('model', model_instance))
-            else:
-                raise ValueError("Unknown feature selection method")
-            pipeline = Pipeline(steps)
-
-            # Handle RFE later
-            if feature_selection_method in ["sfs"]:
-                pipeline.fit(train_data_A, train_score_A)
-                selected_mask = [i for i in pipeline.named_steps['fs'].k_feature_idx_]
-                trial.set_user_attr("selected_features", selected_mask)
-                jdtf = JointDummyTransformer()
-                jdtf.set_k_feature_idx(selected_mask)
-                pipeline.steps.pop(0)
-                pipeline.steps.insert(0, ('tf', jdtf))
-                
-            inner_splits = list(inner_cv.split(train_data_A, train_score_A))
-            cv_scores = []
-            for inner_train_idx, inner_test_idx in inner_splits:
-                inner_train_data_A = train_data_A.iloc[inner_train_idx].to_numpy()
-                inner_train_data_B = train_data_B.iloc[inner_train_idx].to_numpy()
-                inner_train_score_A = train_score_A.iloc[inner_train_idx].to_numpy()
-                inner_train_score_B = train_score_B.iloc[inner_train_idx].to_numpy()
-                inner_test_data_A = train_data_A.iloc[inner_test_idx].to_numpy()
-                inner_test_data_B = train_data_B.iloc[inner_test_idx].to_numpy()
-                inner_test_score_A = train_score_A.iloc[inner_test_idx].to_numpy()
-                inner_test_score_B = train_score_B.iloc[inner_test_idx].to_numpy()
-                pipeline.steps[1][1].set_data(inner_train_data_A,
-                                            inner_train_data_B,
-                                            inner_train_score_A,
-                                            inner_train_score_B)
-                pipeline.fit(train_data_A.iloc[inner_train_idx], train_score_A.iloc[inner_train_idx])
-                pipeline.steps[1][1].set_data(inner_test_data_A,
-                                            inner_test_data_B,
-                                            inner_test_score_A,
-                                            inner_test_score_B)
-                y_pred = pipeline.predict(train_data_A.iloc[inner_test_idx])
-                joint_mcc = scoring_function_to_use(inner_test_score_A, y_pred)
-                cv_scores.append(joint_mcc)
-
-            return np.mean(cv_scores)
-
-        # Run Optuna study
-        study = optuna.create_study(direction="maximize")
-        if trial_num is not None:
-            study.optimize(objective, n_trials=trial_num, n_jobs=study_n_jobs)
+            model_instance = JointEstimator(
+                XGBClassifier(
+                    n_estimators=n_estimators, max_depth=max_depth,
+                    random_state=seed, learning_rate=learning_rate,
+                    scale_pos_weight=imbalance_ratio * scale_pos_weight
+                ),
+                None, None, None, None
+            )
         else:
-            study.optimize(objective, timeout=trial_run_time, n_jobs=study_n_jobs)
+            raise ValueError("Unknown model name")
 
-        best_trial = study.best_trial
-        best_params = best_trial.params
-        selected_feature_indices = best_trial.user_attrs.get("selected_features", None)
-        if manual_feature_combination is False:
-            with open(f"./results_server/{label_desc}_study_{split_num}.pkl", "wb") as f:
-                pickle.dump(study, f)
-            split_num += 1
+        steps = []
+        steps.append(('tf', JointDummyTransformer()))
+        steps.append(('model', model_instance))
+        pipeline = Pipeline(steps)
+            
+        splits = list(flat_cv.split(subset_df_A, score_A))
+        results = []
+        for train_idx, test_idx in splits:
 
-        # Helper to rebuild pipeline from best_params
-        def build_pipeline_from_params(params, selected_feature_indices=None):
-                     
-            if model_name == "linsvc":
-                penalty = params["model__penalty"]
-                C = params["model__C"]
-                max_iter = params["model__max_iter"]                
-                model_instance = JointEstimator(LinearSVC(penalty=penalty, C=C, class_weight='balanced',
-                                           random_state=seed, max_iter=max_iter),
-                                           train_data_A_array, train_data_B_array,
-                                           train_score_A_array, train_score_B_array)
+            # Prepare training data
+            train_data_A = subset_df_A.iloc[train_idx].copy()
+            train_data_A = scale_impute_df(train_data_A, scaler, imputer)
+            if metadata_df_A is not None:
+                train_metadata_A = metadata_df_A.iloc[train_idx].copy()
+                train_data_A = pd.concat([train_data_A, train_metadata_A], axis=1)
+            train_score_A = score_A.iloc[train_idx].copy()
 
-            elif model_name == "logreg":
-                penalty = params["model__penalty"]
-                C = params["model__C"]
-                max_iter = params["model__max_iter"]
-                solver = params["model__solver"]
-                model_instance = JointEstimator(LogisticRegression(penalty=penalty, C=C, class_weight='balanced',
-                                                    random_state=seed, max_iter=max_iter, n_jobs=1, solver=solver),
-                                           train_data_A_array, train_data_B_array,
-                                           train_score_A_array, train_score_B_array)
-            elif model_name == "knn":
-                n_neighbors = params["model__n_neighbors"]
-                metric = params["model__metric"]
-                weights = params["model__weights"]
-                model_instance = JointEstimator(KNeighborsClassifier(n_neighbors=n_neighbors, metric=metric, weights=weights),
-                                           train_data_A_array, train_data_B_array,
-                                           train_score_A_array, train_score_B_array)
-            elif model_name == "random_forest":
-                n_estimators = params["model__n_estimators"]
-                max_depth = params["model__max_depth"]
-                model_instance = JointEstimator(RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth, random_state=seed),
-                                           train_data_A_array, train_data_B_array,
-                                           train_score_A_array, train_score_B_array)
-            elif model_name == "extra_trees":
-                n_estimators = params["model__n_estimators"]
-                max_depth = params["model__max_depth"]
-                min_samples_split = params["model__min_samples_split"]
-                min_samples_leaf = params["model__min_samples_leaf"]
-                class_weight = params["model__class_weight"]
-                model_instance = JointEstimator(ExtraTreesClassifier(n_estimators=n_estimators, max_depth=max_depth, min_samples_split=min_samples_split,
-                                                                     min_samples_leaf=min_samples_leaf, class_weight=class_weight, random_state=seed),
-                                           train_data_A_array, train_data_B_array,
-                                           train_score_A_array, train_score_B_array)
-            elif model_name == "xgboost":
-                n_estimators = params["model__n_estimators"]
-                max_depth = params["model__max_depth"]
-                learning_rate = params["model__learning_rate"]
-                scale_pos_weight = params["model__scale_pos_weight"]
-                model_instance = JointEstimator(XGBClassifier(n_estimators=n_estimators, max_depth=max_depth,
-                                                              random_state=seed, learning_rate=learning_rate,
-                                                              scale_pos_weight=imbalance_ratio * scale_pos_weight),
-                                           train_data_A_array, train_data_B_array,
-                                           train_score_A_array, train_score_B_array)
-            else:
-                raise ValueError("Unknown model name")
-            steps = []
-            if feature_selection_method == "sfs":
-                if selected_feature_indices is not None:
-                    jdtf = JointDummyTransformer()
-                    jdtf.set_k_feature_idx(selected_feature_indices)
-                    steps.append(('tf', jdtf))
-                else:
-                    raise ValueError("Selected feature indices are not set") 
-                steps.append(('model', model_instance))
-            elif feature_selection_method == "rfe":
-                n_features_to_select = params["fs__n_features_to_select"]
-                step = params["fs__step"]
-                rfe = RFE(estimator=model_instance, n_features_to_select=n_features_to_select, step=step)
-                steps.append(('fs', rfe))
-                steps.append(('model', model_instance))
-            elif feature_selection_method == "manual":
-                steps.append(('tf', JointDummyTransformer()))
-                steps.append(('model', model_instance))
-            else:
-                raise ValueError("Unknown feature selection method")
-            return Pipeline(steps)
+            train_data_B = subset_df_B.iloc[train_idx].copy()
+            train_data_B = scale_impute_df(train_data_B, scaler, imputer)
+            if metadata_df_B is not None:
+                train_metadata_B = metadata_df_B.iloc[train_idx].copy()
+                train_data_B = pd.concat([train_data_B, train_metadata_B], axis=1)
+            train_score_B = score_B.iloc[train_idx].copy()
 
-        best_pipeline = build_pipeline_from_params(best_params, selected_feature_indices)
+            # Prepare testing data
+            test_data_A = subset_df_A.iloc[test_idx].copy()
+            test_data_A = scale_impute_df(test_data_A, scaler, imputer)
+            if metadata_df_A is not None:
+                test_metadata_A = metadata_df_A.iloc[test_idx].copy()
+                test_data_A = pd.concat([test_data_A, test_metadata_A], axis=1)
+            test_score_A = score_A.iloc[test_idx].copy()
 
-        unique_feature_names = np.array([i.replace("_A", "") for i in train_data_A.columns])
-        selected_feature_names = None
-        if selected_feature_indices is not None:
-            selected_feature_names = unique_feature_names[selected_feature_indices]
-        else:
-            selected_feature_names = unique_feature_names
+            test_data_B = subset_df_B.iloc[test_idx].copy()
+            test_data_B = scale_impute_df(test_data_B, scaler, imputer)
+            if metadata_df_B is not None:
+                test_metadata_B = metadata_df_B.iloc[test_idx].copy()
+                test_data_B = pd.concat([test_data_B, test_metadata_B], axis=1)
+            test_score_B = score_B.iloc[test_idx].copy()
 
-        if run_cross_task:
-            raise NotImplementedError("Cross task prediction evaluation not implemented")
-            inner_splits = list(inner_cv.split(train_data_A, train_score_A))
-            y_preds = []
-            for inner_train_idx, inner_test_idx in inner_splits:
-                inner_train_data_A = train_data_A.iloc[inner_train_idx].to_numpy()
-                inner_train_data_B = train_data_B.iloc[inner_train_idx].to_numpy()
-                inner_train_score_A = train_score_A.iloc[inner_train_idx].to_numpy()
-                inner_train_score_B = train_score_B.iloc[inner_train_idx].to_numpy()
-                inner_test_data_A = train_data_A.iloc[inner_test_idx].to_numpy()
-                inner_test_data_B = train_data_B.iloc[inner_test_idx].to_numpy()
-                inner_test_score_A = train_score_A.iloc[inner_test_idx].to_numpy()
-                inner_test_score_B = train_score_B.iloc[inner_test_idx].to_numpy()
-                best_pipeline.steps[1][1].set_data(inner_train_data_A,
-                                            inner_train_data_B,
-                                            inner_train_score_A,
-                                            inner_train_score_B)
-                best_pipeline.fit(train_data_A.iloc[inner_train_idx], train_score_A.iloc[inner_train_idx])
-                best_pipeline.steps[1][1].set_data(inner_test_data_A,
-                                            inner_test_data_B,
-                                            inner_test_score_A,
-                                            inner_test_score_B)
-                y_pred = best_pipeline.predict(train_data_A.iloc[inner_test_idx])
-                y_preds.append(y_pred)
-        else:
-            best_pipeline.fit(train_data_A, train_score_A)
-            best_pipeline.steps[1][1].set_data(test_data_A_array,
-                                            test_data_B_array,
-                                            test_score_A_array,
-                                            test_score_B_array)
-            y_pred = best_pipeline.predict(test_data_A)
+            train_data_A_array = train_data_A.to_numpy(copy=True)
+            train_data_B_array = train_data_B.to_numpy(copy=True)
+            train_score_A_array = train_score_A.to_numpy(copy=True)
+            train_score_B_array = train_score_B.to_numpy(copy=True)
+            test_data_A_array = test_data_A.to_numpy(copy=True)
+            test_data_B_array = test_data_B.to_numpy(copy=True)
+            test_score_A_array = test_score_A.to_numpy(copy=True)
+            test_score_B_array = test_score_B.to_numpy(copy=True)
 
-        result = evaluate_predictions(None, y_pred, scoring_function_to_use)
-        result['best_params'] = best_params
-        result['selected_features'] = selected_feature_names
-        result['y_true_A'] = test_score_A
-        result['y_pred_A'] = y_pred
-        result['y_true_B'] = test_score_B
-        result['y_pred_B'] = y_pred
-        result['train_PIDs'] = PID[train_idx]
-        result['test_PIDs'] = PID[test_idx]
-        if not manual_feature_combination:
-            print(f"Performance: {result['joint_mcc']} | best_params: {best_params} | selected_features: {selected_feature_names}")
-        results.append(result)
-        if not manual_feature_combination:
-            print(f"Split time: {time.time() - split_time}")
+            pipeline.steps[1][1].set_data(train_data_A_array,
+                                        train_data_B_array,
+                                        train_score_A_array,
+                                        train_score_B_array)
+            pipeline.fit(train_data_A, train_score_A)
+            pipeline.steps[1][1].set_data(test_data_A_array,
+                                        test_data_B_array,
+                                        test_score_A_array,
+                                        test_score_B_array)
+            y_pred = pipeline.predict(test_data_A)
 
+            result = evaluate_predictions(None, y_pred, scoring_function_to_use)
+            result['y_true_A'] = test_score_A
+            result['y_pred_A'] = y_pred
+            result['y_true_B'] = test_score_B
+            result['y_pred_B'] = y_pred
+            result['train_PIDs'] = PID[train_idx]
+            result['test_PIDs'] = PID[test_idx]
+            results.append(result)
+
+        trial.set_user_attr("results", results)
+
+        return np.mean([result['joint_mcc'] for result in results])
+
+    # Run Optuna study
+    study = optuna.create_study(direction="maximize")
+    study.optimize(objective, n_trials=trial_num, n_jobs=study_n_jobs)
+
+    best_trial = study.best_trial
+    results = best_trial.user_attrs.get("results", None)
+    
+    if results is None:
+        raise ValueError("No results found")
+    
     # Aggregate CV metrics
     cv_metrics = {
         'accuracy': [],
@@ -529,8 +326,6 @@ def _run_cross_validation(subset_df_A, subset_df_B, metadata_df_A,
         'specificity': [],
         'joint_mcc': [],
         'confusion_matrices': [],
-        'selected_features': [],
-        'best_params': []
     }
 
     for result in results:
@@ -543,22 +338,6 @@ def _run_cross_validation(subset_df_A, subset_df_B, metadata_df_A,
         cv_metrics['specificity'].append(result['specificity'])
         cv_metrics['joint_mcc'].append(result['joint_mcc'])
         cv_metrics['confusion_matrices'].append(result['confusion_matrix'])
-        cv_metrics['selected_features'].append(result['selected_features'])
-        cv_metrics['best_params'].append(result['best_params'])
-
-    feature_counts = {}
-    param_counts = {}
-
-    for params in cv_metrics['best_params']:
-        for param, value in params.items():
-            if param not in param_counts:
-                param_counts[param] = {}
-            param_counts[param][value] = param_counts[param].get(value, 0) + 1
-
-    for features in cv_metrics['selected_features']:
-        if features is not None:
-            for feature in features:
-                feature_counts[feature] = feature_counts.get(feature, 0) + 1
 
     normalized_matrices = []
     for cm in cv_metrics['confusion_matrices']:
@@ -585,12 +364,11 @@ def _run_cross_validation(subset_df_A, subset_df_B, metadata_df_A,
         'joint_mcc': np.mean(cv_metrics['joint_mcc']),
         'joint_mcc_std': np.std(cv_metrics['joint_mcc']),
         'confusion_matrices': cv_metrics['confusion_matrices'],
-        'feature_selection': sorted([(i, j) for i, j in feature_counts.items()], key=lambda x: x[1], reverse=True),
-        'feature_counts': feature_counts,
-        'hyperparameter_tuning': param_counts,
         'avg_confusion_matrix': avg_cm,
         'std_confusion_matrix': std_cm,
-        'split_results': results
+        'kfold_results': results,
+        'best_trial': best_trial,
+        'best_params': best_trial.params
     }
     
     return avg_metrics
@@ -603,9 +381,9 @@ def _run_experiment(parameters, best_score):
 
     print(f"Running experiment for {label}")
     subset_df_A, subset_df_B, metadata_df_A, metadata_df_B = _init_subset_data(combined_feature_set, feature_selection, use_metadata_features=False)    
-    score_A, score_B, inner_cv, outer_cv = _init_cross_validation(cross_task, clf_func, random_state)
+    score_A, score_B, flat_cv = _init_cross_validation(cross_task, clf_func, random_state)
 
-    if feature_selection == "manual" and manual_feature_combination:
+    if manual_feature_combination:
         optuna.logging.set_verbosity(optuna.logging.WARNING)
 
         available_features = [i.replace("_A", "") for i in subset_df_A.columns]
@@ -642,10 +420,8 @@ def _run_experiment(parameters, best_score):
                     subset_df_A_combo = subset_df_A[[f"{i}_A" for i in combo]]
                     subset_df_B_combo = subset_df_B[[f"{i}_B" for i in combo]]
 
-                    # print(f"Running experiment for {combo_map}")
                     combo_avg_metrics = _run_cross_validation(subset_df_A_combo, subset_df_B_combo, metadata_df_A, metadata_df_B,
-                                        score_A, score_B, cross_task, feature_selection,
-                                        scoring_function, label, inner_cv, outer_cv, model_name, random_state)
+                                        score_A, score_B, scoring_function, flat_cv, model_name, random_state)
                     
                     if combo_avg_metrics['joint_mcc'] > best_combo['joint_mcc']:
                         best_combo = combo_avg_metrics
@@ -669,10 +445,8 @@ def _run_experiment(parameters, best_score):
             if (type(feature_set[0]) == list):
                 combos = product(*feature_set)
                 max_greedy_size = len(feature_set)
-                num_combos = len(feature_set[0]) ** len(feature_set)
             else:
                 combos = [feature_set]
-                num_combos = 1
 
             for subset in combos:
                 current_features = []
@@ -692,8 +466,7 @@ def _run_experiment(parameters, best_score):
                         
                         combo_avg_metrics = _run_cross_validation(
                             subset_df_A_combo, subset_df_B_combo, metadata_df_A, metadata_df_B,
-                            score_A, score_B, cross_task, feature_selection,
-                            scoring_function, label, inner_cv, outer_cv, model_name, random_state
+                            score_A, score_B, scoring_function, flat_cv, model_name, random_state
                         )
                         feature_combination_performance[candidate_combo_map] = combo_avg_metrics
 
@@ -724,8 +497,7 @@ def _run_experiment(parameters, best_score):
                                 
                                 combo_avg_metrics = _run_cross_validation(
                                     subset_df_A_combo, subset_df_B_combo, metadata_df_A, metadata_df_B,
-                                    score_A, score_B, cross_task, feature_selection,
-                                    scoring_function, label, inner_cv, outer_cv, model_name, random_state
+                                    score_A, score_B, scoring_function, flat_cv, model_name, random_state
                                 )
                                 feature_combination_performance[candidate_combo_map] = combo_avg_metrics
 
@@ -763,8 +535,7 @@ def _run_experiment(parameters, best_score):
             
             current_metrics = _run_cross_validation(
                 subset_df_A_combo, subset_df_B_combo, metadata_df_A, metadata_df_B,
-                score_A, score_B, cross_task, feature_selection,
-                scoring_function, label, inner_cv, outer_cv, model_name, random_state
+                score_A, score_B, scoring_function, flat_cv, model_name, random_state
             )
             best_overall_metric = current_metrics['joint_mcc']
             print(f"Initial fixed-length combo: {candidate_combo_map} -> {best_overall_metric}")
@@ -809,8 +580,7 @@ def _run_experiment(parameters, best_score):
                         subset_df_B_combo = subset_df_B[[f"{feat}_B" for feat in candidate_selection]]
                         candidate_metrics = _run_cross_validation(
                             subset_df_A_combo, subset_df_B_combo, metadata_df_A, metadata_df_B,
-                            score_A, score_B, cross_task, feature_selection,
-                            scoring_function, label, inner_cv, outer_cv, model_name, random_state
+                            score_A, score_B, scoring_function, flat_cv, model_name, random_state
                         )
                         
                         # If this candidate improves the metric for this group, update our best candidate.
@@ -845,22 +615,17 @@ def _run_experiment(parameters, best_score):
 
         if best_combo['joint_mcc'] > best_score:
             best_score = best_combo['joint_mcc']
-            with open(f"./results_server/{label}_{manual_feature_search_method}_combo_metrics.pkl", "wb") as f:
+            with open(f"./results_server/{label}_{manual_feature_search_method}_flat_combo_metrics.pkl", "wb") as f:
                 pickle.dump(combo_metrics, f)
 
     else:
         avg_metrics = _run_cross_validation(subset_df_A, subset_df_B, metadata_df_A, metadata_df_B,
-                          score_A, score_B, cross_task, feature_selection,
-                          scoring_function, label, inner_cv, outer_cv, model_name, random_state)
-        print(f"Final Average MCC: {avg_metrics['joint_mcc']}")
-        with open(f"./results_server/{label}_avg_metrics.pkl", "wb") as f:
-            pickle.dump(avg_metrics, f)
-
-        best_score = avg_metrics['joint_mcc']
+                          score_A, score_B, scoring_function, flat_cv, model_name, random_state)
+        print(f"Best Average MCC: {avg_metrics['joint_mcc']}")
 
         if avg_metrics['joint_mcc'] > best_score:
             best_score = avg_metrics['joint_mcc']
-            with open(f"./results_server/{label}_avg_metrics.pkl", "wb") as f:
+            with open(f"./results_server/{label}_flat_avg_metrics.pkl", "wb") as f:
                 pickle.dump(avg_metrics, f)
 
     print(f"Experiment run time: {time.time() - start_time}")

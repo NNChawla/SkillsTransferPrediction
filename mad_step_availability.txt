@@ -1,0 +1,51 @@
+MAD: 0.5 | STEP: 91 | LEN: 5
+MAD: 0.5 | STEP: 181 | LEN: 10
+MAD: 0.5 | STEP: 271 | LEN: 11
+MAD: 0.5 | STEP: 361 | LEN: 8
+MAD: 0.5 | STEP: 451 | LEN: 10
+MAD: 0.5 | STEP: 541 | LEN: 10
+MAD: 0.75 | STEP: 91 | LEN: 5
+MAD: 0.75 | STEP: 181 | LEN: 7
+MAD: 0.75 | STEP: 271 | LEN: 10
+MAD: 0.75 | STEP: 361 | LEN: 6
+MAD: 0.75 | STEP: 451 | LEN: 9
+MAD: 0.75 | STEP: 541 | LEN: 8
+MAD: _1_ | STEP: 91 | LEN: 6
+MAD: _1_ | STEP: 181 | LEN: 8
+MAD: _1_ | STEP: 271 | LEN: 9
+MAD: _1_ | STEP: 361 | LEN: 8
+MAD: _1_ | STEP: 451 | LEN: 10
+MAD: _1_ | STEP: 541 | LEN: 11
+MAD: 1.25 | STEP: 91 | LEN: 10
+MAD: 1.25 | STEP: 181 | LEN: 9
+MAD: 1.25 | STEP: 271 | LEN: 7
+MAD: 1.25 | STEP: 361 | LEN: 10
+MAD: 1.25 | STEP: 451 | LEN: 9
+MAD: 1.25 | STEP: 541 | LEN: 9
+
+
+CODE:
+mads = ["0.5", "0.75", "_1_", "1.25"]
+steps = ["91", "181", "271", "361", "451", "541"]
+for mad in mads:
+    for step in steps:
+        features = []
+        for sublist in data:
+            sl = [i for i in sublist if (step in i) and (mad in i)]
+            features.append(sl)
+        lengths = sum([len(i) > 0 for i in features])
+        print(f"MAD: {mad} | STEP: {step} | LEN: {lengths}")
+
+corrs = pd.read_csv("./_within_task_statistic_results/threshold_0/top_valid_within_point_biserial_features.csv")
+feature_map = corrs.to_dict()['Feature']
+feature_map = dict([(j,i) for i,j in feature_map.items()])
+mads = ["0.5", "0.75", "_1_", "1.25"]
+steps = ["91", "181", "271", "361", "451", "541"]
+feature_set = {}
+for mad in mads:
+    for step in steps:
+        features = []
+        for sublist in data:
+            sl = [corrs.iloc[feature_map[i]].to_list()[:3] for i in sublist if (step in i) and (mad in i)]
+            features.append(sl)
+        feature_set[f"{mad}_{step}"] = features

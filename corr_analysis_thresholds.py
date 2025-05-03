@@ -111,7 +111,7 @@ tdf_B = tdf[features_B]
 utdf_A = utdf[features_A]
 utdf_B = utdf[features_B]
 
-thresholds = [2, 4, 6, 8, 10, 12]
+thresholds = [0] # [2, 4, 6, 8, 10, 12]
 for threshold in thresholds:
     score_A = score_A_Linear.apply(lambda x: 1 if x > threshold else 0)
     score_B = score_B_Linear.apply(lambda x: 1 if x > threshold else 0)
@@ -435,3 +435,169 @@ for threshold in thresholds:
         writer.writerow(["Feature", "Chi-Square_A", "Chi-Square_B", "Harmonic Mean"])
         writer.writerows(sorted_top_valid_chisq_within_features)
     print(f"Within-task Chi-Square Test (Metadata) completed in {time.time() - t} seconds")
+
+
+###########################################################################################
+# Distribution of Features
+###########################################################################################
+
+with open("/srv/STP/_within_task_statistic_results/top_valid_within_fstat_features.csv", "r") as f:
+    reader = csv.reader(f)
+    fstat_within_features = [tpl for tpl in reader][1:]
+    fstat_within_features = [[i[0], float(i[1]), float(i[2]), metric_harmonic_mean(float(i[1]), float(i[2]))] for i in fstat_within_features]
+    fstat_within_features = sorted(fstat_within_features, key=lambda x: x[3], reverse=True)
+
+with open("/srv/STP/_within_task_statistic_results/top_valid_within_spearman_features.csv", "r") as f:
+    reader = csv.reader(f)
+    spearman_within_features = [tpl for tpl in reader][1:]
+    spearman_within_features = [[i[0], float(i[1]), float(i[2]), metric_harmonic_mean(float(i[1]), float(i[2]))] for i in spearman_within_features]
+    spearman_within_features = sorted(spearman_within_features, key=lambda x: x[3], reverse=True)
+
+with open("/srv/STP/_within_task_statistic_results/top_valid_within_point_biserial_features.csv", "r") as f:
+    reader = csv.reader(f)
+    point_biserial_within_features = [tpl for tpl in reader][1:]
+    point_biserial_within_features = [[i[0], float(i[1]), float(i[2]), metric_harmonic_mean(float(i[1]), float(i[2]))] for i in point_biserial_within_features]
+    point_biserial_within_features = sorted(point_biserial_within_features, key=lambda x: x[3], reverse=True)
+
+with open("/srv/STP/_within_task_statistic_results/top_valid_within_ks_stat_features.csv", "r") as f:
+    reader = csv.reader(f)
+    ks_stat_within_features = [tpl for tpl in reader][1:]
+    ks_stat_within_features = [[i[0], float(i[1]), float(i[2]), metric_harmonic_mean(float(i[1]), float(i[2]))] for i in ks_stat_within_features]
+    ks_stat_within_features = sorted(ks_stat_within_features, key=lambda x: x[3], reverse=True)
+
+with open("/srv/STP/_within_task_statistic_results/top_valid_within_mutual_information_features.csv", "r") as f:
+    reader = csv.reader(f)
+    mutual_information_within_features = [tpl for tpl in reader][1:]
+    mutual_information_within_features = [[i[0], float(i[1]), float(i[2]), metric_harmonic_mean(float(i[1]), float(i[2]))] for i in mutual_information_within_features]
+    mutual_information_within_features = sorted(mutual_information_within_features, key=lambda x: x[3], reverse=True)
+
+# feature_distribution = {}
+# for i in range(len(fstat_within_features)):
+#     if fstat_within_features[i][0] not in feature_distribution:
+#         feature_distribution[fstat_within_features[i][0]] = [i]
+#     else:
+#         feature_distribution[fstat_within_features[i][0]].append(i)
+
+# for i in range(len(spearman_within_features)):
+#     if spearman_within_features[i][0] not in feature_distribution:
+#         feature_distribution[spearman_within_features[i][0]] = [i]
+#     else:
+#         feature_distribution[spearman_within_features[i][0]].append(i)
+
+# for i in range(len(point_biserial_within_features)):
+#     if point_biserial_within_features[i][0] not in feature_distribution:
+#         feature_distribution[point_biserial_within_features[i][0]] = [i]
+#     else:
+#         feature_distribution[point_biserial_within_features[i][0]].append(i)
+
+# for i in range(len(ks_stat_within_features)):
+#     if ks_stat_within_features[i][0] not in feature_distribution:
+#         feature_distribution[ks_stat_within_features[i][0]] = [i]
+#     else:
+#         feature_distribution[ks_stat_within_features[i][0]].append(i)
+
+# for i in range(len(mutual_information_within_features)):
+#     if mutual_information_within_features[i][0] not in feature_distribution:
+#         feature_distribution[mutual_information_within_features[i][0]] = [i]
+#     else:
+#         feature_distribution[mutual_information_within_features[i][0]].append(i)
+    
+# feature_distribution_list = []
+# for key, value in feature_distribution.items():
+#     feature_distribution_list.append([key, value])
+# feature_distribution_list = sorted(feature_distribution_list, key=lambda x: (len(x[1]), -np.mean(x[1])), reverse=True)
+
+# limited_feature_distribution = feature_distribution_list[:100]
+
+# feature_component_distribution = {}
+# for i in range(len(limited_feature_distribution)):
+#     distributed_feature_name = limited_feature_distribution[i][0]
+#     distributed_feature_name_components = distributed_feature_name.split("_")
+#     for component in distributed_feature_name_components:
+#         if component not in feature_component_distribution:
+#             feature_component_distribution[component] = [len(limited_feature_distribution[i][1]), np.mean(limited_feature_distribution[i][1])]
+#         else:
+#             feature_component_distribution[component][0] += len(limited_feature_distribution[i][1])
+#             feature_component_distribution[component][1] = np.mean([feature_component_distribution[component][1], np.mean(limited_feature_distribution[i][1])])
+
+# feature_component_distribution_list = []
+# for key, value in feature_component_distribution.items():
+#     feature_component_distribution_list.append([key, value])
+
+# feature_component_distribution_list = sorted(feature_component_distribution_list, key=lambda x: (x[1][0], -x[1][1]), reverse=True) # Sort by frequency and average rank
+
+# top_k = 100
+# fstat_component_distribution = {}
+# for i in range(len(fstat_within_features[:top_k])):
+#     distributed_feature_name = fstat_within_features[i][0]
+#     distributed_feature_name_components = distributed_feature_name.split("_")
+#     for component in distributed_feature_name_components:
+#         if component not in fstat_component_distribution:
+#             fstat_component_distribution[component] = 1
+#         else:
+#             fstat_component_distribution[component] += 1
+
+# fstat_component_distribution_list = []
+# for key, value in fstat_component_distribution.items():
+#     fstat_component_distribution_list.append([key, value])
+# fstat_component_distribution_list = sorted(fstat_component_distribution_list, key=lambda x: x[1], reverse=True)
+
+# spearman_component_distribution = {}
+# for i in range(len(spearman_within_features[:top_k])):
+#     distributed_feature_name = spearman_within_features[i][0]
+#     distributed_feature_name_components = distributed_feature_name.split("_")
+#     for component in distributed_feature_name_components:
+#         if component not in spearman_component_distribution:
+#             spearman_component_distribution[component] = 1
+#         else:
+#             spearman_component_distribution[component] += 1
+
+# spearman_component_distribution_list = []
+# for key, value in spearman_component_distribution.items():
+#     spearman_component_distribution_list.append([key, value])
+# spearman_component_distribution_list = sorted(spearman_component_distribution_list, key=lambda x: x[1], reverse=True)
+
+# point_biserial_component_distribution = {}
+# for i in range(len(point_biserial_within_features[:top_k])):
+#     distributed_feature_name = point_biserial_within_features[i][0]
+#     distributed_feature_name_components = distributed_feature_name.split("_")
+#     for component in distributed_feature_name_components:
+#         if component not in point_biserial_component_distribution:
+#             point_biserial_component_distribution[component] = 1
+#         else:
+#             point_biserial_component_distribution[component] += 1
+
+# point_biserial_component_distribution_list = []
+# for key, value in point_biserial_component_distribution.items():
+#     point_biserial_component_distribution_list.append([key, value])
+# point_biserial_component_distribution_list = sorted(point_biserial_component_distribution_list, key=lambda x: x[1], reverse=True)
+
+# ks_stat_component_distribution = {}
+# for i in range(len(ks_stat_within_features[:top_k])):
+#     distributed_feature_name = ks_stat_within_features[i][0]
+#     distributed_feature_name_components = distributed_feature_name.split("_")
+#     for component in distributed_feature_name_components:
+#         if component not in ks_stat_component_distribution:
+#             ks_stat_component_distribution[component] = 1
+#         else:
+#             ks_stat_component_distribution[component] += 1
+
+# ks_stat_component_distribution_list = []
+# for key, value in ks_stat_component_distribution.items():
+#     ks_stat_component_distribution_list.append([key, value])
+# ks_stat_component_distribution_list = sorted(ks_stat_component_distribution_list, key=lambda x: x[1], reverse=True)
+
+# mutual_information_component_distribution = {}
+# for i in range(len(mutual_information_within_features[:top_k])):
+#     distributed_feature_name = mutual_information_within_features[i][0]
+#     distributed_feature_name_components = distributed_feature_name.split("_")
+#     for component in distributed_feature_name_components:
+#         if component not in mutual_information_component_distribution:
+#             mutual_information_component_distribution[component] = 1
+#         else:
+#             mutual_information_component_distribution[component] += 1
+
+# mutual_information_component_distribution_list = []
+# for key, value in mutual_information_component_distribution.items():
+#     mutual_information_component_distribution_list.append([key, value])
+# mutual_information_component_distribution_list = sorted(mutual_information_component_distribution_list, key=lambda x: x[1], reverse=True)

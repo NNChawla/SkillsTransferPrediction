@@ -358,7 +358,7 @@ def get_motion_features(tracking_df, assembly_df):
     unique_motion_features = ['directional_reversal_frequency', 'num_reversals', 'cumulative_opposing_displacement']
 
     column_parameter_list = []
-    window_sizes = [7, 13, 21, 35, 51, 201, 531]
+    window_sizes = [9, 91, 181, 271, 361, 451, 541]
     feature_types = ['linvel', 'linacc', 'angvel', 'angacc']
     for obj in obj_list:
         for feature_type in feature_types:

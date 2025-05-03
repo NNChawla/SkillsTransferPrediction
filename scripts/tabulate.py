@@ -1,7 +1,7 @@
 import os, sys, time
 import numpy as np
 import polars as pl
-from .analysis import *
+from analysis import *
 import tqdm
 import multiprocessing as mp
 from scipy.spatial.transform import Rotation as R, Slerp
@@ -22,10 +22,10 @@ def truncate_data(df):
 
 def resample_data():
     # Directories
-    assembly_A_dir = "./data/FAB/Assembly_A"
-    assembly_B_dir = "./data/FAB/Assembly_B"
-    Tracking_A_dir = "./data/FAB/Tracking_A"
-    Tracking_B_dir = "./data/FAB/Tracking_B"
+    assembly_A_dir = "/srv/STP/data/FAB/Assembly_A"
+    assembly_B_dir = "/srv/STP/data/FAB/Assembly_B"
+    Tracking_A_dir = "/srv/STP/data/FAB/Tracking_A"
+    Tracking_B_dir = "/srv/STP/data/FAB/Tracking_B"
     output_dir_A = "/srv/STP/data/FAB/FAB_A_Resampled"
     output_dir_B = "/srv/STP/data/FAB/FAB_B_Resampled"
     # Get all files in the directories
@@ -120,12 +120,12 @@ def resample_data():
             dataset[i].write_csv(os.path.join(output_dir_A if (idx == 0) else output_dir_B, file_names[idx][i]))
 
 def generate_velocity_and_acceleration_columns(idx):
-    assembly_A_dir = "./data/FAB/Assembly_A"
-    assembly_B_dir = "./data/FAB/Assembly_B"
+    assembly_A_dir = "/srv/STP/data/FAB/Assembly_A"
+    assembly_B_dir = "/srv/STP/data/FAB/Assembly_B"
     FAB_A_Resampled_dir = "/srv/STP/data/FAB/FAB_A_Resampled"
     FAB_B_Resampled_dir = "/srv/STP/data/FAB/FAB_B_Resampled"
-    FAB_A_Output_dir = "/srv/STP/data/FAB/FAB_A_Motion"
-    FAB_B_Output_dir = "/srv/STP/data/FAB/FAB_B_Motion"
+    FAB_A_Output_dir = "/srv/STP/data/FAB/FAB_A_Step_Motion"
+    FAB_B_Output_dir = "/srv/STP/data/FAB/FAB_B_Step_Motion"
     assembly_A_files = sorted(os.listdir(assembly_A_dir))
     assembly_B_files = sorted(os.listdir(assembly_B_dir))
     FAB_A_Resampled_files = sorted(os.listdir(FAB_A_Resampled_dir))
@@ -142,7 +142,7 @@ def generate_velocity_and_acceleration_columns(idx):
     participant_id = FAB_A_Resampled_files[idx].split('_')[0]
 
     poly_order = 2
-    window_sizes = [7, 13, 21, 35, 51, 201, 531]
+    window_sizes = [9, 91, 181, 271, 361, 451, 541]
     obj_list = ["Head", "LeftHand", "RightHand"]
     for obj in obj_list:
         pos_df_A = df_A[[f"{obj}_position_x", f"{obj}_position_y", f"{obj}_position_z"]].to_numpy()
@@ -204,10 +204,10 @@ def generate_velocity_and_acceleration_columns(idx):
 
 def process_participant(i):
     t = time.time()
-    assembly_A_dir = "./data/FAB/Assembly_A"
-    assembly_B_dir = "./data/FAB/Assembly_B"
-    FAB_A_Motion_dir = "/srv/STP/data/FAB/FAB_A_Motion"
-    FAB_B_Motion_dir = "/srv/STP/data/FAB/FAB_B_Motion"
+    assembly_A_dir = "/srv/STP/data/FAB/Assembly_A"
+    assembly_B_dir = "/srv/STP/data/FAB/Assembly_B"
+    FAB_A_Motion_dir = "/srv/STP/data/FAB/FAB_A_Step_Motion"
+    FAB_B_Motion_dir = "/srv/STP/data/FAB/FAB_B_Step_Motion"
     assembly_A_files = sorted(os.listdir(assembly_A_dir))
     assembly_B_files = sorted(os.listdir(assembly_B_dir))
     FAB_A_Motion_files = sorted(os.listdir(FAB_A_Motion_dir))
@@ -297,44 +297,24 @@ if __name__ == "__main__" or "ipykernel" in sys.modules:
     #     ))
     # sys.exit()
 
+    # ###############################################################################
     t = time.time()
-    ###############################################################################
-    # Prepare tabulated data storage
-    participant_ids = [i.split('_')[0] for i in sorted(os.listdir("/srv/STP/data/FAB/FAB_A_Motion"))]
+    # # Prepare tabulated data storage
+    participant_ids = [i.split('_')[0] for i in sorted(os.listdir("/srv/STP/data/FAB/FAB_A_Step_Motion"))]
     num_participants = len(participant_ids)
-    tabulated_data = {
-        "PID": participant_ids
-    }
 
-    # num_cpus = mp.cpu_count()
-    # with mp.Pool(processes=num_cpus) as pool:
-    #     results = list(tqdm.tqdm(
-    #         pool.imap(process_participant, range(80, 105), chunksize=1),
-    #         total=25,
-    #         desc="Tabulating feature statistics"
-    #     ))
+    num_cpus = 5
+    with mp.Pool(processes=num_cpus) as pool:
+        results = list(tqdm.tqdm(
+            pool.imap(process_participant, range(80, 105), chunksize=1),
+            total=25,
+            desc="Tabulating feature statistics"
+        ))
 
     # results = [process_participant(i) for i in tqdm.tqdm(range(44, num_participants), desc="Tabulating duration, position, rotation, and trigger statistics")]
-    # import pickle
-    # with open("/srv/STP/results_5.pkl", "wb") as f:
-    #     pickle.dump(results, f)
-
-    # print(f"Session completed in {time.time() - t} seconds")
-    # sys.exit()
-
-    # Update the tabulated_data dictionary with the results
-    for i, result_dict in results:
-        for key, value in result_dict.items():
-            if key not in tabulated_data:
-                tabulated_data[key] = [np.nan] * num_participants
-            tabulated_data[key][i] = value
-    
-    # Convert the tabulated data to a Polars DataFrame and write it to CSV
-    tabulated_dataframe = pl.DataFrame(tabulated_data)
-    tabulated_dataframe.write_csv("tabulated_data_1.csv")
-
-    print(f"Session completed in {time.time() - t} seconds")
-
+    import pickle
+    with open("/srv/STP/results_4.pkl", "wb") as f:
+        pickle.dump(results, f)
 
 ###############################################################################
 # # import numpy as np

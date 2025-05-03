@@ -92,7 +92,7 @@ class JointEstimator(BaseEstimator, ClassifierMixin):
         self.data_B = data_B
         self.score_A = score_A
         self.score_B = score_B
-        self.nrows = self.data_A.shape[0]
+        self.nrows = self.data_A.shape[0] if self.data_A is not None else 0
 
     def set_data(self, data_A, data_B, score_A, score_B):
         self.data_A = data_A
@@ -160,6 +160,3 @@ class JointSFSSelector(BaseEstimator, TransformerMixin):
         selected_Dummy = selected_Dummy.iloc[:, list(self.k_feature_idx_)]
         selected_Dummy = selected_Dummy.to_numpy(copy=True)
         return selected_Dummy
-
-# TODO: Add RFE wrapper
-# TODO: Add BorutaShap wrapper
