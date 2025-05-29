@@ -8,11 +8,15 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 from xgboost import XGBClassifier
+from lightgbm import LGBMClassifier
+from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import make_scorer
+from sklearn.utils.class_weight import compute_class_weight
 from wrappers import *
 import pickle, time, gc, sys, os, json, math, random
+from optuna.pruners import MedianPruner
 from itertools import combinations, product
 from tqdm import tqdm
 import pandas as pd
@@ -50,6 +54,7 @@ def scale_impute_df(input_df, scaler, imputer):
 imputer = SimpleImputer(strategy='median')
 scaler = StandardScaler()
 random_state = 26
+random.seed(random_state)
 
 # Optuna Parameters
 trial_num = 5
@@ -58,15 +63,16 @@ trial_num = 5
 na_threshold = 0.2
 
 # Parallelization Parameters
-study_n_jobs = -1
+study_n_jobs = 1
 
 # GCD Parameters
-gcd_n_trials = 1
+gcd_n_trials_inner = 1
+gcd_n_trials_outer = 10
 
 # Manual Feature Search Parameters
 override_feature_removal = True
 manual_feature_search_method = "greedy"
-num_experiment_runs = 20
+num_experiment_runs = 1
 
 tab_path = "./experimentData/tabulated_dataframe.pkl"
 md_path = "./experimentData/metadata.csv"
@@ -182,7 +188,7 @@ def _run_nested_cross_validation(subset_df_A, subset_df_B, metadata_df_A,
 
     outer_results = []
     counter = 0
-    for train_idx, test_idx in outer_splits:
+    for train_idx, test_idx in tqdm(outer_splits, desc="Outer CV Splits"):
         split_time = time.time()
         # print(f"Starting outer split {counter} of {len(outer_splits)}")
         counter += 1
@@ -226,15 +232,107 @@ def _run_nested_cross_validation(subset_df_A, subset_df_B, metadata_df_A,
         test_score_A_array = test_score_A.to_numpy(copy=True)
         test_score_B_array = test_score_B.to_numpy(copy=True)
 
+        def suggest_svc_params(trial, prefix="model__"):
+            # ── kernel is always sampled ───────────────────────────────────────────────
+            kernel = trial.suggest_categorical(f"{prefix}kernel", ["rbf"]) # ["linear", "rbf", "poly", "sigmoid"])
+
+            # ── parameters that exist for *all* kernels ────────────────────────────────
+            # C = trial.suggest_float(f"{prefix}C", 0.001, 100, log=True)
+            # max_iter     = trial.suggest_categorical("model__max_iter", [100, -1])
+            # C = trial.suggest_float(f"{prefix}C", 0.01, 100, log=True)
+            C = trial.suggest_categorical(f"{prefix}C", [21.88582597143875])
+            max_iter     = trial.suggest_categorical("model__max_iter", [100])
+
+            # ── conditionals -----------------------------------------------------------
+            # γ is only legal for rbf  / sigmoid
+            if kernel in {"rbf", "sigmoid"}:
+                # gamma = trial.suggest_float(f"{prefix}gamma", 0.0001, 1, log=True)
+                # gamma = trial.suggest_float(f"{prefix}gamma", 0.0001, 1, log=True)
+                gamma = trial.suggest_categorical(f"{prefix}gamma", [0.0010783628662438616])
+            else:                                 # keep Optuna’s param dict consistent
+                gamma = "scale"                   # (any fixed value is fine)
+
+            # tol = trial.suggest_float(f"{prefix}tol", 1e-5, 1, log=True)
+            tol = trial.suggest_categorical(f"{prefix}tol", [1e-3])
+            class_weight = trial.suggest_categorical(f"{prefix}class_weight", ["balanced"])
+
+            # degree is only legal for poly
+            if kernel == "poly":
+                degree = trial.suggest_int(f"{prefix}degree", 2, 5)
+            else:
+                degree = 3                       # default – keeps param dict aligned
+
+            return dict(kernel=kernel, C=C, gamma=gamma, degree=degree, max_iter=max_iter, tol=tol, class_weight=class_weight)
+
+        def suggest_xgb_params(trial, prefix="model__"):
+            n_estimators = trial.suggest_categorical(f"{prefix}n_estimators", [50, 100, 200, 500, 1000])
+            max_depth = trial.suggest_categorical(f"{prefix}max_depth", [1, 3, 5, 7, 9])
+            # num_leaves = trial.suggest_int(f"{prefix}num_leaves", 31, 100)
+            learning_rate = trial.suggest_categorical(f"{prefix}learning_rate", [0.0001, 0.001, 0.01, 0.1, 0.2, 0.3])
+            # min_samples_leaf = trial.suggest_int(f"{prefix}min_samples_leaf", 1, 10)
+            # class_weights = compute_class_weight(class_weight='balanced',classes=np.unique(train_score_A),y=train_score_A)
+            # scale_pos_weight_value = len([i for i in train_score_A if (i <= 0)]) / len([i for i in train_score_A if (i > 0)])
+            # scale_pos_weight = trial.suggest_categorical(f"{prefix}scale_pos_weight", [scale_pos_weight_value])
+            scale_pos_weight = trial.suggest_categorical(f"{prefix}scale_pos_weight", [0.1, 1, 10, 100])
+
+            tree_method = trial.suggest_categorical(f"{prefix}tree_method", ["hist"])
+
+            return dict(n_estimators=n_estimators, max_depth=max_depth, learning_rate=learning_rate, scale_pos_weight=scale_pos_weight, tree_method=tree_method)
+
+        def suggest_lgb_params(trial, prefix="model__"):            
+            objective = trial.suggest_categorical(f"{prefix}objective", ["binary"])
+
+            max_bin = trial.suggest_categorical(f"{prefix}max_bin", [255])
+            learning_rate = trial.suggest_float(f"{prefix}learning_rate", 0.3, 0.9)
+            n_estimators = trial.suggest_int(f"{prefix}n_estimators", 50, 100)
+
+            max_depth = trial.suggest_int(f"{prefix}max_depth", 3, 7)
+            num_leaves = trial.suggest_int(f"{prefix}num_leaves", 3, 128)
+            min_data_in_leaf = trial.suggest_int(f"{prefix}min_data_in_leaf", 10, 40)
+            min_gain_to_split = trial.suggest_float(f"{prefix}min_gain_to_split", 0.01, 2.0)
+            bagging_freq = trial.suggest_int(f"{prefix}bagging_freq", 1, 5)
+            bagging_fraction = trial.suggest_float(f"{prefix}bagging_fraction", 0.7, 1.0)
+            feature_fraction = trial.suggest_float(f"{prefix}feature_fraction", 0.7, 1.0)
+            lambda_l1 = trial.suggest_float(f"{prefix}lambda_l1", 0.01, 10.0, log=True)
+            lambda_l2 = trial.suggest_float(f"{prefix}lambda_l2", 0.01, 10.0, log=True)
+            min_sum_hessian_in_leaf = trial.suggest_float(f"{prefix}min_sum_hessian_in_leaf", 0.001, 5.0)
+            scale_pos_weight = trial.suggest_categorical(f"{prefix}scale_pos_weight", [10.0])
+            extra_seed = trial.suggest_categorical(f"{prefix}extra_seed", [seed])
+            extra_trees = trial.suggest_categorical(f"{prefix}extra_trees", [True])
+            # is_unbalanced = trial.suggest_categorical(f"{prefix}is_unbalance", [True])            
+
+            return dict(
+                objective=objective,
+                max_bin=max_bin,
+                learning_rate=learning_rate,
+                n_estimators=n_estimators,
+                max_depth=max_depth,
+                num_leaves=num_leaves,
+                min_data_in_leaf=min_data_in_leaf,
+                min_gain_to_split=min_gain_to_split,
+                bagging_freq=bagging_freq,
+                bagging_fraction=bagging_fraction,
+                feature_fraction=feature_fraction,
+                lambda_l1=lambda_l1,
+                lambda_l2=lambda_l2,
+                min_sum_hessian_in_leaf=min_sum_hessian_in_leaf,
+                scale_pos_weight=scale_pos_weight,
+                extra_seed=extra_seed,
+                extra_trees=extra_trees,
+                verbose=-1
+            )
+            
         def objective(trial):
-            penalty = trial.suggest_categorical("model__penalty", ['l2'])
-            C = trial.suggest_float("model__C", 0.001, 0.01, log=True)
-            loss = trial.suggest_categorical("model__loss", ['squared_hinge'])
-            max_iter = trial.suggest_categorical("model__max_iter", [10, 100, 1000, 5000])
-            model_instance = JointEstimator(LinearSVC(penalty=penalty, C=C, class_weight='balanced',
-                                        random_state=seed, max_iter=max_iter, loss=loss),
-                                        train_data_A_array, train_data_B_array,
-                                        train_score_A_array, train_score_B_array)
+            # ── 2.1 get h-params ──────────────────────────────────────────────────────
+            svc_params   = suggest_svc_params(trial, prefix="model__")
+            model_instance = JointEstimator(SVC(**svc_params, random_state=seed),
+                                            train_data_A_array, train_data_B_array,
+                                            train_score_A_array, train_score_B_array)
+            
+            # lgb_params   = suggest_lgb_params(trial, prefix="model__")
+            # model_instance = JointEstimator(LGBMClassifier(**lgb_params, random_state=seed),
+                                            # train_data_A_array, train_data_B_array,
+                                            # train_score_A_array, train_score_B_array)
 
             steps = []
             steps.append(('tf', JointDummyTransformer()))
@@ -243,7 +341,7 @@ def _run_nested_cross_validation(subset_df_A, subset_df_B, metadata_df_A,
                 
             inner_splits = list(inner_cv.split(train_data_A, train_score_A))
             inner_results = []
-            for inner_train_idx, inner_test_idx in inner_splits:
+            for inner_step, (inner_train_idx, inner_test_idx) in tqdm(enumerate(inner_splits), desc="Hypopt CV Splits"):
 
                 inner_train_data_A = train_data_A.iloc[inner_train_idx]
                 inner_train_data_B = train_data_B.iloc[inner_train_idx]
@@ -261,11 +359,12 @@ def _run_nested_cross_validation(subset_df_A, subset_df_B, metadata_df_A,
                     inner_train_score_A,
                     inner_train_score_B,
                     scoring_function_to_use,
-                    inner_cv,
+                    StratifiedKFold(n_splits=3, shuffle=True, random_state=seed),
                     feature_set,
                     feature_mapping,
-                    n_trials=gcd_n_trials,
-                    mode=manual_feature_search_method
+                    n_trials=gcd_n_trials_inner,
+                    mode=manual_feature_search_method,
+                    random_state=seed
                 )
 
                 inner_train_data_A = inner_train_data_A[[f"{feat}_A" for feat in gcd_features]]
@@ -294,20 +393,25 @@ def _run_nested_cross_validation(subset_df_A, subset_df_B, metadata_df_A,
                 y_pred = pipeline.predict(inner_test_data_A)
 
                 result = evaluate_predictions(None, y_pred, scoring_function_to_use)
-                result['y_true_A'] = test_score_A
+                result['y_true_A'] = inner_test_score_A
                 result['y_pred_A'] = y_pred
-                result['y_true_B'] = test_score_B
+                result['y_true_B'] = inner_test_score_B
                 result['y_pred_B'] = y_pred
-                result['train_PIDs'] = PID[train_idx]
-                result['test_PIDs'] = PID[test_idx]
+                result['train_PIDs'] = PID[inner_train_idx]
+                result['test_PIDs'] = PID[inner_test_idx]
                 inner_results.append(result)
+
+                trial.report(result['joint_mcc'], inner_step)
+                if trial.should_prune():
+                    raise optuna.TrialPruned()
 
             trial.set_user_attr("inner_results", inner_results)
 
-            return np.mean([result['joint_mcc'] for result in inner_results])
+            cv_scores = [result['joint_mcc'] for result in inner_results]
+            return np.mean(cv_scores) - 0.5 * np.std(cv_scores)
 
         # Run Optuna study
-        study = optuna.create_study(direction="maximize")
+        study = optuna.create_study(direction="maximize", pruner=MedianPruner(n_warmup_steps=2))
         study.optimize(objective, n_trials=trial_num, n_jobs=study_n_jobs)
 
         best_trial = study.best_trial
@@ -317,13 +421,25 @@ def _run_nested_cross_validation(subset_df_A, subset_df_B, metadata_df_A,
         if inner_results is None:
             raise ValueError("No results found")
 
-        def build_pipeline_from_params(params):
-            penalty = params["model__penalty"]
+        def build_pipeline_from_svc_params(params):
+            kernel = params["model__kernel"]
             C = params["model__C"]
-            loss = params["model__loss"]
-            max_iter = params["model__max_iter"]                
-            model_instance = JointEstimator(LinearSVC(penalty=penalty, C=C, class_weight='balanced',
-                                        random_state=seed, max_iter=max_iter, loss=loss),
+            if kernel in {"rbf", "sigmoid"}:
+                gamma = params["model__gamma"]
+            else:
+                gamma = "scale"
+
+            if kernel == "poly":
+                degree = params["model__degree"]
+            else:
+                degree = 3
+
+            max_iter = params["model__max_iter"]
+            tol = params["model__tol"]
+            class_weight = params["model__class_weight"]
+            model_instance = JointEstimator(SVC(kernel=kernel, C=C, gamma=gamma,
+                                        degree=degree, class_weight=class_weight,
+                                        random_state=random_state, max_iter=max_iter, tol=tol),
                                         train_data_A_array, train_data_B_array,
                                         train_score_A_array, train_score_B_array)
            
@@ -332,7 +448,74 @@ def _run_nested_cross_validation(subset_df_A, subset_df_B, metadata_df_A,
             steps.append(('model', model_instance))
             return Pipeline(steps)
 
-        best_pipeline = build_pipeline_from_params(best_params)
+        def build_pipeline_from_xgb_params(params):
+            n_estimators = params["model__n_estimators"]
+            max_depth = params["model__max_depth"]
+            # num_leaves = params["model__num_leaves"]
+            learning_rate = params["model__learning_rate"]
+            # min_samples_leaf = params["model__min_samples_leaf"]
+            scale_pos_weight = params["model__scale_pos_weight"]
+            tree_method = params["model__tree_method"]
+            model_instance = JointEstimator(XGBClassifier(n_estimators=n_estimators, max_depth=max_depth, learning_rate=learning_rate, scale_pos_weight=scale_pos_weight, tree_method=tree_method),
+                                        train_data_A_array, train_data_B_array,
+                                        train_score_A_array, train_score_B_array)
+           
+            steps = []
+            steps.append(('tf', JointDummyTransformer()))
+            steps.append(('model', model_instance))
+            return Pipeline(steps)
+
+        def build_pipeline_from_lgb_params(params):
+            objective = params["model__objective"]
+            max_bin = params["model__max_bin"]
+            learning_rate = params["model__learning_rate"]
+            n_estimators = params["model__n_estimators"]
+            max_depth = params["model__max_depth"]
+            num_leaves = params["model__num_leaves"]
+            min_data_in_leaf = params["model__min_data_in_leaf"]
+            min_gain_to_split=params["model__min_gain_to_split"]
+            bagging_freq=params["model__bagging_freq"]
+            bagging_fraction=params["model__bagging_fraction"]
+            feature_fraction=params["model__feature_fraction"]
+            lambda_l1=params["model__lambda_l1"]
+            lambda_l2=params["model__lambda_l2"]
+            min_sum_hessian_in_leaf=params["model__min_sum_hessian_in_leaf"]
+            scale_pos_weight=params["model__scale_pos_weight"]
+            extra_seed=params["model__extra_seed"]
+            extra_trees=params["model__extra_trees"]
+
+            params_dict = dict(
+                objective=objective,
+                max_bin=max_bin,
+                learning_rate=learning_rate,
+                n_estimators=n_estimators,
+                max_depth=max_depth,
+                num_leaves=num_leaves,
+                min_data_in_leaf=min_data_in_leaf,
+                min_gain_to_split=min_gain_to_split,
+                bagging_freq=bagging_freq,
+                bagging_fraction=bagging_fraction,
+                feature_fraction=feature_fraction,
+                lambda_l1=lambda_l1,
+                lambda_l2=lambda_l2,
+                min_sum_hessian_in_leaf=min_sum_hessian_in_leaf,
+                scale_pos_weight=scale_pos_weight,
+                extra_seed=extra_seed,
+                extra_trees=extra_trees,
+                verbose=-1
+            )
+            
+            model_instance = JointEstimator(LGBMClassifier(**params_dict),
+                                        train_data_A_array, train_data_B_array,
+                                        train_score_A_array, train_score_B_array)
+           
+            steps = []
+            steps.append(('tf', JointDummyTransformer()))
+            steps.append(('model', model_instance))
+            return Pipeline(steps)
+
+        # best_pipeline = build_pipeline_from_lgb_params(best_params)
+        best_pipeline = build_pipeline_from_svc_params(best_params)
 
         gcd_features = group_feature_search(
             best_pipeline,
@@ -341,11 +524,12 @@ def _run_nested_cross_validation(subset_df_A, subset_df_B, metadata_df_A,
             train_score_A,
             train_score_B,
             scoring_function_to_use,
-            inner_cv,
+            StratifiedKFold(n_splits=3, shuffle=True, random_state=seed),
             feature_set,
             feature_mapping,
-            n_trials=gcd_n_trials,
-            mode=manual_feature_search_method
+            n_trials=gcd_n_trials_outer,
+            mode=manual_feature_search_method,
+            random_state=seed
         )
 
         selected_train_data_A = train_data_A[[f"{feat}_A" for feat in gcd_features]]
@@ -522,14 +706,25 @@ def _run_final_cross_validation(subset_df_A, subset_df_B, metadata_df_A, metadat
             test_data_B_array = test_data_B.to_numpy(copy=True)
             test_score_A_array = test_score_A.to_numpy(copy=True)
             test_score_B_array = test_score_B.to_numpy(copy=True)
-
-            def build_pipeline_from_params(params):
-                penalty = params["model__penalty"]
+            
+            def build_pipeline_from_svc_params(params):
+                kernel = params["model__kernel"]
                 C = params["model__C"]
-                loss = params["model__loss"]
+                if kernel in {"rbf", "sigmoid"}:
+                    gamma = params["model__gamma"]
+                else:                                 # keep Optuna’s param dict consistent
+                    gamma = "scale"
+                tol = params["model__tol"]
+                class_weight = params["model__class_weight"]
+
+                if kernel == "poly":
+                    degree = params["model__degree"]
+                else:
+                    degree = 3
                 max_iter = params["model__max_iter"]                
-                model_instance = JointEstimator(LinearSVC(penalty=penalty, C=C, class_weight='balanced',
-                                            random_state=random_state, max_iter=max_iter, loss=loss),
+                model_instance = JointEstimator(SVC(kernel=kernel, C=C, gamma=gamma,
+                                            degree=degree, class_weight=class_weight,
+                                            random_state=random_state, max_iter=max_iter, tol=tol),
                                             train_data_A_array, train_data_B_array,
                                             train_score_A_array, train_score_B_array)
             
@@ -538,7 +733,73 @@ def _run_final_cross_validation(subset_df_A, subset_df_B, metadata_df_A, metadat
                 steps.append(('model', model_instance))
                 return Pipeline(steps)
 
-            best_pipeline = build_pipeline_from_params(hypopt_params)
+            def build_pipeline_from_xgb_params(params):
+                n_estimators = params["model__n_estimators"]
+                max_depth = params["model__max_depth"]
+                # num_leaves = params["model__num_leaves"]
+                learning_rate = params["model__learning_rate"]
+                # min_samples_leaf = params["model__min_samples_leaf"]
+                scale_pos_weight = params["model__scale_pos_weight"]
+                tree_method = params["model__tree_method"]
+                model_instance = JointEstimator(XGBClassifier(n_estimators=n_estimators, max_depth=max_depth, learning_rate=learning_rate, scale_pos_weight=scale_pos_weight, tree_method=tree_method),
+                                            train_data_A_array, train_data_B_array,
+                                            train_score_A_array, train_score_B_array)
+            
+                steps = []
+                steps.append(('tf', JointDummyTransformer()))
+                steps.append(('model', model_instance))
+                return Pipeline(steps)
+
+            def build_pipeline_from_lgb_params(params):
+                objective = params["model__objective"]
+                max_bin = params["model__max_bin"]
+                learning_rate = params["model__learning_rate"]
+                n_estimators = params["model__n_estimators"]
+                max_depth = params["model__max_depth"]
+                num_leaves = params["model__num_leaves"]
+                min_data_in_leaf = params["model__min_data_in_leaf"]
+                min_gain_to_split=params["model__min_gain_to_split"]
+                bagging_freq=params["model__bagging_freq"]
+                bagging_fraction=params["model__bagging_fraction"]
+                feature_fraction=params["model__feature_fraction"]
+                lambda_l1=params["model__lambda_l1"]
+                lambda_l2=params["model__lambda_l2"]
+                min_sum_hessian_in_leaf=params["model__min_sum_hessian_in_leaf"]
+                scale_pos_weight=params["model__scale_pos_weight"]
+                extra_seed=params["model__extra_seed"]
+                extra_trees=params["model__extra_trees"]
+
+                params_dict = dict(
+                    objective=objective,
+                    max_bin=max_bin,
+                    learning_rate=learning_rate,
+                    n_estimators=n_estimators,
+                    max_depth=max_depth,
+                    num_leaves=num_leaves,
+                    min_data_in_leaf=min_data_in_leaf,
+                    min_gain_to_split=min_gain_to_split,
+                    bagging_freq=bagging_freq,
+                    bagging_fraction=bagging_fraction,
+                    feature_fraction=feature_fraction,
+                    lambda_l1=lambda_l1,
+                    lambda_l2=lambda_l2,
+                    min_sum_hessian_in_leaf=min_sum_hessian_in_leaf,
+                    scale_pos_weight=scale_pos_weight,
+                    extra_seed=extra_seed,
+                    extra_trees=extra_trees,
+                    verbose=-1
+                )
+                model_instance = JointEstimator(LGBMClassifier(**params_dict),
+                                            train_data_A_array, train_data_B_array,
+                                            train_score_A_array, train_score_B_array)
+            
+                steps = []
+                steps.append(('tf', JointDummyTransformer()))
+                steps.append(('model', model_instance))
+                return Pipeline(steps)
+
+            # best_pipeline = build_pipeline_from_lgb_params(hypopt_params)
+            best_pipeline = build_pipeline_from_svc_params(hypopt_params)
 
             best_pipeline.steps[1][1].set_data(train_data_A_array,
                                         train_data_B_array,
@@ -634,7 +895,7 @@ def _run_experiment(parameters, best_score):
     subset_df_A, subset_df_B, metadata_df_A, metadata_df_B = _init_subset_data(combined_feature_set, feature_selection, use_metadata_features=False)    
     score_A, score_B, inner_cv, outer_cv = _init_cross_validation(clf_func, random_state)
     
-    optuna.logging.set_verbosity(optuna.logging.WARNING)
+    # optuna.logging.set_verbosity(optuna.logging.WARNING)
 
     nested_metrics = _run_nested_cross_validation(subset_df_A, subset_df_B, metadata_df_A, metadata_df_B,
                         score_A, score_B, scoring_function, inner_cv, outer_cv, feature_set, random_state)

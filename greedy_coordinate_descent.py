@@ -14,9 +14,10 @@ def group_feature_search(
     feature_set,
     feature_mapping,
     n_trials = 1,
-    mode = "greedy" # "greedy" or "exhaustive"
+    mode = "greedy", # "greedy" or "exhaustive"
+    random_state = 26
     ):
-
+    random.seed(random_state)
     best_score = -np.inf
     best_result = None
 
@@ -66,7 +67,7 @@ def greedy_coordinate_descent(
             y_pred = pipeline.predict(subset_df_A.iloc[inner_test_idx])
             joint_mcc = scoring_function(None, y_pred)
             cv_scores.append(joint_mcc)
-        return np.mean(cv_scores)
+        return np.mean(cv_scores) - 0.5 * np.std(cv_scores)
 
     feature_combination_performance = {}
 
@@ -84,6 +85,12 @@ def greedy_coordinate_descent(
 
     direction = 1
     
+    tqdm_desc = "Greedy Coordinate Descent"
+    tqdm_total = 1
+    for group_idx in range(len(feature_set)):
+        tqdm_total *= len(feature_set[group_idx])
+    pbar = tqdm(total=tqdm_total, desc=tqdm_desc)
+
     # Greedy coordinate descent: iterate over groups and try to improve the metric by changing one group's feature.
     improved = True
     while improved:
@@ -121,6 +128,8 @@ def greedy_coordinate_descent(
                 train_data_A_combo = train_data_A[[f"{feat}_A" for feat in candidate_selection]]
                 train_data_B_combo = train_data_B[[f"{feat}_B" for feat in candidate_selection]]
                 candidate_joint_mcc = _run_inner_cv(train_data_A_combo, train_data_B_combo)
+
+                pbar.update(1)
                 
                 # If this candidate improves the metric for this group, update our best candidate.
                 if candidate_joint_mcc > best_candidate_metric_in_group:
@@ -136,6 +145,8 @@ def greedy_coordinate_descent(
                     best_overall_metric = best_candidate_metric_in_group
                     best_overall_combo = current_selection.copy()
                 improved = True   # Mark that we have made an improvement.
+
+    pbar.close()
 
     if best_overall_metric > best_score:
         best_score = best_overall_metric
