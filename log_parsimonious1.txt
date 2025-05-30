@@ -1,0 +1,163 @@
+Running None_Best_manual_linsvc_within_task
+Running experiment for None_Best_manual_linsvc_within_task
+No invalid features found
+Nested CV Outer Fold Performance: 0.572475407014194 | best_params: {'model__kernel': 'rbf', 'model__C': 22.146479311048388, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 3_16_28_39_42_45_47_51_53_61_113
+Split time: 972.1769943237305
+Nested CV Outer Fold Performance: 0.4429655520431207 | best_params: {'model__kernel': 'rbf', 'model__C': 22.447039160915892, 'model__max_iter': 100, 'model__gamma': 0.002, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 10_14_28_37_41_49_51_54_62_181
+Split time: 1178.9272842407227
+Nested CV Outer Fold Performance: -0.13245323570650439 | best_params: {'model__kernel': 'rbf', 'model__C': 21.50017041523474, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 2_17_35_40_46_50_53_64_74
+Split time: 1035.9699113368988
+Nested CV Outer Fold Performance: -0.16666666666666666 | best_params: {'model__kernel': 'rbf', 'model__C': 22.446334536773584, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 3_16_29_36_44_45_49_56_64_172
+Split time: 1016.0848708152771
+Nested CV Outer Fold Performance: -0.09128709291752769 | best_params: {'model__kernel': 'rbf', 'model__C': 22.153804269302928, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 3_14_16_28_37_42_46_49_51_53_63_98
+Split time: 900.2833621501923
+Final K-Fold 0 MCC: 0.4799214438717557 | Features: 3_16_28_39_42_45_47_51_53_61_113 | Params: {'model__kernel': 'rbf', 'model__C': 22.146479311048388, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.47114875402351564 | Features: 10_14_28_37_41_49_51_54_62_181 | Params: {'model__kernel': 'rbf', 'model__C': 22.447039160915892, 'model__max_iter': 100, 'model__gamma': 0.002, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.21900226852841734 | Features: 2_17_35_40_46_50_53_64_74 | Params: {'model__kernel': 'rbf', 'model__C': 21.50017041523474, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.43456717703030767 | Features: 3_16_29_36_44_45_49_56_64_172 | Params: {'model__kernel': 'rbf', 'model__C': 22.446334536773584, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.43190120421266764 | Features: 3_14_16_28_37_42_46_49_51_53_63_98 | Params: {'model__kernel': 'rbf', 'model__C': 22.153804269302928, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.4799214438717557
+Final Best Params: {'model__kernel': 'rbf', 'model__C': 22.146479311048388, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best Features: ['step0_Head_angacc_z_451_pause_1_durations_kurtosis', 'step3_Head_linacc_magnitude_451_pause_1_durations_slope', 'step4_Head_linacc_magnitude_451_pause_1_durations_median', 'step5_LeftHand_angvel_x_451_pause_1_durations_iqr', 'step6_Head_linvel_x_451_pause_1_durations_mean', 'step7_Head_angacc_y_451_pause_1_time_to_min_duration', 'step8_Head_linacc_z_451_pause_1_duration_frequency', 'step9_LeftHand_linacc_z_451_pause_1_durations_skewness', 'step10_Head_angacc_x_451_pause_1_durations_slope', 'step11_Head_linvel_magnitude_451_pause_1_duration_count', 'substep36_LeftHand_angvel_y_451_pause_1_durations_max']
+Experiment run time: 5104.161168575287
+None_Best_manual_linsvc_within_task | Experiment 0 best score: 0.4799214438717557
+Running experiment for None_Best_manual_linsvc_within_task
+No invalid features found
+Nested CV Outer Fold Performance: 0.572475407014194 | best_params: {'model__kernel': 'rbf', 'model__C': 22.129112581906547, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 3_16_28_39_42_45_47_51_53_61_113
+Split time: 1023.7169191837311
+Nested CV Outer Fold Performance: 0.572475407014194 | best_params: {'model__kernel': 'rbf', 'model__C': 22.48880597792556, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 10_14_29_37_49_51_54_61_181
+Split time: 968.5619888305664
+Nested CV Outer Fold Performance: -0.13245323570650439 | best_params: {'model__kernel': 'rbf', 'model__C': 21.501102204967484, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 2_17_35_40_46_50_53_64_74
+Split time: 1072.3301718235016
+Nested CV Outer Fold Performance: -0.13245323570650439 | best_params: {'model__kernel': 'rbf', 'model__C': 22.48752715081944, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 3_14_16_29_37_44_46_49_52_54_63_134
+Split time: 1013.0949921607971
+Nested CV Outer Fold Performance: -0.09128709291752769 | best_params: {'model__kernel': 'rbf', 'model__C': 22.028832186267707, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 8_14_16_28_37_42_46_49_51_54_60_167
+Split time: 958.9748003482819
+Final K-Fold 0 MCC: 0.4799214438717557 | Features: 3_16_28_39_42_45_47_51_53_61_113 | Params: {'model__kernel': 'rbf', 'model__C': 22.129112581906547, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.44921189456963734 | Features: 10_14_29_37_49_51_54_61_181 | Params: {'model__kernel': 'rbf', 'model__C': 22.48880597792556, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.21900226852841734 | Features: 2_17_35_40_46_50_53_64_74 | Params: {'model__kernel': 'rbf', 'model__C': 21.501102204967484, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.4784215023574962 | Features: 3_14_16_29_37_44_46_49_52_54_63_134 | Params: {'model__kernel': 'rbf', 'model__C': 22.48752715081944, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.541805898555886 | Features: 8_14_16_28_37_42_46_49_51_54_60_167 | Params: {'model__kernel': 'rbf', 'model__C': 22.028832186267707, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.541805898555886
+Final Best Params: {'model__kernel': 'rbf', 'model__C': 22.028832186267707, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best Features: ['step0_RightHand_angacc_x_451_pause_1_duration_frequency', 'step1_LeftHand_linacc_z_451_pause_1_durations_kurtosis', 'step3_Head_linacc_magnitude_451_pause_1_durations_slope', 'step4_Head_linacc_magnitude_451_pause_1_durations_median', 'step5_LeftHand_angacc_z_451_pause_1_durations_kurtosis', 'step6_Head_linvel_x_451_pause_1_durations_mean', 'step7_RightHand_angvel_magnitude_451_pause_1_time_to_min_duration', 'step8_LeftHand_angvel_x_451_pause_1_durations_slope', 'step9_LeftHand_linacc_z_451_pause_1_durations_skewness', 'step10_Head_angacc_y_451_pause_1_time_to_max_duration', 'step11_Head_angacc_x_451_pause_1_durations_iqr', 'substep36_RightHand_angvel_y_451_pause_1_durations_var']
+Experiment run time: 5037.020275592804
+None_Best_manual_linsvc_within_task | Experiment 1 best score: 0.541805898555886
+Running experiment for None_Best_manual_linsvc_within_task
+No invalid features found
+Nested CV Outer Fold Performance: -0.13245323570650439 | best_params: {'model__kernel': 'rbf', 'model__C': 22.431115303412213, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 11_15_16_26_40_43_45_55_61_162
+Split time: 1046.9539189338684
+Nested CV Outer Fold Performance: 0.4429655520431207 | best_params: {'model__kernel': 'rbf', 'model__C': 22.433255860438912, 'model__max_iter': 100, 'model__gamma': 0.002, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 10_14_28_37_41_49_51_54_62_181
+Split time: 1155.7118327617645
+Nested CV Outer Fold Performance: -0.13245323570650439 | best_params: {'model__kernel': 'rbf', 'model__C': 21.53025024761963, 'model__max_iter': 100, 'model__gamma': 0.002, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 5_14_18_35_39_46_47_51_63_121
+Split time: 993.3611333370209
+Nested CV Outer Fold Performance: -0.13245323570650439 | best_params: {'model__kernel': 'rbf', 'model__C': 22.459022016437554, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 3_14_16_29_37_44_46_49_52_54_63_134
+Split time: 1028.409440279007
+Nested CV Outer Fold Performance: -0.09128709291752769 | best_params: {'model__kernel': 'rbf', 'model__C': 22.01233233527628, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 8_14_16_28_37_42_46_49_51_54_60_167
+Split time: 876.8941450119019
+Final K-Fold 0 MCC: 0.29063239575189875 | Features: 11_15_16_26_40_43_45_55_61_162 | Params: {'model__kernel': 'rbf', 'model__C': 22.431115303412213, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.47114875402351564 | Features: 10_14_28_37_41_49_51_54_62_181 | Params: {'model__kernel': 'rbf', 'model__C': 22.433255860438912, 'model__max_iter': 100, 'model__gamma': 0.002, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.2604293215081223 | Features: 5_14_18_35_39_46_47_51_63_121 | Params: {'model__kernel': 'rbf', 'model__C': 21.53025024761963, 'model__max_iter': 100, 'model__gamma': 0.002, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.4784215023574962 | Features: 3_14_16_29_37_44_46_49_52_54_63_134 | Params: {'model__kernel': 'rbf', 'model__C': 22.459022016437554, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.541805898555886 | Features: 8_14_16_28_37_42_46_49_51_54_60_167 | Params: {'model__kernel': 'rbf', 'model__C': 22.01233233527628, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.541805898555886
+Final Best Params: {'model__kernel': 'rbf', 'model__C': 22.01233233527628, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best Features: ['step0_RightHand_angacc_x_451_pause_1_duration_frequency', 'step1_LeftHand_linacc_z_451_pause_1_durations_kurtosis', 'step3_Head_linacc_magnitude_451_pause_1_durations_slope', 'step4_Head_linacc_magnitude_451_pause_1_durations_median', 'step5_LeftHand_angacc_z_451_pause_1_durations_kurtosis', 'step6_Head_linvel_x_451_pause_1_durations_mean', 'step7_RightHand_angvel_magnitude_451_pause_1_time_to_min_duration', 'step8_LeftHand_angvel_x_451_pause_1_durations_slope', 'step9_LeftHand_linacc_z_451_pause_1_durations_skewness', 'step10_Head_angacc_y_451_pause_1_time_to_max_duration', 'step11_Head_angacc_x_451_pause_1_durations_iqr', 'substep36_RightHand_angvel_y_451_pause_1_durations_var']
+Experiment run time: 5101.668527603149
+None_Best_manual_linsvc_within_task | Experiment 2 best score: 0.541805898555886
+Running experiment for None_Best_manual_linsvc_within_task
+No invalid features found
+Nested CV Outer Fold Performance: -0.13245323570650439 | best_params: {'model__kernel': 'rbf', 'model__C': 22.40663069095693, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 11_15_16_26_40_43_45_55_61_162
+Split time: 1092.7448344230652
+Nested CV Outer Fold Performance: 0.50526738576054 | best_params: {'model__kernel': 'rbf', 'model__C': 22.292076049917043, 'model__max_iter': 100, 'model__gamma': 0.002, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 10_14_21_28_37_41_45_49_51_58_62_181
+Split time: 1051.1681382656097
+Nested CV Outer Fold Performance: -0.13245323570650439 | best_params: {'model__kernel': 'rbf', 'model__C': 21.50634532275519, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 2_17_35_40_46_50_53_64_74
+Split time: 1075.3893511295319
+Nested CV Outer Fold Performance: -0.13245323570650439 | best_params: {'model__kernel': 'rbf', 'model__C': 22.49737668220948, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 3_14_16_29_37_44_46_49_52_54_63_134
+Split time: 1009.6778283119202
+Nested CV Outer Fold Performance: -0.09128709291752769 | best_params: {'model__kernel': 'rbf', 'model__C': 22.129918273211704, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 3_14_16_28_37_42_46_49_51_53_63_98
+Split time: 890.5651273727417
+Final K-Fold 0 MCC: 0.29063239575189875 | Features: 11_15_16_26_40_43_45_55_61_162 | Params: {'model__kernel': 'rbf', 'model__C': 22.40663069095693, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.4395997078015603 | Features: 10_14_21_28_37_41_45_49_51_58_62_181 | Params: {'model__kernel': 'rbf', 'model__C': 22.292076049917043, 'model__max_iter': 100, 'model__gamma': 0.002, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.21900226852841734 | Features: 2_17_35_40_46_50_53_64_74 | Params: {'model__kernel': 'rbf', 'model__C': 21.50634532275519, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.4784215023574962 | Features: 3_14_16_29_37_44_46_49_52_54_63_134 | Params: {'model__kernel': 'rbf', 'model__C': 22.49737668220948, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.43190120421266764 | Features: 3_14_16_28_37_42_46_49_51_53_63_98 | Params: {'model__kernel': 'rbf', 'model__C': 22.129918273211704, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.4784215023574962
+Final Best Params: {'model__kernel': 'rbf', 'model__C': 22.49737668220948, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best Features: ['step0_Head_angacc_z_451_pause_1_durations_kurtosis', 'step1_LeftHand_linacc_z_451_pause_1_durations_kurtosis', 'step3_Head_linacc_magnitude_451_pause_1_durations_slope', 'step4_Head_linacc_magnitude_451_pause_1_durations_slope', 'step5_LeftHand_angacc_z_451_pause_1_durations_kurtosis', 'step6_RightHand_linvel_y_451_pause_1_durations_coeff_of_var', 'step7_RightHand_angvel_magnitude_451_pause_1_time_to_min_duration', 'step8_LeftHand_angvel_x_451_pause_1_durations_slope', 'step9_RightHand_linacc_z_451_pause_1_duration_count', 'step10_Head_angacc_y_451_pause_1_time_to_max_duration', 'step11_LeftHand_linvel_z_451_pause_1_time_to_min_duration', 'substep36_LeftHand_linvel_magnitude_451_pause_1_durations_std']
+Experiment run time: 5119.882666110992
+None_Best_manual_linsvc_within_task | Experiment 3 best score: 0.541805898555886
+Running experiment for None_Best_manual_linsvc_within_task
+No invalid features found
+Nested CV Outer Fold Performance: -0.13245323570650439 | best_params: {'model__kernel': 'rbf', 'model__C': 22.436100699277777, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 11_15_16_26_40_43_45_55_61_162
+Split time: 1116.8467078208923
+Nested CV Outer Fold Performance: 0.572475407014194 | best_params: {'model__kernel': 'rbf', 'model__C': 22.49074931289836, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 10_14_29_37_49_51_54_61_181
+Split time: 967.2068169116974
+Nested CV Outer Fold Performance: -0.13245323570650439 | best_params: {'model__kernel': 'rbf', 'model__C': 21.579611252321754, 'model__max_iter': 100, 'model__gamma': 0.002, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 5_17_26_38_45_48_51_55_62_187
+Split time: 989.3336706161499
+Nested CV Outer Fold Performance: -0.10526315789473684 | best_params: {'model__kernel': 'rbf', 'model__C': 22.39278492481377, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 4_16_29_36_44_45_49_56_64_172
+Split time: 1024.5553586483002
+Nested CV Outer Fold Performance: -0.09128709291752769 | best_params: {'model__kernel': 'rbf', 'model__C': 22.000191866618312, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 8_14_16_28_37_42_46_49_51_54_60_167
+Split time: 928.4296143054962
+Final K-Fold 0 MCC: 0.29063239575189875 | Features: 11_15_16_26_40_43_45_55_61_162 | Params: {'model__kernel': 'rbf', 'model__C': 22.436100699277777, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.44921189456963734 | Features: 10_14_29_37_49_51_54_61_181 | Params: {'model__kernel': 'rbf', 'model__C': 22.49074931289836, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.34311772698219667 | Features: 5_17_26_38_45_48_51_55_62_187 | Params: {'model__kernel': 'rbf', 'model__C': 21.579611252321754, 'model__max_iter': 100, 'model__gamma': 0.002, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.41385907751455797 | Features: 4_16_29_36_44_45_49_56_64_172 | Params: {'model__kernel': 'rbf', 'model__C': 22.39278492481377, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.541805898555886 | Features: 8_14_16_28_37_42_46_49_51_54_60_167 | Params: {'model__kernel': 'rbf', 'model__C': 22.000191866618312, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.541805898555886
+Final Best Params: {'model__kernel': 'rbf', 'model__C': 22.000191866618312, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best Features: ['step0_RightHand_angacc_x_451_pause_1_duration_frequency', 'step1_LeftHand_linacc_z_451_pause_1_durations_kurtosis', 'step3_Head_linacc_magnitude_451_pause_1_durations_slope', 'step4_Head_linacc_magnitude_451_pause_1_durations_median', 'step5_LeftHand_angacc_z_451_pause_1_durations_kurtosis', 'step6_Head_linvel_x_451_pause_1_durations_mean', 'step7_RightHand_angvel_magnitude_451_pause_1_time_to_min_duration', 'step8_LeftHand_angvel_x_451_pause_1_durations_slope', 'step9_LeftHand_linacc_z_451_pause_1_durations_skewness', 'step10_Head_angacc_y_451_pause_1_time_to_max_duration', 'step11_Head_angacc_x_451_pause_1_durations_iqr', 'substep36_RightHand_angvel_y_451_pause_1_durations_var']
+Experiment run time: 5026.710476398468
+None_Best_manual_linsvc_within_task | Experiment 4 best score: 0.541805898555886
+Running experiment for None_Best_manual_linsvc_within_task
+No invalid features found
+Nested CV Outer Fold Performance: -0.13245323570650439 | best_params: {'model__kernel': 'rbf', 'model__C': 22.420611171831947, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 11_15_16_26_40_43_45_55_61_162
+Split time: 1106.7562336921692
+Nested CV Outer Fold Performance: 0.3730516519560976 | best_params: {'model__kernel': 'rbf', 'model__C': 22.490694023079946, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 11_14_15_16_29_37_42_46_49_51_53_62_70
+Split time: 998.4515738487244
+Nested CV Outer Fold Performance: -0.13245323570650439 | best_params: {'model__kernel': 'rbf', 'model__C': 21.50959272248613, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 2_17_35_40_46_50_53_64_74
+Split time: 1068.5769803524017
+Nested CV Outer Fold Performance: -0.13245323570650439 | best_params: {'model__kernel': 'rbf', 'model__C': 21.564559340740036, 'model__max_iter': 100, 'model__gamma': 0.002, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 4_14_15_18_32_36_43_46_52_56_64_156
+Split time: 970.8076765537262
+Nested CV Outer Fold Performance: 0.648498421872871 | best_params: {'model__kernel': 'rbf', 'model__C': 22.45282435394042, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 14_16_27_36_42_46_48_51_58_60_165
+Split time: 1018.6563572883606
+Final K-Fold 0 MCC: 0.29063239575189875 | Features: 11_15_16_26_40_43_45_55_61_162 | Params: {'model__kernel': 'rbf', 'model__C': 22.420611171831947, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.3749487056004715 | Features: 11_14_15_16_29_37_42_46_49_51_53_62_70 | Params: {'model__kernel': 'rbf', 'model__C': 22.490694023079946, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.21900226852841734 | Features: 2_17_35_40_46_50_53_64_74 | Params: {'model__kernel': 'rbf', 'model__C': 21.50959272248613, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.46203076709021274 | Features: 4_14_15_18_32_36_43_46_52_56_64_156 | Params: {'model__kernel': 'rbf', 'model__C': 21.564559340740036, 'model__max_iter': 100, 'model__gamma': 0.002, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.6006581978864134 | Features: 14_16_27_36_42_46_48_51_58_60_165 | Params: {'model__kernel': 'rbf', 'model__C': 22.45282435394042, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.6006581978864134
+Final Best Params: {'model__kernel': 'rbf', 'model__C': 22.45282435394042, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best Features: ['step1_LeftHand_linacc_z_451_pause_1_durations_kurtosis', 'step3_Head_linacc_magnitude_451_pause_1_durations_slope', 'step4_Head_linacc_magnitude_451_pause_1_durations_mean', 'step5_Head_angvel_z_451_pause_1_durations_skewness', 'step6_Head_linvel_x_451_pause_1_durations_mean', 'step7_RightHand_angvel_magnitude_451_pause_1_time_to_min_duration', 'step8_Head_linacc_z_451_pause_1_durations_mean', 'step9_LeftHand_linacc_z_451_pause_1_durations_skewness', 'step10_RightHand_angacc_z_451_pause_1_time_to_max_duration', 'step11_Head_angacc_x_451_pause_1_durations_iqr', 'substep36_RightHand_angvel_y_451_pause_1_durations_std']
+Experiment run time: 5163.589426517487
+None_Best_manual_linsvc_within_task | Experiment 5 best score: 0.6006581978864134
+Running experiment for None_Best_manual_linsvc_within_task
+No invalid features found
+Nested CV Outer Fold Performance: -0.13245323570650439 | best_params: {'model__kernel': 'rbf', 'model__C': 22.433722399714842, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 11_15_16_26_40_43_45_55_61_162
+Split time: 1112.4886119365692
+Nested CV Outer Fold Performance: -0.10526315789473684 | best_params: {'model__kernel': 'rbf', 'model__C': 22.497603394814142, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 9_19_29_37_42_45_49_51_57_63_84
+Split time: 978.7348766326904
+Nested CV Outer Fold Performance: -0.15737789507292674 | best_params: {'model__kernel': 'rbf', 'model__C': 21.526538536677563, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 5_18_30_37_46_50_64_72
+Split time: 1091.2984640598297
+Nested CV Outer Fold Performance: -0.13245323570650439 | best_params: {'model__kernel': 'rbf', 'model__C': 22.469753056228544, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 3_14_16_29_37_44_46_49_52_54_63_134
+Split time: 1023.0705842971802
+Nested CV Outer Fold Performance: 0.648498421872871 | best_params: {'model__kernel': 'rbf', 'model__C': 22.438730671649843, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 14_16_27_36_42_46_48_51_58_60_165
+Split time: 986.2639806270599
+Final K-Fold 0 MCC: 0.29063239575189875 | Features: 11_15_16_26_40_43_45_55_61_162 | Params: {'model__kernel': 'rbf', 'model__C': 22.433722399714842, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.14666194417457815 | Features: 9_19_29_37_42_45_49_51_57_63_84 | Params: {'model__kernel': 'rbf', 'model__C': 22.497603394814142, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.24578679965127126 | Features: 5_18_30_37_46_50_64_72 | Params: {'model__kernel': 'rbf', 'model__C': 21.526538536677563, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.4784215023574962 | Features: 3_14_16_29_37_44_46_49_52_54_63_134 | Params: {'model__kernel': 'rbf', 'model__C': 22.469753056228544, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.6006581978864134 | Features: 14_16_27_36_42_46_48_51_58_60_165 | Params: {'model__kernel': 'rbf', 'model__C': 22.438730671649843, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.6006581978864134
+Final Best Params: {'model__kernel': 'rbf', 'model__C': 22.438730671649843, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best Features: ['step1_LeftHand_linacc_z_451_pause_1_durations_kurtosis', 'step3_Head_linacc_magnitude_451_pause_1_durations_slope', 'step4_Head_linacc_magnitude_451_pause_1_durations_mean', 'step5_Head_angvel_z_451_pause_1_durations_skewness', 'step6_Head_linvel_x_451_pause_1_durations_mean', 'step7_RightHand_angvel_magnitude_451_pause_1_time_to_min_duration', 'step8_Head_linacc_z_451_pause_1_durations_mean', 'step9_LeftHand_linacc_z_451_pause_1_durations_skewness', 'step10_RightHand_angacc_z_451_pause_1_time_to_max_duration', 'step11_Head_angacc_x_451_pause_1_durations_iqr', 'substep36_RightHand_angvel_y_451_pause_1_durations_std']
+Experiment run time: 5192.193676710129
+None_Best_manual_linsvc_within_task | Experiment 6 best score: 0.6006581978864134
+Running experiment for None_Best_manual_linsvc_within_task
+No invalid features found
+Nested CV Outer Fold Performance: 0.4779368818394557 | best_params: {'model__kernel': 'rbf', 'model__C': 22.331972373173368, 'model__max_iter': 100, 'model__gamma': 0.002, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 11_14_15_16_27_42_45_51_56_64_130
+Split time: 1038.3656101226807
+Nested CV Outer Fold Performance: 0.4429655520431207 | best_params: {'model__kernel': 'rbf', 'model__C': 22.469364670687266, 'model__max_iter': 100, 'model__gamma': 0.002, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 10_14_28_37_41_49_51_54_62_181
+Split time: 1125.9705300331116
+Nested CV Outer Fold Performance: -0.15737789507292674 | best_params: {'model__kernel': 'rbf', 'model__C': 21.561712927247704, 'model__max_iter': 100, 'model__gamma': 0.001, 'model__tol': 0.001, 'model__class_weight': 'balanced'} | selected_features: 5_18_30_37_46_50_64_72
+Split time: 1071.446255683899

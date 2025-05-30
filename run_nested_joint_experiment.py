@@ -57,7 +57,7 @@ random_state = 26
 random.seed(random_state)
 
 # Optuna Parameters
-trial_num = 5
+trial_num = 1
 
 # Feature Reduction Parameters
 na_threshold = 0.2
@@ -72,7 +72,7 @@ gcd_n_trials_outer = 10
 # Manual Feature Search Parameters
 override_feature_removal = True
 manual_feature_search_method = "greedy"
-num_experiment_runs = 1
+num_experiment_runs = 10
 
 tab_path = "./experimentData/tabulated_dataframe.pkl"
 md_path = "./experimentData/metadata.csv"
@@ -239,8 +239,9 @@ def _run_nested_cross_validation(subset_df_A, subset_df_B, metadata_df_A,
             # ── parameters that exist for *all* kernels ────────────────────────────────
             # C = trial.suggest_float(f"{prefix}C", 0.001, 100, log=True)
             # max_iter     = trial.suggest_categorical("model__max_iter", [100, -1])
-            # C = trial.suggest_float(f"{prefix}C", 0.01, 100, log=True)
             C = trial.suggest_categorical(f"{prefix}C", [21.88582597143875])
+            # C = trial.suggest_float(f"{prefix}C", 21.5, 22.5, log=True)
+
             max_iter     = trial.suggest_categorical("model__max_iter", [100])
 
             # ── conditionals -----------------------------------------------------------
@@ -249,6 +250,7 @@ def _run_nested_cross_validation(subset_df_A, subset_df_B, metadata_df_A,
                 # gamma = trial.suggest_float(f"{prefix}gamma", 0.0001, 1, log=True)
                 # gamma = trial.suggest_float(f"{prefix}gamma", 0.0001, 1, log=True)
                 gamma = trial.suggest_categorical(f"{prefix}gamma", [0.0010783628662438616])
+                # gamma = trial.suggest_float(f"{prefix}gamma", 0.001, 0.002, log=True)
             else:                                 # keep Optuna’s param dict consistent
                 gamma = "scale"                   # (any fixed value is fine)
 

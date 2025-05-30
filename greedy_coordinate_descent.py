@@ -70,15 +70,17 @@ def greedy_coordinate_descent(
         return np.mean(cv_scores) - 0.5 * np.std(cv_scores)
 
     feature_combination_performance = {}
+    feature_set = [["None"] + feature_set[i] for i in range(len(feature_set))]
 
     current_selection = [random.choice(group) for group in feature_set]
-    best_overall_combo = current_selection.copy()
+    cleaned_selection = [i for i in current_selection if i != "None"]
+    best_overall_combo = cleaned_selection.copy()
     best_overall_metric = -float('inf')
     
     # Evaluate the initial combination.
-    candidate_combo_map = '_'.join(str(feature_mapping[feat]) for feat in current_selection)
-    train_data_A_combo = train_data_A[[f"{feat}_A" for feat in current_selection]]
-    train_data_B_combo = train_data_B[[f"{feat}_B" for feat in current_selection]]
+    candidate_combo_map = '_'.join(str(feature_mapping[feat]) for feat in cleaned_selection)
+    train_data_A_combo = train_data_A[[f"{feat}_A" for feat in cleaned_selection]]
+    train_data_B_combo = train_data_B[[f"{feat}_B" for feat in cleaned_selection]]
     best_overall_metric = _run_inner_cv(train_data_A_combo, train_data_B_combo)
 
     # print(f"Initial fixed-length combo: {candidate_combo_map} -> {best_overall_metric}")
@@ -122,6 +124,7 @@ def greedy_coordinate_descent(
                 # Form a candidate selection by substituting the current group's feature.
                 candidate_selection = current_selection.copy()
                 candidate_selection[group_idx] = candidate
+                candidate_selection = [i for i in candidate_selection if i != "None"]
                 candidate_combo_map = '_'.join(str(feature_mapping[feat]) for feat in candidate_selection)
                 
                 # Evaluate the candidate feature set.
@@ -151,6 +154,7 @@ def greedy_coordinate_descent(
     if best_overall_metric > best_score:
         best_score = best_overall_metric
         best_result = best_overall_combo
+        best_result = [i for i in best_result if i != "None"]
     
     return best_score, best_result
 
