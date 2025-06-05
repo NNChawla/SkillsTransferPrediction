@@ -1,0 +1,29 @@
+Running 271_1.0_Step_Head_LeftHand_angacc
+Running experiment for 271_1.0_Step_Head_LeftHand_angacc
+Relevance filter: kept 1768 / 1768 features with |r| ≥ 0.0
+Redundancy filter: dropped 371 correlated features (1397 remain).
+Nested CV Outer Fold Performance: -0.1 | best_params: {'pca_k': 0.41197419613969327, 'model__kernel': 'rbf', 'model__C': 0.3207477602241009, 'model__max_iter': -1, 'model__gamma': 0.0019070647629340137, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 7.64299201965332
+Nested CV Outer Fold Performance: 0.0 | best_params: {'pca_k': 0.40991503914149324, 'model__kernel': 'rbf', 'model__C': 0.15410749782373595, 'model__max_iter': -1, 'model__gamma': 0.010530796488812832, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 8.050208568572998
+Nested CV Outer Fold Performance: 0.0 | best_params: {'pca_k': 0.5303952536555249, 'model__kernel': 'rbf', 'model__C': 0.36155505501145435, 'model__max_iter': -1, 'model__gamma': 0.03440292138923058, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 7.796250581741333
+Nested CV Outer Fold Performance: 0.0 | best_params: {'pca_k': 0.5303952536555249, 'model__kernel': 'rbf', 'model__C': 0.36155505501145435, 'model__max_iter': -1, 'model__gamma': 0.03440292138923058, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 8.058255672454834
+Nested CV Outer Fold Performance: 0.0 | best_params: {'pca_k': 0.5303952536555249, 'model__kernel': 'rbf', 'model__C': 0.36155505501145435, 'model__max_iter': -1, 'model__gamma': 0.03440292138923058, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 8.297264337539673
+Final K-Fold 0 MCC: 0.039135392743020546 | Params: {'pca_k': 0.41197419613969327, 'model__kernel': 'rbf', 'model__C': 0.3207477602241009, 'model__max_iter': -1, 'model__gamma': 0.0019070647629340137, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.0 | Params: {'pca_k': 0.40991503914149324, 'model__kernel': 'rbf', 'model__C': 0.15410749782373595, 'model__max_iter': -1, 'model__gamma': 0.010530796488812832, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.0 | Params: {'pca_k': 0.5303952536555249, 'model__kernel': 'rbf', 'model__C': 0.36155505501145435, 'model__max_iter': -1, 'model__gamma': 0.03440292138923058, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.0 | Params: {'pca_k': 0.5303952536555249, 'model__kernel': 'rbf', 'model__C': 0.36155505501145435, 'model__max_iter': -1, 'model__gamma': 0.03440292138923058, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.0 | Params: {'pca_k': 0.5303952536555249, 'model__kernel': 'rbf', 'model__C': 0.36155505501145435, 'model__max_iter': -1, 'model__gamma': 0.03440292138923058, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.039135392743020546
+Final Best Params: {'pca_k': 0.41197419613969327, 'model__kernel': 'rbf', 'model__C': 0.3207477602241009, 'model__max_iter': -1, 'model__gamma': 0.0019070647629340137, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Experiment run time: 41.59740424156189
+271_1.0_Step_Head_LeftHand_angacc | Experiment 0 best score: 0.039135392743020546
+Running 271_1.0_Step_Head_LeftHand_angvel
+Running experiment for 271_1.0_Step_Head_LeftHand_angvel
+Relevance filter: kept 1768 / 1768 features with |r| ≥ 0.0
+Redundancy filter: dropped 371 correlated features (1397 remain).
+Nested CV Outer Fold Performance: -0.1 | best_params: {'pca_k': 0.41197419613969327, 'model__kernel': 'rbf', 'model__C': 0.3207477602241009, 'model__max_iter': -1, 'model__gamma': 0.0019070647629340137, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 7.544728755950928
