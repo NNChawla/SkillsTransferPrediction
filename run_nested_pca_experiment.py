@@ -7,6 +7,7 @@ from scipy.stats import hmean
 from sklearn.feature_selection import VarianceThreshold
 import pickle, time, gc, sys, os, json, math, random
 from optuna.pruners import MedianPruner
+from helpers import RepeatedStratifiedGroupKFold
 from tqdm import tqdm
 import pandas as pd
 import numpy as np
@@ -151,6 +152,7 @@ task_ids = step_df["task_id"].to_numpy()
 
 inner_cv = StratifiedGroupKFold(n_splits=4, shuffle=True, random_state=RANDOM_STATE)
 outer_cv = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
+# final_cv = RepeatedStratifiedGroupKFold(n_splits=5, repeats=10, random_state=RANDOM_STATE)
 
 def _run_nested_cross_validation(X_sub):
     outer_splits = list(outer_cv.split(X_sub, y_full, PID))

@@ -1,16 +1,9 @@
 # Project-specific
 _deprecated/
 data/
-figures/
-logs/
 *.png
 *.pkl
-results_server/
-results/shap_analysis/
 experimentData/
-papers/
-interpreted_csvs/
-
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,0 +1,14 @@
+import os, json
+
+if os.path.exists("./experimentConfigs"):
+    os.rmdir("./experimentConfigs")
+os.makedirs("./experimentConfigs", exist_ok=True)
+
+step_configs = sorted(os.listdir("./step_configs"))
+for window, threshold in [(91, 0.25)]:
+    for config in step_configs:
+        with open(f"./step_configs/{config}", "r") as f:
+            loaded_config = json.load(f)
+        with open(f"./experimentConfigs/{window}_{threshold}_{config}", "w") as f:
+            tmp_config = [i.replace("_451_", f"_{window}_").replace("_1_", f"_{threshold}_") for i in loaded_config]
+            json.dump(tmp_config, f)

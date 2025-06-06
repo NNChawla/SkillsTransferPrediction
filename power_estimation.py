@@ -1,3 +1,4 @@
+# Load results
 from itertools import combinations
 import pickle, os
 import pandas as pd
@@ -19,6 +20,13 @@ gt_score = "02"
 window = "541"
 threshold = "1.0"
 
+# -------------  inputs from your ANOVA output -----------------
+eta2   = 0.2817451097476204      # partial-η² for motion_combo
+eps    = 0.3255009209861151      # GG epsilon  (motion row)
+m      = 7          # 15 motion levels (within-subject)
+n_subj = 5           # folds = subjects
+alpha  = 0.05
+
 dir = f"./results/results_pca_{C_low}-{C_high}C_{K_low}-{K_high}K_{P}P_{SP}SP_gt{gt_score}P_{window}_{threshold}"
 
 files = sorted(os.listdir(dir))
@@ -33,9 +41,7 @@ for name in files:
 results_dict = dict(results)
 
 for key in results_dict.keys():
-    scores = [i['mcc'] for i in results_dict[key]]
-    best_idx = scores.index(max(scores))
-    results_dict[key] = results_dict[key][best_idx]
+    results_dict[key] = results_dict[key][0]
 
 anova_data = {}
 for key in results_dict.keys():
@@ -87,46 +93,37 @@ df["motion_combo"] = df["motion_combo"].astype("category")
 
 print(f"Tidy table:\n{df.head()}")
 
-# -------------------------------------------------------------
-# 3. Group means + 95 % CIs and error-bar plot
-# -------------------------------------------------------------
-means = (df.groupby(["device_combo", "motion_combo"])
-           .agg(mean=("score", "mean"),
-                sd=("score", "std"),
-                n=("score", "size")))
-means["sem"] = means["sd"] / np.sqrt(means["n"])
-means["ci95"] = 1.96 * means["sem"]
-print("\nTop 10 combos by mean MCC:")
-print(means.sort_values("mean", ascending=False).head(10))
+# ---------- 1) observed (= post-hoc) power --------------------
+# need an estimate of mean correlation among motion scores
+# wide = (
+#     df.groupby(['fold', 'motion_combo'], as_index=False)['score']
+#       .mean()                               # or .median(), .max(), …
+#       .pivot(index='fold',
+#              columns='motion_combo',
+#              values='score')
+# )
+# corrs = wide.corr().values[np.triu_indices(m, k=1)]
+# mean_r = np.tanh(np.arctanh(corrs).mean())   # Fisher-z average
+# print(f"mean r among motions ≈ {mean_r:.2f}")
 
-# 95 %-CI plot for motion combos (collapsed over devices)
-plt.figure(figsize=(10, 4))
-sns.pointplot(data=df,
-              x="motion_combo",
-              y="score",
-              ci=95,
-              capsize=.1)
-plt.title("Mean MCC ± 95 % CI by motion combo (all devices pooled)")
-plt.xticks(rotation=90)
-plt.tight_layout()
-plt.savefig(f"./anova/ci_plot_motion_{C_low}-{C_high}C_{K_low}-{K_high}K_{P}P_{SP}SP_gt{gt_score}P_{window}_{threshold}.png", dpi=300)
-plt.close()
-print("Saved 95-CI plot ➜ ci_plot_motion.png")
+mean_r = 0.1
 
-# -------------------------------------------------------------
-# 4. Repeated-measures two-way ANOVA  (fold = subject)
-# -------------------------------------------------------------
-rm_aov = pg.rm_anova(dv="score",
-                     within=["device_combo", "motion_combo"],
-                     subject="fold",
-                     data=df,
-                     detailed=True,
-                     effsize="np2")   # partial-η²
-print("\nRepeated-measures two-way ANOVA (Type-II SS):")
-print(rm_aov.round(4))
+obs_power = pg.power_rm_anova(eta_squared=eta2,
+                              m=m,
+                              n=n_subj,
+                              alpha=alpha,
+                              power=None,
+                              corr=mean_r,
+                              epsilon=eps)
+print(f"Observed power for motion factor = {obs_power:.3f}")
 
-# -------------------------------------------------------------
-# 6. Save ANOVA table
-# -------------------------------------------------------------
-rm_aov.to_csv(f"./anova/rm_anova_table_{C_low}-{C_high}C_{K_low}-{K_high}K_{P}P_{SP}SP_gt{gt_score}P_{window}_{threshold}.csv", index=False)
-print("Saved rm_anova_table.csv")
+# ---------- 2) sample-size (fold) planning for 80 % power -----
+target_power = 0.80
+needed_n = pg.power_rm_anova(eta_squared=eta2,
+                             m=m,
+                             n=None,              # ask for n
+                             power=target_power,
+                             alpha=alpha,
+                             corr=mean_r,
+                             epsilon=eps)
+print(f"Folds (subjects) needed for 80 % power ≈ {np.ceil(needed_n)}")
