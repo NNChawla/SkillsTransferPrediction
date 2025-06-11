@@ -1,4 +1,4 @@
-import os, sys, time
+import os, sys, time, pickle
 import numpy as np
 import polars as pl
 from alt_analysis import *
@@ -124,8 +124,8 @@ def generate_velocity_and_acceleration_columns(idx):
     assembly_B_dir = "/srv/STP/data/FAB/Assembly_B"
     FAB_A_Resampled_dir = "/srv/STP/data/FAB/FAB_A_Resampled"
     FAB_B_Resampled_dir = "/srv/STP/data/FAB/FAB_B_Resampled"
-    FAB_A_Output_dir = "/srv/STP/data/FAB/FAB_A_Step_Motion_Finite_Std"
-    FAB_B_Output_dir = "/srv/STP/data/FAB/FAB_B_Step_Motion_Finite_Std"
+    FAB_A_Output_dir = "/srv/STP/data/FAB/FAB_A_Shift450"
+    FAB_B_Output_dir = "/srv/STP/data/FAB/FAB_B_Shift450"
     assembly_A_files = sorted(os.listdir(assembly_A_dir))
     assembly_B_files = sorted(os.listdir(assembly_B_dir))
     FAB_A_Resampled_files = sorted(os.listdir(FAB_A_Resampled_dir))
@@ -138,7 +138,9 @@ def generate_velocity_and_acceleration_columns(idx):
     df_A = pl.read_csv(os.path.join(FAB_A_Resampled_dir, FAB_A_Resampled_files[idx]))
     df_B = pl.read_csv(os.path.join(FAB_B_Resampled_dir, FAB_B_Resampled_files[idx]))
 
-    window_sizes = [9, 91, 181, 271, 361, 451, 541]
+    window_sizes = [450]
+    stride = 450
+    mode = "central"
     obj_list = ["Head", "LeftHand", "RightHand"]
     for obj in obj_list:
         pos_df_A = df_A[[f"{obj}_position_x", f"{obj}_position_y", f"{obj}_position_z"]].to_numpy()
@@ -149,8 +151,8 @@ def generate_velocity_and_acceleration_columns(idx):
         timestamps_B = df_B["Timestamp"].to_numpy()
     
         for window in window_sizes:
-            vel_x_A, vel_y_A, vel_z_A = finite_difference_linear(pos_df_A, timestamps_A, window, "central")
-            acc_x_A, acc_y_A, acc_z_A = finite_difference_linear_accel(pos_df_A, timestamps_A, window, "central")
+            vel_x_A, vel_y_A, vel_z_A = finite_difference_linear(pos_df_A, timestamps_A, window, mode, stride)
+            acc_x_A, acc_y_A, acc_z_A = finite_difference_linear_accel(pos_df_A, timestamps_A, window, mode, stride)
             df_A = df_A.with_columns(
                 pl.Series(name=f"{obj}_linvel_x_{window}", values=vel_x_A),
                 pl.Series(name=f"{obj}_linvel_y_{window}", values=vel_y_A),
@@ -160,8 +162,8 @@ def generate_velocity_and_acceleration_columns(idx):
                 pl.Series(name=f"{obj}_linacc_z_{window}", values=acc_z_A)
             )
 
-            vel_x_A, vel_y_A, vel_z_A = finite_difference_angular(quat_df_A, timestamps_A, window, "central")
-            acc_x_A, acc_y_A, acc_z_A = finite_difference_angular_accel(quat_df_A, timestamps_A, window, "central")
+            vel_x_A, vel_y_A, vel_z_A = finite_difference_angular(quat_df_A, timestamps_A, window, mode, stride)
+            acc_x_A, acc_y_A, acc_z_A = finite_difference_angular_accel(quat_df_A, timestamps_A, window, mode, stride)
 
             df_A = df_A.with_columns(
                 pl.Series(name=f"{obj}_angvel_x_{window}", values=vel_x_A),
@@ -172,8 +174,8 @@ def generate_velocity_and_acceleration_columns(idx):
                 pl.Series(name=f"{obj}_angacc_z_{window}", values=acc_z_A)
             )
 
-            vel_x_B, vel_y_B, vel_z_B = finite_difference_linear(pos_df_B, timestamps_B, window, "central")
-            acc_x_B, acc_y_B, acc_z_B = finite_difference_linear_accel(pos_df_B, timestamps_B, window, "central")
+            vel_x_B, vel_y_B, vel_z_B = finite_difference_linear(pos_df_B, timestamps_B, window, mode, stride)
+            acc_x_B, acc_y_B, acc_z_B = finite_difference_linear_accel(pos_df_B, timestamps_B, window, mode, stride)
             df_B = df_B.with_columns(
                 pl.Series(name=f"{obj}_linvel_x_{window}", values=vel_x_B),
                 pl.Series(name=f"{obj}_linvel_y_{window}", values=vel_y_B),
@@ -183,8 +185,8 @@ def generate_velocity_and_acceleration_columns(idx):
                 pl.Series(name=f"{obj}_linacc_z_{window}", values=acc_z_B)
             )
 
-            vel_x_B, vel_y_B, vel_z_B = finite_difference_angular(quat_df_B, timestamps_B, window, "central")
-            acc_x_B, acc_y_B, acc_z_B = finite_difference_angular_accel(quat_df_B, timestamps_B, window, "central")
+            vel_x_B, vel_y_B, vel_z_B = finite_difference_angular(quat_df_B, timestamps_B, window, mode, stride)
+            acc_x_B, acc_y_B, acc_z_B = finite_difference_angular_accel(quat_df_B, timestamps_B, window, mode, stride)
             df_B = df_B.with_columns(
                 pl.Series(name=f"{obj}_angvel_x_{window}", values=vel_x_B),
                 pl.Series(name=f"{obj}_angvel_y_{window}", values=vel_y_B),
@@ -202,8 +204,8 @@ def process_participant(i):
     t = time.time()
     assembly_A_dir = "/srv/STP/data/FAB/Assembly_A"
     assembly_B_dir = "/srv/STP/data/FAB/Assembly_B"
-    FAB_A_Motion_dir = "/srv/STP/data/FAB/FAB_A_Step_Motion_Finite_Std"
-    FAB_B_Motion_dir = "/srv/STP/data/FAB/FAB_B_Step_Motion_Finite_Std"
+    FAB_A_Motion_dir = "/srv/STP/data/FAB/FAB_A_Shift450"
+    FAB_B_Motion_dir = "/srv/STP/data/FAB/FAB_B_Shift450"
     assembly_A_files = sorted(os.listdir(assembly_A_dir))
     assembly_B_files = sorted(os.listdir(assembly_B_dir))
     FAB_A_Motion_files = sorted(os.listdir(FAB_A_Motion_dir))
@@ -219,7 +221,7 @@ def process_participant(i):
     results_dict = {}
     
     for build_letter, df, assembly_df in zip(build_letters, dfs, assembly_dfs):
-        results = get_motion_features(df, assembly_df)
+        results = get_motion_features(df, assembly_df, [450])
         for name, value in results.items():
             try:
                 results_dict[f"{name}_{build_letter}"] = float(value)
@@ -239,35 +241,39 @@ if __name__ == "__main__" or "ipykernel" in sys.modules:
 
     # Step 2: Generate velocity and acceleration columns (If changing the window size, calculation method, or data types)
     ###############################################################################
-    # participant_ids = [i.split('_')[0] for i in sorted(os.listdir("/srv/STP/data/FAB/FAB_A_Resampled"))]
-    # num_participants = len(participant_ids)
-    # # results = [generate_velocity_and_acceleration_columns(i) for i in tqdm.tqdm(range(num_participants), desc="Generating velocity and acceleration columns")]
+    participant_ids = [i.split('_')[0] for i in sorted(os.listdir("/srv/STP/data/FAB/FAB_A_Resampled"))]
+    num_participants = len(participant_ids)
+    # results = [generate_velocity_and_acceleration_columns(i) for i in tqdm.tqdm(range(num_participants), desc="Generating velocity and acceleration columns")]
     
-    # num_cpus = 5 # mp.cpu_count()
-    # with mp.Pool(processes=num_cpus) as pool:
-    #     results = list(tqdm.tqdm(
-    #         pool.imap(generate_velocity_and_acceleration_columns, range(num_participants), chunksize=1),
-    #         total=num_participants,
-    #         desc="Generating velocity and acceleration columns"
-    #     ))
-    # sys.exit()
+    num_cpus = 5 # mp.cpu_count()
+    with mp.Pool(processes=num_cpus) as pool:
+        results = list(tqdm.tqdm(
+            pool.imap(generate_velocity_and_acceleration_columns, range(num_participants), chunksize=1),
+            total=num_participants,
+            desc="Generating velocity and acceleration columns"
+        ))
 
     # Step 3: Tabulate the data
     # ###############################################################################
     t = time.time()
     # # Prepare tabulated data storage
-    participant_ids = [i.split('_')[0] for i in sorted(os.listdir("/srv/STP/data/FAB/FAB_A_Step_Motion_Finite_Std"))]
+    participant_ids = [i.split('_')[0] for i in sorted(os.listdir("/srv/STP/data/FAB/FAB_A_Shift450"))]
     num_participants = len(participant_ids)
 
-    num_cpus = 5
-    with mp.Pool(processes=num_cpus) as pool:
-        results = list(tqdm.tqdm(
-            pool.imap(process_participant, range(80, 105), chunksize=1),
-            total=25,
-            desc="Tabulating feature statistics"
-        ))
+    sequences = [(0, 20), (20, 40), (40, 60), (60, 80), (80, 105)]
+    counter = 1
+    for start, end in sequences:
+        num_cpus = 5
+        with mp.Pool(processes=num_cpus) as pool:
+            results = list(tqdm.tqdm(
+                pool.imap(process_participant, range(start, end), chunksize=1),
+                total=end-start,
+                desc="Tabulating feature statistics"
+            ))
 
-    # results = [process_participant(i) for i in tqdm.tqdm(range(44, num_participants), desc="Tabulating duration, position, rotation, and trigger statistics")]
-    import pickle
-    with open("/srv/STP/results_5.pkl", "wb") as f:
-        pickle.dump(results, f)
+        # results = [process_participant(i) for i in tqdm.tqdm(range(44, num_participants), desc="Tabulating duration, position, rotation, and trigger statistics")]
+        
+        with open(f"/srv/STP/results_{counter}.pkl", "wb") as f:
+            pickle.dump(results, f)
+        
+        counter += 1

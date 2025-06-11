@@ -95,5 +95,5 @@ tabulated_dataframe = pd.DataFrame(tabulated_data)
 del tabulated_data
 gc.collect()
 print(f"Creating tabulated dataframe took {time.time() - start_time} seconds")
-with open("/srv/STP/std_tabulated_dataframe.pkl", "wb") as f:
+with open("/srv/STP/shift450_tabulated_dataframe.pkl", "wb") as f:
     pickle.dump(tabulated_dataframe, f)

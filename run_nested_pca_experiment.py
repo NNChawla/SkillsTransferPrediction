@@ -7,7 +7,6 @@ from scipy.stats import hmean
 from sklearn.feature_selection import VarianceThreshold
 import pickle, time, gc, sys, os, json, math, random
 from optuna.pruners import MedianPruner
-from helpers import RepeatedStratifiedGroupKFold
 from tqdm import tqdm
 import pandas as pd
 import numpy as np
@@ -113,7 +112,7 @@ def evaluate_predictions(true_A, pred_A, true_B, pred_B):
     }
     return result
 
-results_path = "./exploratory_results_pca_001-10C_04-1K_07P_07SP_gt02P"
+results_path = "./results_pca_001-100C_05-1K_07P_07SP_gt02P"
 os.makedirs(results_path, exist_ok=True)
 
 if not sys.warnoptions:
@@ -121,7 +120,7 @@ if not sys.warnoptions:
     os.environ["PYTHONWARNINGS"] = "ignore"
 
 # Preprocessing
-RANDOM_STATE = 26
+RANDOM_STATE = 42
 random.seed(RANDOM_STATE)
 
 # Optuna Parameters
@@ -133,7 +132,7 @@ study_n_jobs = 1
 # Experiment Parameters
 num_experiment_runs = 1
 
-step_path = "./experimentData/std_step_df.pkl"
+step_path = "./experimentData/shift90_central_step_df.pkl"
 md_path = "./experimentData/step_score.pkl"
 with open(step_path, "rb") as f:
     step_df = pickle.load(f)
@@ -152,7 +151,7 @@ task_ids = step_df["task_id"].to_numpy()
 
 inner_cv = StratifiedGroupKFold(n_splits=4, shuffle=True, random_state=RANDOM_STATE)
 outer_cv = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
-# final_cv = RepeatedStratifiedGroupKFold(n_splits=5, repeats=10, random_state=RANDOM_STATE)
+final_cv = outer_cv # RepeatedStratifiedGroupKFold(n_splits=5, n_repeats=10, random_state=RANDOM_STATE)
 
 def _run_nested_cross_validation(X_sub):
     outer_splits = list(outer_cv.split(X_sub, y_full, PID))
@@ -175,7 +174,7 @@ def _run_nested_cross_validation(X_sub):
             kernel = trial.suggest_categorical(f"{prefix}kernel", ["rbf"])
 
             # ── parameters that exist for *all* kernels ────────────────────────────────
-            C = trial.suggest_float(f"{prefix}C", 0.01, 10, log=True)
+            C = trial.suggest_float(f"{prefix}C", 0.01, 100, log=True)
             max_iter     = trial.suggest_categorical("model__max_iter", [-1])
 
             # ── conditionals -----------------------------------------------------------
@@ -191,7 +190,7 @@ def _run_nested_cross_validation(X_sub):
             
         def objective(trial):
 
-            pca_k = trial.suggest_float(f"pca_k", 0.4, 1.0, log=True)
+            pca_k = trial.suggest_float(f"pca_k", 0.5, 1.0, log=False)
             # pca_k = trial.suggest_int(f"pca_k", 1, min(80, X_train.shape[1]-1))
             svc_params   = suggest_svc_params(trial, prefix="model__")
 
@@ -370,7 +369,7 @@ def _run_nested_cross_validation(X_sub):
 
 def _run_final_cross_validation(X_sub, outer_results):
 
-    outer_splits = list(outer_cv.split(X_sub, y_full, PID))    
+    outer_splits = list(final_cv.split(X_sub, y_full, PID))    
     final_results = []
     for outer_result_idx, outer_result in enumerate(outer_results):
         candidate_params = outer_result['best_params']
@@ -501,6 +500,7 @@ def _run_experiment(parameters, best_score):
     X_sub = X_sub[filtered_cols].to_numpy()    
 
     nested_metrics = _run_nested_cross_validation(X_sub)
+    # nested_metrics = pickle.load(open(f"{results_path}/{label}_nested_metrics.pkl", "rb"))
     final_results = _run_final_cross_validation(X_sub, nested_metrics['outer_results'])
 
     final_results_metrics = []

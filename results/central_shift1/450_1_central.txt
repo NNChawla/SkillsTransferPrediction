@@ -1,0 +1,38 @@
+Loaded 105 combos × 5 folds (525 rows)
+Tidy table:
+   fold device_combo motion_combo     score
+0     0         Head       linvel -0.047619
+1     1         Head       linvel -0.105263
+2     2         Head       linvel  0.348676
+3     3         Head       linvel  0.442966
+4     4         Head       linvel  0.392364
+/srv/STP/run_anova.py:97: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  means = (df.groupby(["device_combo", "motion_combo"])
+
+Top 10 combos by mean MCC:
+                                                         mean        sd  n       sem      ci95
+device_combo            motion_combo                                                          
+LeftHand+RightHand      linacc+linvel                0.770906  0.188994  5  0.084521  0.165661
+                        angvel+linacc+linvel         0.743807  0.134593  5  0.060192  0.117976
+Head+LeftHand+RightHand linacc+linvel                0.716946  0.103926  5  0.046477  0.091095
+LeftHand+RightHand      angacc+linacc+linvel         0.713593  0.190216  5  0.085067  0.166732
+                        angacc+linacc                0.683250  0.187318  5  0.083771  0.164192
+                        linacc                       0.664135  0.128395  5  0.057420  0.112543
+                        angacc+angvel+linacc+linvel  0.642677  0.208142  5  0.093084  0.182445
+RightHand               linacc                       0.636859  0.155000  5  0.069318  0.135864
+LeftHand+RightHand      angacc+angvel+linacc         0.600667  0.181681  5  0.081250  0.159250
+RightHand               angacc+angvel+linacc         0.596509  0.252431  5  0.112891  0.221266
+/srv/STP/run_anova.py:108: FutureWarning: 
+
+The `ci` parameter is deprecated. Use `errorbar=('ci', 95)` for the same effect.
+
+  sns.pointplot(data=df,
+Saved 95-CI plot ➜ ci_plot_motion.png
+/home/nayan/miniconda3/envs/STP/lib/python3.10/site-packages/pingouin/distribution.py:515: UserWarning: Epsilon values might be innaccurate in two-way repeated measures design where each  factor has more than 2 levels. Please  double-check your results.
+  warnings.warn(
+
+Repeated-measures two-way ANOVA (Type-II SS):
+                        Source      SS  ddof1  ddof2      MS       F   p-unc  p-GG-corr     np2     eps
+0                 device_combo  4.5054      6     24  0.7509  3.5266  0.0121     0.0949  0.4686  0.2764
+1                 motion_combo  5.7113     14     56  0.4080  7.0975  0.0000     0.0056  0.6396  0.2118
+2  device_combo * motion_combo  4.4899     84    336  0.0535  1.2178  0.1156     0.3462  0.2334  0.0314

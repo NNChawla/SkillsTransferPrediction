@@ -350,7 +350,7 @@ def get_trigger_features(tracking_df):
         trigger_features.update(get_custom_features_interval(trigger_inactive_intervals, timestamps, prefix=f'{col_name}_inactive'))
     return trigger_features
 
-def get_motion_features(tracking_df, assembly_df):
+def get_motion_features(tracking_df, assembly_df, window_sizes):
     motion_features = {}
     tracking_step_dfs, tracking_substep_dfs, tracking_substep_type_dfs, tracking_end_df = get_step_dfs(tracking_df, assembly_df)
 
@@ -358,7 +358,6 @@ def get_motion_features(tracking_df, assembly_df):
     unique_motion_features = ['directional_reversal_frequency', 'num_reversals', 'cumulative_opposing_displacement']
 
     column_parameter_list = []
-    window_sizes = [9, 91, 181, 271, 361, 451, 541]
     feature_types = ['linvel', 'linacc', 'angvel', 'angacc']
     for obj in obj_list:
         for feature_type in feature_types:
@@ -949,6 +948,7 @@ def finite_difference_linear(
     timestamps: np.ndarray,
     shift: int = 1,
     mode: str = "central",  # "central" | "forward" | "backward"
+    stride: int = 1,
 ):
     """
     Finite-difference linear velocities for a 3-D trajectory.
@@ -963,18 +963,25 @@ def finite_difference_linear(
         Number of samples to step when taking the difference (Δk).
         A larger shift lowers noise at the expense of time resolution.
     mode : {"central", "forward", "backward"}
-        Scheme used at interior points.  Edge points fall back to the
+        Scheme used at interior points. Edge points fall back to the
         specified one-sided scheme automatically.
+    stride : int, default 1
+        Step size for the sliding window. If > 1, the calculation is
+        performed in non-overlapping chunks of this size. To use a
+        window size of `2 * shift`, set `stride = 2 * shift`.
 
     Returns
     -------
     vel : (N, 3) float array
         Per-sample velocity (m s⁻¹).
     """
-    if shift < 1 or shift >= len(timestamps):
+    N = len(timestamps)
+    if shift < 1 or shift >= N:
         raise ValueError("`shift` must be >=1 and < len(timestamps).")
     if not np.all(np.diff(timestamps) > 0):
         raise ValueError("Timestamps must be strictly increasing.")
+    if stride < 1:
+        raise ValueError("`stride` must be a positive integer.")
 
     # Pre-allocate
     vel = np.empty_like(positions, dtype=float)
@@ -991,21 +998,28 @@ def finite_difference_linear(
     )
 
     # Interior points
-    for i in range(shift, len(positions) - shift):
+    interior_end = N - shift
+    for i in range(shift, interior_end, stride):
         if mode == "central":
-            vel[i] = cen(i)
+            v = cen(i)
         elif mode == "forward":
-            vel[i] = fwd(i)
+            v = fwd(i)
         else:  # backward
-            vel[i] = bwd(i)
+            v = bwd(i)
+        block_end = min(i + stride, interior_end)
+        vel[i:block_end] = v
 
     # Leading edge: use forward difference
-    for i in range(shift):
-        vel[i] = fwd(i)
+    for i in range(0, shift, stride):
+        v = fwd(i)
+        block_end = min(i + stride, shift)
+        vel[i:block_end] = v
 
     # Trailing edge: use backward difference
-    for i in range(len(positions) - shift, len(positions)):
-        vel[i] = bwd(i)
+    for i in range(N - shift, N, stride):
+        v = bwd(i)
+        block_end = min(i + stride, N)
+        vel[i:block_end] = v
 
     return vel[:, 0], vel[:, 1], vel[:, 2]
 
@@ -1014,6 +1028,7 @@ def finite_difference_linear_accel(
     timestamps: np.ndarray,
     shift: int = 1,
     mode: str = "central",
+    stride: int = 1,
 ):
     """
     Second-order finite differences to obtain linear acceleration.
@@ -1024,88 +1039,94 @@ def finite_difference_linear_accel(
     timestamps : (N,) array (strictly increasing)
     shift      : int ≥1  (Δk samples on each side)
     mode       : "central" | "forward" | "backward"
+    stride : int, default 1
+        Step size for the sliding window. If > 1, the calculation is
+        performed in non-overlapping chunks of this size.
 
     Returns
     -------
     ax, ay, az : float arrays, length N
     """
-    # --- sanity checks ------------------------------------------------------
     if shift < 1 or shift >= len(timestamps):
         raise ValueError("`shift` must be >=1 and < len(timestamps)")
     if not np.all(np.diff(timestamps) > 0):
         raise ValueError("Timestamps must increase monotonically")
+    if stride < 1:
+        raise ValueError("`stride` must be a positive integer.")
 
     N = len(timestamps)
     acc = np.empty_like(positions, dtype=float)
 
-    # -----------------------------------------------------------------------
-    # Helper lambdas that *directly* compute the centred / one-sided
-    # second derivative with *non-uniform* time bases
-    # -----------------------------------------------------------------------
     def central(i):
         t0, t1, t2 = timestamps[i - shift], timestamps[i], timestamps[i + shift]
         p0, p1, p2 = positions[i - shift], positions[i], positions[i + shift]
-
-        # Convert to ∆t so expression stays readable
-        dt1 = t1 - t0          # interval left
-        dt2 = t2 - t1          # interval right
-        return 2 * (
-            p0 * dt2 - p1 * (dt1 + dt2) + p2 * dt1
-        ) / (dt1 * dt2 * (dt1 + dt2))
+        dt1, dt2 = t1 - t0, t2 - t1
+        return 2 * (p0*dt2 - p1*(dt1 + dt2) + p2*dt1) / (dt1*dt2*(dt1 + dt2))
 
     def forward(i):
-        t0, t1, t2 = (
-            timestamps[i],
-            timestamps[i + shift],
-            timestamps[i + 2 * shift],
-        )
-        p0, p1, p2 = positions[i], positions[i + shift], positions[i + 2 * shift]
+        # Note: This forward difference is for a point `i`, using `i`, `i+shift`, `i+2*shift`
+        t0, t1, t2 = timestamps[i], timestamps[i + shift], timestamps[i + 2*shift]
+        p0, p1, p2 = positions[i], positions[i + shift], positions[i + 2*shift]
         dt1, dt2 = t1 - t0, t2 - t1
-        return 2 * (
-            p0 * (dt1 + dt2) - p1 * dt2 - p2 * dt1
-        ) / (dt1 * dt2 * (dt1 + dt2))
+        return 2 * (p0*(dt1 + dt2) - p1*dt2 - p2*dt1) / (dt1*dt2*(dt1 + dt2))
 
     def backward(i):
-        t0, t1, t2 = (
-            timestamps[i - 2 * shift],
-            timestamps[i - shift],
-            timestamps[i],
-        )
-        p0, p1, p2 = positions[i - 2 * shift], positions[i - shift], positions[i]
+        # Note: This backward difference is for a point `i`, using `i-2*shift`, `i-shift`, `i`
+        t0, t1, t2 = timestamps[i-2*shift], timestamps[i-shift], timestamps[i]
+        p0, p1, p2 = positions[i-2*shift], positions[i-shift], positions[i]
         dt1, dt2 = t1 - t0, t2 - t1
-        return 2 * (
-            p0 * dt2 + p2 * dt1 - p1 * (dt1 + dt2)
-        ) / (dt1 * dt2 * (dt1 + dt2))
+        return 2 * (p0*dt2 + p2*dt1 - p1*(dt1 + dt2)) / (dt1*dt2*(dt1 + dt2))
 
-    # -----------------------------------------------------------------------
-    # Interior points
-    # -----------------------------------------------------------------------
-    if mode == "central":
-        for i in range(shift, N - shift):
-            acc[i] = central(i)
-    elif mode == "forward":
-        for i in range(shift, N - shift):
-            acc[i] = forward(i - shift)  # align to same reference
-    else:  # backward
-        for i in range(shift, N - shift):
-            acc[i] = backward(i + shift)
+    # --- Interior points ---
+    interior_end = N - shift
+    for i in range(shift, interior_end, stride):
+        # Calculate value at the start of the window chunk based on the mode
+        if mode == "central":
+            val = central(i)
+        elif mode == "forward":
+            # The forward stencil starts at the point of interest.
+            # To calculate for point `i`, we need points `i`, `i+shift`, etc.
+            # The original code used `forward(i - shift)` to align the result.
+            # This is complex; a simpler approach is to call forward(i) and let edges be handled separately.
+            # However, to maintain original alignment logic:
+            if i + shift < N: # Ensure forward call is valid
+                 val = forward(i - shift)
+            else: # Fallback for the very end of the interior section
+                 val = central(i)
+        else:  # backward
+            # The backward stencil ends at the point of interest.
+            # To calculate for point `i`, we need points `i`, `i-shift`, etc.
+            # The original code used `backward(i + shift)` to align the result.
+            if i - shift >= 0: # Ensure backward call is valid
+                val = backward(i + shift)
+            else: # Fallback for the very beginning of the interior section
+                val = central(i)
 
-    # -----------------------------------------------------------------------
-    # Edges (fallback to one-sided)
-    # -----------------------------------------------------------------------
-    # Leading edge (0 … shift-1)   → forward difference
-    for i in range(shift):
+        # Determine the end of the block to fill and assign the value
+        block_end = min(i + stride, interior_end)
+        acc[i:block_end] = val
+
+
+    # --- Edges (fallback to one-sided) ---
+    # Leading edge (0 … shift-1)  → forward difference
+    for i in range(0, shift, stride):
+        val = np.nan
         if i + 2 * shift < N:
-            acc[i] = forward(i)
-        else:  # degenerate case when N is very small
-            acc[i] = acc[i - 1]
+            val = forward(i)
+        else:
+            val = acc[i - 1] if i > 0 else np.zeros(3)
+        block_end = min(i + stride, shift)
+        acc[i:block_end] = val
 
     # Trailing edge (N-shift … N-1) → backward difference
-    for i in range(N - shift, N):
+    for i in range(N - shift, N, stride):
+        val = np.nan
         if i - 2 * shift >= 0:
-            acc[i] = backward(i)
+            val = backward(i)
         else:
-            acc[i] = acc[i - 1]
+            val = acc[i - 1]
+        block_end = min(i + stride, N)
+        acc[i:block_end] = val
 
     return acc[:, 0], acc[:, 1], acc[:, 2]
 
@@ -1114,6 +1135,7 @@ def finite_difference_angular(
     timestamps: np.ndarray,
     shift: int = 1,
     mode: str = "central",
+    stride: int = 1,
 ):
     """
     Finite-difference angular velocity (rad s⁻¹) from quaternions.
@@ -1126,71 +1148,79 @@ def finite_difference_angular(
         Strictly increasing.
     shift, mode
         Same meaning as in `finite_difference_linear`.
+    stride : int, default 1
+        Step size for the sliding window. If > 1, the calculation is
+        performed in non-overlapping chunks of this size.
 
     Returns
     -------
     ωx, ωy, ωz : float arrays, length N
-        Angular velocity components.
     """
-    if shift < 1 or shift >= len(timestamps):
+    N = len(timestamps)
+    if shift < 1 or shift >= N:
         raise ValueError("`shift` must be >=1 and < len(timestamps).")
     if not np.all(np.diff(timestamps) > 0):
         raise ValueError("Timestamps must be strictly increasing.")
+    if stride < 1:
+        raise ValueError("`stride` must be a positive integer.")
 
     rotations = R.from_quat(quaternions)
-    omega = np.empty((len(rotations), 3), dtype=float)
+    omega = np.empty((N, 3), dtype=float)
 
-    # Helper definitions -----------------------------------------------------
     def rotvec(i, j):
-        """Rotation vector taking R_i to R_j, divided by Δt."""
         dq = rotations[i].inv() * rotations[j]
         dt = timestamps[j] - timestamps[i]
         return dq.as_rotvec() / dt
 
     # Interior points
-    for i in range(shift, len(rotations) - shift):
+    interior_end = N - shift
+    for i in range(shift, interior_end, stride):
         if mode == "central":
-            omega[i] = rotvec(i - shift, i + shift)
+            w = rotvec(i - shift, i + shift)
         elif mode == "forward":
-            omega[i] = rotvec(i, i + shift)
+            w = rotvec(i, i + shift)
         else:  # backward
-            omega[i] = rotvec(i - shift, i)
+            w = rotvec(i - shift, i)
+        block_end = min(i + stride, interior_end)
+        omega[i:block_end] = w
 
     # Leading edge: forward
-    for i in range(shift):
-        omega[i] = rotvec(i, i + shift)
+    for i in range(0, shift, stride):
+        w = rotvec(i, i + shift)
+        block_end = min(i + stride, shift)
+        omega[i:block_end] = w
 
     # Trailing edge: backward
-    for i in range(len(rotations) - shift, len(rotations)):
-        omega[i] = rotvec(i - shift, i)
+    for i in range(N - shift, N, stride):
+        w = rotvec(i - shift, i)
+        block_end = min(i + stride, N)
+        omega[i:block_end] = w
 
     return omega[:, 0], omega[:, 1], omega[:, 2]
+
 
 def finite_difference_angular_accel(
     quaternions: np.ndarray,
     timestamps: np.ndarray,
     shift: int = 1,
     mode: str = "central",
+    stride: int = 1,
 ):
     """
     Second-order finite differences for angular acceleration.
 
     Parameters and returns mirror `finite_difference_linear_accel`.
+    The `stride` parameter is passed down to the underlying calculations.
     """
-    if shift < 1 or shift >= len(timestamps):
-        raise ValueError("`shift` must be >=1 and < len(timestamps)")
-    if not np.all(np.diff(timestamps) > 0):
-        raise ValueError("Timestamps must be strictly increasing")
-
-    # First compute angular velocity with the *same* shift/mode
-    ωx, ωy, ωz = finite_difference_angular(
-        quaternions, timestamps, shift=shift, mode=mode
+    # First compute angular velocity with the *same* shift/mode/stride
+    wx, wy, wz = finite_difference_angular(
+        quaternions, timestamps, shift=shift, mode=mode, stride=stride
     )
-    omega = np.column_stack([ωx, ωy, ωz])
+    omega = np.column_stack([wx, wy, wz])
 
     # Now apply the linear-accelerations helper to ω
     ax, ay, az = finite_difference_linear_accel(
-        omega, timestamps, shift=shift, mode=mode
+        omega, timestamps, shift=shift, mode=mode, stride=stride
     )
     return ax, ay, az
 
@@ -1508,7 +1538,7 @@ def get_custom_features_motion(input_data, positions, timestamps, asbly_timestam
 
         mean_val = np.mean(vec)
         std_val = np.std(vec)
-        thresholds = [0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.0]
+        thresholds = [1.0] # [0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.0]
 
         for multiplier in thresholds:
             threshold_high = mean_val + multiplier * std_val
