@@ -124,8 +124,8 @@ def generate_velocity_and_acceleration_columns(idx):
     assembly_B_dir = "/srv/STP/data/FAB/Assembly_B"
     FAB_A_Resampled_dir = "/srv/STP/data/FAB/FAB_A_Resampled"
     FAB_B_Resampled_dir = "/srv/STP/data/FAB/FAB_B_Resampled"
-    FAB_A_Output_dir = "/srv/STP/data/FAB/FAB_A_Shift450"
-    FAB_B_Output_dir = "/srv/STP/data/FAB/FAB_B_Shift450"
+    FAB_A_Output_dir = "/srv/STP/data/FAB/FAB_A_Shift_Central"
+    FAB_B_Output_dir = "/srv/STP/data/FAB/FAB_B_Shift_Central"
     assembly_A_files = sorted(os.listdir(assembly_A_dir))
     assembly_B_files = sorted(os.listdir(assembly_B_dir))
     FAB_A_Resampled_files = sorted(os.listdir(FAB_A_Resampled_dir))
@@ -139,7 +139,7 @@ def generate_velocity_and_acceleration_columns(idx):
     df_B = pl.read_csv(os.path.join(FAB_B_Resampled_dir, FAB_B_Resampled_files[idx]))
 
     window_sizes = [450]
-    stride = 450
+    stride = 7
     mode = "central"
     obj_list = ["Head", "LeftHand", "RightHand"]
     for obj in obj_list:
@@ -204,8 +204,8 @@ def process_participant(i):
     t = time.time()
     assembly_A_dir = "/srv/STP/data/FAB/Assembly_A"
     assembly_B_dir = "/srv/STP/data/FAB/Assembly_B"
-    FAB_A_Motion_dir = "/srv/STP/data/FAB/FAB_A_Shift450"
-    FAB_B_Motion_dir = "/srv/STP/data/FAB/FAB_B_Shift450"
+    FAB_A_Motion_dir = "/srv/STP/data/FAB/FAB_A_Shift_Central"
+    FAB_B_Motion_dir = "/srv/STP/data/FAB/FAB_B_Shift_Central"
     assembly_A_files = sorted(os.listdir(assembly_A_dir))
     assembly_B_files = sorted(os.listdir(assembly_B_dir))
     FAB_A_Motion_files = sorted(os.listdir(FAB_A_Motion_dir))
@@ -257,7 +257,7 @@ if __name__ == "__main__" or "ipykernel" in sys.modules:
     # ###############################################################################
     t = time.time()
     # # Prepare tabulated data storage
-    participant_ids = [i.split('_')[0] for i in sorted(os.listdir("/srv/STP/data/FAB/FAB_A_Shift450"))]
+    participant_ids = [i.split('_')[0] for i in sorted(os.listdir("/srv/STP/data/FAB/FAB_A_Shift_Central"))]
     num_participants = len(participant_ids)
 
     sequences = [(0, 20), (20, 40), (40, 60), (60, 80), (80, 105)]

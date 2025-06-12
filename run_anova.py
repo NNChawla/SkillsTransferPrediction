@@ -22,7 +22,7 @@ threshold = [1.0] # [0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.0]
 
 for w in window:
     for t in threshold:
-        dir = f"./results/results_pca_{C_low}-{C_high}C_{K_low}-{K_high}K_{P}P_{SP}SP_gt{gt_score}P_{w}_{t}"
+        dir = f"./results/central_shift_1_450/results_pca_{C_low}-{C_high}C_{K_low}-{K_high}K_{P}P_{SP}SP_gt{gt_score}P_{w}_{t}"
 
         files = sorted(os.listdir(dir))
 
@@ -134,3 +134,61 @@ for w in window:
         # -------------------------------------------------------------
         rm_aov.to_csv(f"./anova/rm_anova_table_{C_low}-{C_high}C_{K_low}-{K_high}K_{P}P_{SP}SP_gt{gt_score}P_{w}_{t}.csv", index=False)
         print("Saved rm_anova_table.csv")
+
+        # -------------------------------------------------------------
+        # 5. Post-hoc paired contrasts for MOTION ONLY  (Holm-corrected)
+        # -------------------------------------------------------------
+        post_motion = pg.pairwise_tests(
+            dv='score',
+            within='motion_combo',
+            subject='fold',
+            padjust='holm',          # 'fdr_bh' if you prefer FDR
+            effsize='cohen',         # Cohen dz for paired samples
+            alternative='two-sided',
+            data=df
+        )
+
+        sig_motion = post_motion.query('`p-corr` < 0.05')
+
+        print("\nHolm–corrected pairwise comparisons for motion_combo:")
+        print(post_motion[['A','B','T','dof','p-unc','p-corr','cohen']].head())
+
+        if sig_motion.empty:
+            print("No motion-combo pairs remain significant after correction.")
+        else:
+            print("\nSignificant pairs (p-corr < 0.05):")
+            print(sig_motion[['A','B','T','dof','p-corr','cohen']])
+
+        # -------------------------------------------------------------
+        # 5. Post-hoc paired contrasts for MOTION ONLY  (Holm-corrected)
+        # -------------------------------------------------------------
+        post_device = pg.pairwise_tests(
+            dv='score',
+            within='device_combo',
+            subject='fold',
+            padjust='holm',          # 'fdr_bh' if you prefer FDR
+            effsize='cohen',         # Cohen dz for paired samples
+            alternative='two-sided',
+            data=df
+        )
+
+        sig_device = post_device.query('`p-corr` < 0.05')
+
+        print("\nHolm–corrected pairwise comparisons for device_combo:")
+        print(post_device[['A','B','T','dof','p-unc','p-corr','cohen']].head())
+
+        if sig_device.empty:
+            print("No device-combo pairs remain significant after correction.")
+        else:
+            print("\nSignificant pairs (p-corr < 0.05):")
+            print(sig_device[['A','B','T','dof','p-corr','cohen']])
+
+        # -------------------------------------------------------------
+        # 6. Save post-hoc tables
+        # -------------------------------------------------------------
+        fname_base = f"{C_low}-{C_high}C_{K_low}-{K_high}K_{P}P_{SP}SP_gt{gt_score}P_{w}_{t}"
+        post_motion.to_csv(f"./anova/pairwise_motion_{fname_base}.csv", index=False)
+        sig_motion.to_csv(f"./anova/pairwise_motion_SIG_{fname_base}.csv", index=False)
+        post_device.to_csv(f"./anova/pairwise_device_{fname_base}.csv", index=False)
+        sig_device.to_csv(f"./anova/pairwise_device_SIG_{fname_base}.csv", index=False)
+        print(f"Saved pairwise_motion_{fname_base}.csv and pairwise_device_{fname_base}.csv")

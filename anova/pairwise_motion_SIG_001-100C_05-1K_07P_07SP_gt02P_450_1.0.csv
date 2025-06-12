@@ -1,0 +1,2 @@
+Contrast,A,B,Paired,Parametric,T,dof,alternative,p-unc,p-corr,p-adjust,BF10,cohen
+motion_combo,angacc+angvel+linacc,linvel,True,True,10.91563880568149,4.0,two-sided,0.0003999795375829449,0.04199785144620922,holm,73.798,0.6224895608044255

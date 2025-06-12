@@ -112,7 +112,7 @@ def evaluate_predictions(true_A, pred_A, true_B, pred_B):
     }
     return result
 
-results_path = "./results_pca_001-100C_05-1K_07P_07SP_gt02P"
+results_path = "./results_pca_001-100C_05-1K_07P_07SP_gt02P_450_1.0"
 os.makedirs(results_path, exist_ok=True)
 
 if not sys.warnoptions:
@@ -132,7 +132,7 @@ study_n_jobs = 1
 # Experiment Parameters
 num_experiment_runs = 1
 
-step_path = "./experimentData/shift90_central_step_df.pkl"
+step_path = "./experimentData/450shift3_central_step_df.pkl"
 md_path = "./experimentData/step_score.pkl"
 with open(step_path, "rb") as f:
     step_df = pickle.load(f)

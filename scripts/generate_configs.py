@@ -5,7 +5,7 @@ if os.path.exists("./experimentConfigs"):
 os.makedirs("./experimentConfigs", exist_ok=True)
 
 pairs = []
-for i in [450, 451]:
+for i in [450]:
     for j in [1.0]:
         pairs.append((i, j))
 
