@@ -1,0 +1,483 @@
+Running Head_LeftHand_RightHand_pos
+Running experiment for Head_LeftHand_RightHand_pos
+Relevance filter: kept 16 / 1521 features with |r| ≥ 0.2
+Redundancy filter: dropped 8 correlated features (8 remain).
+Nested CV Outer Fold Performance: -0.08671099695241201 | best_params: {'stride': 1, 'pca_k': 0.9541218566541955, 'model__kernel': 'rbf', 'model__C': 0.051577022367712576, 'model__max_iter': -1, 'model__gamma': 0.06622027163187785, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 121.17099022865295
+Nested CV Outer Fold Performance: 0.26595978901917344 | best_params: {'stride': 1, 'pca_k': 0.5073353833737695, 'model__kernel': 'rbf', 'model__C': 1.6371542488851796, 'model__max_iter': -1, 'model__gamma': 0.08671558792396902, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 132.9619140625
+Nested CV Outer Fold Performance: 0.3623231875319163 | best_params: {'stride': 1, 'pca_k': 0.5998345615340691, 'model__kernel': 'rbf', 'model__C': 24.86460701936596, 'model__max_iter': -1, 'model__gamma': 0.001829874115740181, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 137.6445815563202
+Nested CV Outer Fold Performance: 0.572475407014194 | best_params: {'stride': 1, 'pca_k': 0.7605166358516005, 'model__kernel': 'rbf', 'model__C': 31.58597677743725, 'model__max_iter': -1, 'model__gamma': 0.0013116085160612538, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 113.70617938041687
+Nested CV Outer Fold Performance: 0.44340356106446355 | best_params: {'stride': 1, 'pca_k': 0.8198055676946941, 'model__kernel': 'rbf', 'model__C': 0.040765745004370746, 'model__max_iter': -1, 'model__gamma': 0.06379584998028176, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 132.15037393569946
+Final K-Fold 0 MCC: 0.15867688518964213 | Params: {'stride': 1, 'pca_k': 0.9541218566541955, 'model__kernel': 'rbf', 'model__C': 0.051577022367712576, 'model__max_iter': -1, 'model__gamma': 0.06622027163187785, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.3318379703098343 | Params: {'stride': 1, 'pca_k': 0.5073353833737695, 'model__kernel': 'rbf', 'model__C': 1.6371542488851796, 'model__max_iter': -1, 'model__gamma': 0.08671558792396902, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.2973693482592031 | Params: {'stride': 1, 'pca_k': 0.5998345615340691, 'model__kernel': 'rbf', 'model__C': 24.86460701936596, 'model__max_iter': -1, 'model__gamma': 0.001829874115740181, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.30287998399316635 | Params: {'stride': 1, 'pca_k': 0.7605166358516005, 'model__kernel': 'rbf', 'model__C': 31.58597677743725, 'model__max_iter': -1, 'model__gamma': 0.0013116085160612538, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.13460988879090546 | Params: {'stride': 1, 'pca_k': 0.8198055676946941, 'model__kernel': 'rbf', 'model__C': 0.040765745004370746, 'model__max_iter': -1, 'model__gamma': 0.06379584998028176, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.3318379703098343
+Final Best Params: {'stride': 1, 'pca_k': 0.5073353833737695, 'model__kernel': 'rbf', 'model__C': 1.6371542488851796, 'model__max_iter': -1, 'model__gamma': 0.08671558792396902, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Experiment run time: 638.9230411052704
+Head_LeftHand_RightHand_pos | Experiment 0 best score: 0.3318379703098343
+Running Head_LeftHand_RightHand_pos_quat
+Running experiment for Head_LeftHand_RightHand_pos_quat
+Relevance filter: kept 43 / 3549 features with |r| ≥ 0.2
+Redundancy filter: dropped 18 correlated features (25 remain).
+Nested CV Outer Fold Performance: -0.06900655593423542 | best_params: {'stride': 1, 'pca_k': 0.6469176035674116, 'model__kernel': 'rbf', 'model__C': 0.11370952003234966, 'model__max_iter': -1, 'model__gamma': 0.03949414124734483, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 138.91734910011292
+Nested CV Outer Fold Performance: 0.42830068788724784 | best_params: {'stride': 1, 'pca_k': 0.6549697911356577, 'model__kernel': 'rbf', 'model__C': 1.5040236175618182, 'model__max_iter': -1, 'model__gamma': 0.028863788711772496, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 126.0105652809143
+Nested CV Outer Fold Performance: 0.5834969015725372 | best_params: {'stride': 1, 'pca_k': 0.6983096964719533, 'model__kernel': 'rbf', 'model__C': 18.57363970929432, 'model__max_iter': -1, 'model__gamma': 0.0022465849450869838, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 128.4083182811737
+Nested CV Outer Fold Performance: 0.3869563865030844 | best_params: {'stride': 1, 'pca_k': 0.9237044059284629, 'model__kernel': 'rbf', 'model__C': 0.0685740011844786, 'model__max_iter': -1, 'model__gamma': 0.04773157238317068, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 125.07298278808594
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.7556932548653387, 'model__kernel': 'rbf', 'model__C': 0.31615340702855377, 'model__max_iter': -1, 'model__gamma': 0.0013131315369873736, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 129.1640658378601
+Final K-Fold 0 MCC: 0.4070846905943212 | Params: {'stride': 1, 'pca_k': 0.6469176035674116, 'model__kernel': 'rbf', 'model__C': 0.11370952003234966, 'model__max_iter': -1, 'model__gamma': 0.03949414124734483, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.3645744972010957 | Params: {'stride': 1, 'pca_k': 0.6549697911356577, 'model__kernel': 'rbf', 'model__C': 1.5040236175618182, 'model__max_iter': -1, 'model__gamma': 0.028863788711772496, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.3644796862062099 | Params: {'stride': 1, 'pca_k': 0.6983096964719533, 'model__kernel': 'rbf', 'model__C': 18.57363970929432, 'model__max_iter': -1, 'model__gamma': 0.0022465849450869838, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.38984126044195266 | Params: {'stride': 1, 'pca_k': 0.9237044059284629, 'model__kernel': 'rbf', 'model__C': 0.0685740011844786, 'model__max_iter': -1, 'model__gamma': 0.04773157238317068, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.13784048752090222 | Params: {'stride': 1, 'pca_k': 0.7556932548653387, 'model__kernel': 'rbf', 'model__C': 0.31615340702855377, 'model__max_iter': -1, 'model__gamma': 0.0013131315369873736, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.4070846905943212
+Final Best Params: {'stride': 1, 'pca_k': 0.6469176035674116, 'model__kernel': 'rbf', 'model__C': 0.11370952003234966, 'model__max_iter': -1, 'model__gamma': 0.03949414124734483, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Experiment run time: 650.0252251625061
+Head_LeftHand_RightHand_pos_quat | Experiment 0 best score: 0.4070846905943212
+Running Head_LeftHand_RightHand_quat
+Running experiment for Head_LeftHand_RightHand_quat
+Relevance filter: kept 27 / 2028 features with |r| ≥ 0.2
+Redundancy filter: dropped 9 correlated features (18 remain).
+Nested CV Outer Fold Performance: -0.08671099695241201 | best_params: {'stride': 1, 'pca_k': 0.6295663590187257, 'model__kernel': 'rbf', 'model__C': 0.04804395863581285, 'model__max_iter': -1, 'model__gamma': 0.06743778782455122, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 144.01310300827026
+Nested CV Outer Fold Performance: -0.10526315789473684 | best_params: {'stride': 1, 'pca_k': 0.7049193042564323, 'model__kernel': 'rbf', 'model__C': 1.1245428157497281, 'model__max_iter': -1, 'model__gamma': 0.014837740019365483, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 129.20801448822021
+Nested CV Outer Fold Performance: -0.125 | best_params: {'stride': 1, 'pca_k': 0.9536697340841541, 'model__kernel': 'rbf', 'model__C': 8.074409096875689, 'model__max_iter': -1, 'model__gamma': 0.0019427266612297575, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 128.81882905960083
+Nested CV Outer Fold Performance: 0.3254398171135871 | best_params: {'stride': 1, 'pca_k': 0.8154116006101105, 'model__kernel': 'rbf', 'model__C': 0.28744399615833083, 'model__max_iter': -1, 'model__gamma': 0.05990510707314896, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 122.4741804599762
+Nested CV Outer Fold Performance: 0.3885208708230005 | best_params: {'stride': 1, 'pca_k': 0.8978102474231688, 'model__kernel': 'rbf', 'model__C': 14.920180986906432, 'model__max_iter': -1, 'model__gamma': 0.0011199255792342202, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 125.63138198852539
+Final K-Fold 0 MCC: 0.19388182788224323 | Params: {'stride': 1, 'pca_k': 0.6295663590187257, 'model__kernel': 'rbf', 'model__C': 0.04804395863581285, 'model__max_iter': -1, 'model__gamma': 0.06743778782455122, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.1680061130732942 | Params: {'stride': 1, 'pca_k': 0.7049193042564323, 'model__kernel': 'rbf', 'model__C': 1.1245428157497281, 'model__max_iter': -1, 'model__gamma': 0.014837740019365483, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.05500165879037985 | Params: {'stride': 1, 'pca_k': 0.9536697340841541, 'model__kernel': 'rbf', 'model__C': 8.074409096875689, 'model__max_iter': -1, 'model__gamma': 0.0019427266612297575, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.243269331073542 | Params: {'stride': 1, 'pca_k': 0.8154116006101105, 'model__kernel': 'rbf', 'model__C': 0.28744399615833083, 'model__max_iter': -1, 'model__gamma': 0.05990510707314896, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.06741514034994553 | Params: {'stride': 1, 'pca_k': 0.8978102474231688, 'model__kernel': 'rbf', 'model__C': 14.920180986906432, 'model__max_iter': -1, 'model__gamma': 0.0011199255792342202, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.243269331073542
+Final Best Params: {'stride': 1, 'pca_k': 0.8154116006101105, 'model__kernel': 'rbf', 'model__C': 0.28744399615833083, 'model__max_iter': -1, 'model__gamma': 0.05990510707314896, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Experiment run time: 651.5081598758698
+Head_LeftHand_RightHand_quat | Experiment 0 best score: 0.243269331073542
+Running Head_LeftHand_pos
+Running experiment for Head_LeftHand_pos
+Relevance filter: kept 11 / 1014 features with |r| ≥ 0.2
+Redundancy filter: dropped 5 correlated features (6 remain).
+Nested CV Outer Fold Performance: -0.1336306209562122 | best_params: {'stride': 1, 'pca_k': 0.624359963610654, 'model__kernel': 'rbf', 'model__C': 4.237566344209294, 'model__max_iter': -1, 'model__gamma': 0.00891008556840476, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 124.10150790214539
+Nested CV Outer Fold Performance: 0.21025229365653164 | best_params: {'stride': 1, 'pca_k': 0.5968060677537808, 'model__kernel': 'rbf', 'model__C': 14.172880805406415, 'model__max_iter': -1, 'model__gamma': 0.0029034464653856238, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 121.31193423271179
+Nested CV Outer Fold Performance: -0.05 | best_params: {'stride': 1, 'pca_k': 0.6065835725091423, 'model__kernel': 'rbf', 'model__C': 0.1802695073162513, 'model__max_iter': -1, 'model__gamma': 0.013518393032927477, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 130.24576330184937
+Nested CV Outer Fold Performance: 0.4429655520431207 | best_params: {'stride': 1, 'pca_k': 0.6133167065077496, 'model__kernel': 'rbf', 'model__C': 15.10926688115774, 'model__max_iter': -1, 'model__gamma': 0.0037226812387212275, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 127.7504620552063
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.7123862078912819, 'model__kernel': 'rbf', 'model__C': 1.1883956232801094, 'model__max_iter': -1, 'model__gamma': 0.002292672275171038, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 131.80929565429688
+Final K-Fold 0 MCC: 0.2913474299062945 | Params: {'stride': 1, 'pca_k': 0.624359963610654, 'model__kernel': 'rbf', 'model__C': 4.237566344209294, 'model__max_iter': -1, 'model__gamma': 0.00891008556840476, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.2913474299062945 | Params: {'stride': 1, 'pca_k': 0.5968060677537808, 'model__kernel': 'rbf', 'model__C': 14.172880805406415, 'model__max_iter': -1, 'model__gamma': 0.0029034464653856238, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: -0.023801311186847085 | Params: {'stride': 1, 'pca_k': 0.6065835725091423, 'model__kernel': 'rbf', 'model__C': 0.1802695073162513, 'model__max_iter': -1, 'model__gamma': 0.013518393032927477, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.2913474299062945 | Params: {'stride': 1, 'pca_k': 0.6133167065077496, 'model__kernel': 'rbf', 'model__C': 15.10926688115774, 'model__max_iter': -1, 'model__gamma': 0.0037226812387212275, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: -0.023801311186847085 | Params: {'stride': 1, 'pca_k': 0.7123862078912819, 'model__kernel': 'rbf', 'model__C': 1.1883956232801094, 'model__max_iter': -1, 'model__gamma': 0.002292672275171038, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.2913474299062945
+Final Best Params: {'stride': 1, 'pca_k': 0.624359963610654, 'model__kernel': 'rbf', 'model__C': 4.237566344209294, 'model__max_iter': -1, 'model__gamma': 0.00891008556840476, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Experiment run time: 636.1564257144928
+Head_LeftHand_pos | Experiment 0 best score: 0.2913474299062945
+Running Head_LeftHand_pos_quat
+Running experiment for Head_LeftHand_pos_quat
+Relevance filter: kept 36 / 2366 features with |r| ≥ 0.2
+Redundancy filter: dropped 14 correlated features (22 remain).
+Nested CV Outer Fold Performance: -0.06900655593423542 | best_params: {'stride': 1, 'pca_k': 0.9261387347040886, 'model__kernel': 'rbf', 'model__C': 2.1467195765291502, 'model__max_iter': -1, 'model__gamma': 0.003430549159984284, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 129.52477955818176
+Nested CV Outer Fold Performance: 0.20506643141383019 | best_params: {'stride': 1, 'pca_k': 0.6809627908028197, 'model__kernel': 'rbf', 'model__C': 0.6184687902704232, 'model__max_iter': -1, 'model__gamma': 0.05039812420304992, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 131.78787851333618
+Nested CV Outer Fold Performance: 0.4893884838029294 | best_params: {'stride': 1, 'pca_k': 0.574129437696498, 'model__kernel': 'rbf', 'model__C': 56.89481070653863, 'model__max_iter': -1, 'model__gamma': 0.0028057570137428973, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 131.33045554161072
+Nested CV Outer Fold Performance: 0.6708456249736942 | best_params: {'stride': 1, 'pca_k': 0.5796023877086001, 'model__kernel': 'rbf', 'model__C': 8.99821872947174, 'model__max_iter': -1, 'model__gamma': 0.0018657190590272157, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 131.3149402141571
+Nested CV Outer Fold Performance: 0.691265287190633 | best_params: {'stride': 1, 'pca_k': 0.9169057743064941, 'model__kernel': 'rbf', 'model__C': 0.04931795464603372, 'model__max_iter': -1, 'model__gamma': 0.037452095063405307, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 120.22877287864685
+Final K-Fold 0 MCC: 0.3520074081407505 | Params: {'stride': 1, 'pca_k': 0.9261387347040886, 'model__kernel': 'rbf', 'model__C': 2.1467195765291502, 'model__max_iter': -1, 'model__gamma': 0.003430549159984284, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.2996756154252916 | Params: {'stride': 1, 'pca_k': 0.6809627908028197, 'model__kernel': 'rbf', 'model__C': 0.6184687902704232, 'model__max_iter': -1, 'model__gamma': 0.05039812420304992, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.2072181185602096 | Params: {'stride': 1, 'pca_k': 0.574129437696498, 'model__kernel': 'rbf', 'model__C': 56.89481070653863, 'model__max_iter': -1, 'model__gamma': 0.0028057570137428973, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.41937550122763917 | Params: {'stride': 1, 'pca_k': 0.5796023877086001, 'model__kernel': 'rbf', 'model__C': 8.99821872947174, 'model__max_iter': -1, 'model__gamma': 0.0018657190590272157, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.35223906205459227 | Params: {'stride': 1, 'pca_k': 0.9169057743064941, 'model__kernel': 'rbf', 'model__C': 0.04931795464603372, 'model__max_iter': -1, 'model__gamma': 0.037452095063405307, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.41937550122763917
+Final Best Params: {'stride': 1, 'pca_k': 0.5796023877086001, 'model__kernel': 'rbf', 'model__C': 8.99821872947174, 'model__max_iter': -1, 'model__gamma': 0.0018657190590272157, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Experiment run time: 645.2156450748444
+Head_LeftHand_pos_quat | Experiment 0 best score: 0.41937550122763917
+Running Head_LeftHand_quat
+Running experiment for Head_LeftHand_quat
+Relevance filter: kept 25 / 1352 features with |r| ≥ 0.2
+Redundancy filter: dropped 8 correlated features (17 remain).
+Nested CV Outer Fold Performance: -0.08671099695241201 | best_params: {'stride': 1, 'pca_k': 0.6157509360766764, 'model__kernel': 'rbf', 'model__C': 0.1774175914935124, 'model__max_iter': -1, 'model__gamma': 0.03559891344492103, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 125.83541321754456
+Nested CV Outer Fold Performance: -0.09128709291752769 | best_params: {'stride': 1, 'pca_k': 0.9453275365706947, 'model__kernel': 'rbf', 'model__C': 1.0925306637548584, 'model__max_iter': -1, 'model__gamma': 0.0011775407953806538, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 127.0130934715271
+Nested CV Outer Fold Performance: 0.4893884838029294 | best_params: {'stride': 1, 'pca_k': 0.7678673499064966, 'model__kernel': 'rbf', 'model__C': 0.0614508948739684, 'model__max_iter': -1, 'model__gamma': 0.0591382876153311, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 124.0412859916687
+Nested CV Outer Fold Performance: 0.28859324379875073 | best_params: {'stride': 1, 'pca_k': 0.8960583325319759, 'model__kernel': 'rbf', 'model__C': 0.3970212171140451, 'model__max_iter': -1, 'model__gamma': 0.061538123922448, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 121.05702447891235
+Nested CV Outer Fold Performance: 0.3136154432003686 | best_params: {'stride': 1, 'pca_k': 0.7406552880223748, 'model__kernel': 'rbf', 'model__C': 9.088308372164574, 'model__max_iter': -1, 'model__gamma': 0.002171379441749225, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 124.15299010276794
+Final K-Fold 0 MCC: 0.24542575229034416 | Params: {'stride': 1, 'pca_k': 0.6157509360766764, 'model__kernel': 'rbf', 'model__C': 0.1774175914935124, 'model__max_iter': -1, 'model__gamma': 0.03559891344492103, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.11958306893739667 | Params: {'stride': 1, 'pca_k': 0.9453275365706947, 'model__kernel': 'rbf', 'model__C': 1.0925306637548584, 'model__max_iter': -1, 'model__gamma': 0.0011775407953806538, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.22901773476521575 | Params: {'stride': 1, 'pca_k': 0.7678673499064966, 'model__kernel': 'rbf', 'model__C': 0.0614508948739684, 'model__max_iter': -1, 'model__gamma': 0.0591382876153311, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.23959498702642223 | Params: {'stride': 1, 'pca_k': 0.8960583325319759, 'model__kernel': 'rbf', 'model__C': 0.3970212171140451, 'model__max_iter': -1, 'model__gamma': 0.061538123922448, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: -0.029089404220979165 | Params: {'stride': 1, 'pca_k': 0.7406552880223748, 'model__kernel': 'rbf', 'model__C': 9.088308372164574, 'model__max_iter': -1, 'model__gamma': 0.002171379441749225, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.24542575229034416
+Final Best Params: {'stride': 1, 'pca_k': 0.6157509360766764, 'model__kernel': 'rbf', 'model__C': 0.1774175914935124, 'model__max_iter': -1, 'model__gamma': 0.03559891344492103, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Experiment run time: 622.9951605796814
+Head_LeftHand_quat | Experiment 0 best score: 0.24542575229034416
+Running Head_RightHand_pos
+Running experiment for Head_RightHand_pos
+Relevance filter: kept 10 / 1014 features with |r| ≥ 0.2
+Redundancy filter: dropped 5 correlated features (5 remain).
+Nested CV Outer Fold Performance: -0.08671099695241201 | best_params: {'stride': 1, 'pca_k': 0.8584140545396225, 'model__kernel': 'rbf', 'model__C': 0.30117817265372077, 'model__max_iter': -1, 'model__gamma': 0.03436250888327263, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 125.20338773727417
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.9324858391069433, 'model__kernel': 'rbf', 'model__C': 0.30022858031242206, 'model__max_iter': -1, 'model__gamma': 0.0035223410992021816, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 127.51018691062927
+Nested CV Outer Fold Performance: 0.230755896413927 | best_params: {'stride': 1, 'pca_k': 0.8710915647494226, 'model__kernel': 'rbf', 'model__C': 0.571257377939679, 'model__max_iter': -1, 'model__gamma': 0.09703687775735445, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 124.97914910316467
+Nested CV Outer Fold Performance: 0.6181818181818182 | best_params: {'stride': 1, 'pca_k': 0.6549422370251368, 'model__kernel': 'rbf', 'model__C': 3.4570638972877337, 'model__max_iter': -1, 'model__gamma': 0.014855243217301821, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 131.19682955741882
+Nested CV Outer Fold Performance: 0.19603921176392136 | best_params: {'stride': 1, 'pca_k': 0.6922378777849731, 'model__kernel': 'rbf', 'model__C': 13.613942900045828, 'model__max_iter': -1, 'model__gamma': 0.007749836609934715, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 123.13011431694031
+Final K-Fold 0 MCC: 0.21182931191633161 | Params: {'stride': 1, 'pca_k': 0.8584140545396225, 'model__kernel': 'rbf', 'model__C': 0.30117817265372077, 'model__max_iter': -1, 'model__gamma': 0.03436250888327263, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.014233390123253475 | Params: {'stride': 1, 'pca_k': 0.9324858391069433, 'model__kernel': 'rbf', 'model__C': 0.30022858031242206, 'model__max_iter': -1, 'model__gamma': 0.0035223410992021816, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.2673870360365475 | Params: {'stride': 1, 'pca_k': 0.8710915647494226, 'model__kernel': 'rbf', 'model__C': 0.571257377939679, 'model__max_iter': -1, 'model__gamma': 0.09703687775735445, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.1780109775041357 | Params: {'stride': 1, 'pca_k': 0.6549422370251368, 'model__kernel': 'rbf', 'model__C': 3.4570638972877337, 'model__max_iter': -1, 'model__gamma': 0.014855243217301821, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.08120892641670414 | Params: {'stride': 1, 'pca_k': 0.6922378777849731, 'model__kernel': 'rbf', 'model__C': 13.613942900045828, 'model__max_iter': -1, 'model__gamma': 0.007749836609934715, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.2673870360365475
+Final Best Params: {'stride': 1, 'pca_k': 0.8710915647494226, 'model__kernel': 'rbf', 'model__C': 0.571257377939679, 'model__max_iter': -1, 'model__gamma': 0.09703687775735445, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Experiment run time: 633.0924286842346
+Head_RightHand_pos | Experiment 0 best score: 0.2673870360365475
+Running Head_RightHand_pos_quat
+Running experiment for Head_RightHand_pos_quat
+Relevance filter: kept 21 / 2366 features with |r| ≥ 0.2
+Redundancy filter: dropped 9 correlated features (12 remain).
+Nested CV Outer Fold Performance: -0.11834526708278771 | best_params: {'stride': 1, 'pca_k': 0.5396307334503904, 'model__kernel': 'rbf', 'model__C': 0.05760890538888461, 'model__max_iter': -1, 'model__gamma': 0.07064835098918588, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 132.71664452552795
+Nested CV Outer Fold Performance: 0.350914394046256 | best_params: {'stride': 1, 'pca_k': 0.7436705668382589, 'model__kernel': 'rbf', 'model__C': 9.342053682405595, 'model__max_iter': -1, 'model__gamma': 0.0010752980288174798, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 128.98800659179688
+Nested CV Outer Fold Performance: 0.4540708786686587 | best_params: {'stride': 1, 'pca_k': 0.6003332651530261, 'model__kernel': 'rbf', 'model__C': 0.6482460385497122, 'model__max_iter': -1, 'model__gamma': 0.018979844481177097, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 117.30224323272705
+Nested CV Outer Fold Performance: 0.3869563865030844 | best_params: {'stride': 1, 'pca_k': 0.6962701631180587, 'model__kernel': 'rbf', 'model__C': 59.33627164685563, 'model__max_iter': -1, 'model__gamma': 0.026584158168373177, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 130.467698097229
+Nested CV Outer Fold Performance: 0.516594042069354 | best_params: {'stride': 1, 'pca_k': 0.5368608035771707, 'model__kernel': 'rbf', 'model__C': 0.0791815145145944, 'model__max_iter': -1, 'model__gamma': 0.06137360265314991, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 132.91025233268738
+Final K-Fold 0 MCC: 0.2136916419667983 | Params: {'stride': 1, 'pca_k': 0.5396307334503904, 'model__kernel': 'rbf', 'model__C': 0.05760890538888461, 'model__max_iter': -1, 'model__gamma': 0.07064835098918588, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.3312651055110325 | Params: {'stride': 1, 'pca_k': 0.7436705668382589, 'model__kernel': 'rbf', 'model__C': 9.342053682405595, 'model__max_iter': -1, 'model__gamma': 0.0010752980288174798, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.3414039315476486 | Params: {'stride': 1, 'pca_k': 0.6003332651530261, 'model__kernel': 'rbf', 'model__C': 0.6482460385497122, 'model__max_iter': -1, 'model__gamma': 0.018979844481177097, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.017608200806726294 | Params: {'stride': 1, 'pca_k': 0.6962701631180587, 'model__kernel': 'rbf', 'model__C': 59.33627164685563, 'model__max_iter': -1, 'model__gamma': 0.026584158168373177, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.2136916419667983 | Params: {'stride': 1, 'pca_k': 0.5368608035771707, 'model__kernel': 'rbf', 'model__C': 0.0791815145145944, 'model__max_iter': -1, 'model__gamma': 0.06137360265314991, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.3414039315476486
+Final Best Params: {'stride': 1, 'pca_k': 0.6003332651530261, 'model__kernel': 'rbf', 'model__C': 0.6482460385497122, 'model__max_iter': -1, 'model__gamma': 0.018979844481177097, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Experiment run time: 644.4022455215454
+Head_RightHand_pos_quat | Experiment 0 best score: 0.3414039315476486
+Running Head_RightHand_quat
+Running experiment for Head_RightHand_quat
+Relevance filter: kept 11 / 1352 features with |r| ≥ 0.2
+Redundancy filter: dropped 3 correlated features (8 remain).
+Nested CV Outer Fold Performance: -0.08671099695241201 | best_params: {'stride': 1, 'pca_k': 0.7562170367187915, 'model__kernel': 'rbf', 'model__C': 9.728207744176324, 'model__max_iter': -1, 'model__gamma': 0.005457307758964953, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 146.21996545791626
+Nested CV Outer Fold Performance: 0.2526171492201422 | best_params: {'stride': 1, 'pca_k': 0.6611291486751173, 'model__kernel': 'rbf', 'model__C': 1.2171501087999863, 'model__max_iter': -1, 'model__gamma': 0.049492286080489, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 120.07866430282593
+Nested CV Outer Fold Performance: 0.3725731505184186 | best_params: {'stride': 1, 'pca_k': 0.6542699997318089, 'model__kernel': 'rbf', 'model__C': 0.23390396536634225, 'model__max_iter': -1, 'model__gamma': 0.030723556521978217, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 137.38842844963074
+Nested CV Outer Fold Performance: 0.3189443145471529 | best_params: {'stride': 1, 'pca_k': 0.9069968527889158, 'model__kernel': 'rbf', 'model__C': 0.06422616113769887, 'model__max_iter': -1, 'model__gamma': 0.051006146635569106, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 136.7638976573944
+Nested CV Outer Fold Performance: -0.140028008402801 | best_params: {'stride': 1, 'pca_k': 0.9461267621281604, 'model__kernel': 'rbf', 'model__C': 0.09952641604361967, 'model__max_iter': -1, 'model__gamma': 0.024880442838512658, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 125.61895942687988
+Final K-Fold 0 MCC: 0.15655366996381886 | Params: {'stride': 1, 'pca_k': 0.7562170367187915, 'model__kernel': 'rbf', 'model__C': 9.728207744176324, 'model__max_iter': -1, 'model__gamma': 0.005457307758964953, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.23579771162478808 | Params: {'stride': 1, 'pca_k': 0.6611291486751173, 'model__kernel': 'rbf', 'model__C': 1.2171501087999863, 'model__max_iter': -1, 'model__gamma': 0.049492286080489, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.2656517754559026 | Params: {'stride': 1, 'pca_k': 0.6542699997318089, 'model__kernel': 'rbf', 'model__C': 0.23390396536634225, 'model__max_iter': -1, 'model__gamma': 0.030723556521978217, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.15630744109337175 | Params: {'stride': 1, 'pca_k': 0.9069968527889158, 'model__kernel': 'rbf', 'model__C': 0.06422616113769887, 'model__max_iter': -1, 'model__gamma': 0.051006146635569106, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.06954292751219406 | Params: {'stride': 1, 'pca_k': 0.9461267621281604, 'model__kernel': 'rbf', 'model__C': 0.09952641604361967, 'model__max_iter': -1, 'model__gamma': 0.024880442838512658, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.2656517754559026
+Final Best Params: {'stride': 1, 'pca_k': 0.6542699997318089, 'model__kernel': 'rbf', 'model__C': 0.23390396536634225, 'model__max_iter': -1, 'model__gamma': 0.030723556521978217, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Experiment run time: 667.6002018451691
+Head_RightHand_quat | Experiment 0 best score: 0.2656517754559026
+Running Head_pos
+Running experiment for Head_pos
+Relevance filter: kept 5 / 507 features with |r| ≥ 0.2
+Redundancy filter: dropped 2 correlated features (3 remain).
+Nested CV Outer Fold Performance: -0.1336306209562122 | best_params: {'stride': 1, 'pca_k': 0.7713119774046387, 'model__kernel': 'rbf', 'model__C': 40.692569181092324, 'model__max_iter': -1, 'model__gamma': 0.0027957661366023313, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 131.24198031425476
+Nested CV Outer Fold Performance: 0.20506643141383019 | best_params: {'stride': 1, 'pca_k': 0.852055981323041, 'model__kernel': 'rbf', 'model__C': 98.3582321871339, 'model__max_iter': -1, 'model__gamma': 0.0015083999433357625, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 130.38611698150635
+Nested CV Outer Fold Performance: 0.4127391413909261 | best_params: {'stride': 1, 'pca_k': 0.728034992108518, 'model__kernel': 'rbf', 'model__C': 13.826232179369875, 'model__max_iter': -1, 'model__gamma': 0.002508115686045232, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 125.91329216957092
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.7698100534013989, 'model__kernel': 'rbf', 'model__C': 0.4481839128894382, 'model__max_iter': -1, 'model__gamma': 0.0019459536041092633, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 133.09102058410645
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.9826275921806095, 'model__kernel': 'rbf', 'model__C': 0.46865636168440533, 'model__max_iter': -1, 'model__gamma': 0.0013201734921309619, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 122.91651391983032
+Final K-Fold 0 MCC: 0.08173713948632395 | Params: {'stride': 1, 'pca_k': 0.7713119774046387, 'model__kernel': 'rbf', 'model__C': 40.692569181092324, 'model__max_iter': -1, 'model__gamma': 0.0027957661366023313, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.18876834032861953 | Params: {'stride': 1, 'pca_k': 0.852055981323041, 'model__kernel': 'rbf', 'model__C': 98.3582321871339, 'model__max_iter': -1, 'model__gamma': 0.0015083999433357625, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.14106996903600705 | Params: {'stride': 1, 'pca_k': 0.728034992108518, 'model__kernel': 'rbf', 'model__C': 13.826232179369875, 'model__max_iter': -1, 'model__gamma': 0.002508115686045232, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: -0.01 | Params: {'stride': 1, 'pca_k': 0.7698100534013989, 'model__kernel': 'rbf', 'model__C': 0.4481839128894382, 'model__max_iter': -1, 'model__gamma': 0.0019459536041092633, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: -0.01 | Params: {'stride': 1, 'pca_k': 0.9826275921806095, 'model__kernel': 'rbf', 'model__C': 0.46865636168440533, 'model__max_iter': -1, 'model__gamma': 0.0013201734921309619, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.18876834032861953
+Final Best Params: {'stride': 1, 'pca_k': 0.852055981323041, 'model__kernel': 'rbf', 'model__C': 98.3582321871339, 'model__max_iter': -1, 'model__gamma': 0.0015083999433357625, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Experiment run time: 644.3929872512817
+Head_pos | Experiment 0 best score: 0.18876834032861953
+Running Head_pos_quat
+Running experiment for Head_pos_quat
+Relevance filter: kept 14 / 1183 features with |r| ≥ 0.2
+Redundancy filter: dropped 5 correlated features (9 remain).
+Nested CV Outer Fold Performance: -0.06900655593423542 | best_params: {'stride': 1, 'pca_k': 0.7901455966332646, 'model__kernel': 'rbf', 'model__C': 0.15542108827264975, 'model__max_iter': -1, 'model__gamma': 0.004702839455077912, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 121.70050501823425
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.9879846492800045, 'model__kernel': 'rbf', 'model__C': 0.3666643949248591, 'model__max_iter': -1, 'model__gamma': 0.0016382628261145346, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 137.87196230888367
+Nested CV Outer Fold Performance: -0.05 | best_params: {'stride': 1, 'pca_k': 0.7132477198528167, 'model__kernel': 'rbf', 'model__C': 0.09703266255005277, 'model__max_iter': -1, 'model__gamma': 0.009160168529280394, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 122.58686113357544
+Nested CV Outer Fold Performance: -0.15737789507292674 | best_params: {'stride': 1, 'pca_k': 0.8971560758013499, 'model__kernel': 'rbf', 'model__C': 1.454379311547636, 'model__max_iter': -1, 'model__gamma': 0.013504831105770025, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 128.17197632789612
+Nested CV Outer Fold Performance: 0.12217980842121141 | best_params: {'stride': 1, 'pca_k': 0.6608835888001323, 'model__kernel': 'rbf', 'model__C': 6.882180248738353, 'model__max_iter': -1, 'model__gamma': 0.0018102616596592492, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 132.17848443984985
+Final K-Fold 0 MCC: 0.09627900524081714 | Params: {'stride': 1, 'pca_k': 0.7901455966332646, 'model__kernel': 'rbf', 'model__C': 0.15542108827264975, 'model__max_iter': -1, 'model__gamma': 0.004702839455077912, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: -0.023801311186847085 | Params: {'stride': 1, 'pca_k': 0.9879846492800045, 'model__kernel': 'rbf', 'model__C': 0.3666643949248591, 'model__max_iter': -1, 'model__gamma': 0.0016382628261145346, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.0933188084138708 | Params: {'stride': 1, 'pca_k': 0.7132477198528167, 'model__kernel': 'rbf', 'model__C': 0.09703266255005277, 'model__max_iter': -1, 'model__gamma': 0.009160168529280394, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: -0.03504640471601529 | Params: {'stride': 1, 'pca_k': 0.8971560758013499, 'model__kernel': 'rbf', 'model__C': 1.454379311547636, 'model__max_iter': -1, 'model__gamma': 0.013504831105770025, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.13930267472243846 | Params: {'stride': 1, 'pca_k': 0.6608835888001323, 'model__kernel': 'rbf', 'model__C': 6.882180248738353, 'model__max_iter': -1, 'model__gamma': 0.0018102616596592492, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.13930267472243846
+Final Best Params: {'stride': 1, 'pca_k': 0.6608835888001323, 'model__kernel': 'rbf', 'model__C': 6.882180248738353, 'model__max_iter': -1, 'model__gamma': 0.0018102616596592492, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Experiment run time: 643.7364187240601
+Head_pos_quat | Experiment 0 best score: 0.13930267472243846
+Running Head_quat
+Running experiment for Head_quat
+Relevance filter: kept 9 / 676 features with |r| ≥ 0.2
+Redundancy filter: dropped 2 correlated features (7 remain).
+Nested CV Outer Fold Performance: -0.1649572197684645 | best_params: {'stride': 1, 'pca_k': 0.6844146613064166, 'model__kernel': 'rbf', 'model__C': 0.7618691163097118, 'model__max_iter': -1, 'model__gamma': 0.09968318893931225, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 121.61420345306396
+Nested CV Outer Fold Performance: 0.17027965098356423 | best_params: {'stride': 1, 'pca_k': 0.6940848269857388, 'model__kernel': 'rbf', 'model__C': 0.353346613081585, 'model__max_iter': -1, 'model__gamma': 0.0686683470016773, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 120.1807804107666
+Nested CV Outer Fold Performance: -0.10526315789473684 | best_params: {'stride': 1, 'pca_k': 0.8493308903661402, 'model__kernel': 'rbf', 'model__C': 10.376364174755778, 'model__max_iter': -1, 'model__gamma': 0.03049681477124756, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 145.2859447002411
+Nested CV Outer Fold Performance: -0.22941573387056177 | best_params: {'stride': 1, 'pca_k': 0.7798552426047293, 'model__kernel': 'rbf', 'model__C': 50.679551230314416, 'model__max_iter': -1, 'model__gamma': 0.0321125128982851, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 135.21777868270874
+Nested CV Outer Fold Performance: -0.09637388493048533 | best_params: {'stride': 1, 'pca_k': 0.6410470687590696, 'model__kernel': 'rbf', 'model__C': 0.9604140275350659, 'model__max_iter': -1, 'model__gamma': 0.004687356111939716, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 121.97538828849792
+Final K-Fold 0 MCC: 0.014291204510607725 | Params: {'stride': 1, 'pca_k': 0.6844146613064166, 'model__kernel': 'rbf', 'model__C': 0.7618691163097118, 'model__max_iter': -1, 'model__gamma': 0.09968318893931225, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.032342858814030886 | Params: {'stride': 1, 'pca_k': 0.6940848269857388, 'model__kernel': 'rbf', 'model__C': 0.353346613081585, 'model__max_iter': -1, 'model__gamma': 0.0686683470016773, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: -0.06403550464285676 | Params: {'stride': 1, 'pca_k': 0.8493308903661402, 'model__kernel': 'rbf', 'model__C': 10.376364174755778, 'model__max_iter': -1, 'model__gamma': 0.03049681477124756, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: -0.14367671275539678 | Params: {'stride': 1, 'pca_k': 0.7798552426047293, 'model__kernel': 'rbf', 'model__C': 50.679551230314416, 'model__max_iter': -1, 'model__gamma': 0.0321125128982851, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: -0.04753219556960261 | Params: {'stride': 1, 'pca_k': 0.6410470687590696, 'model__kernel': 'rbf', 'model__C': 0.9604140275350659, 'model__max_iter': -1, 'model__gamma': 0.004687356111939716, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.032342858814030886
+Final Best Params: {'stride': 1, 'pca_k': 0.6940848269857388, 'model__kernel': 'rbf', 'model__C': 0.353346613081585, 'model__max_iter': -1, 'model__gamma': 0.0686683470016773, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Experiment run time: 645.452642917633
+Head_quat | Experiment 0 best score: 0.032342858814030886
+Running LeftHand_RightHand_pos
+Running experiment for LeftHand_RightHand_pos
+Relevance filter: kept 11 / 1014 features with |r| ≥ 0.2
+Redundancy filter: dropped 5 correlated features (6 remain).
+Nested CV Outer Fold Performance: -0.047619047619047616 | best_params: {'stride': 1, 'pca_k': 0.7642758917504903, 'model__kernel': 'rbf', 'model__C': 0.3413209886783999, 'model__max_iter': -1, 'model__gamma': 0.04201832338986433, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 134.0337131023407
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.7499428453439859, 'model__kernel': 'rbf', 'model__C': 0.03657499265263814, 'model__max_iter': -1, 'model__gamma': 0.09990922122122475, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 133.03312826156616
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.544278439121461, 'model__kernel': 'rbf', 'model__C': 0.06599329283726679, 'model__max_iter': -1, 'model__gamma': 0.036730860049760124, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 130.50369119644165
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.8027980060395544, 'model__kernel': 'rbf', 'model__C': 0.19682858209699317, 'model__max_iter': -1, 'model__gamma': 0.08956945775970779, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 138.94964027404785
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.7877545570145831, 'model__kernel': 'rbf', 'model__C': 30.962767869204047, 'model__max_iter': -1, 'model__gamma': 0.001009391575378539, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 129.68424272537231
+Final K-Fold 0 MCC: 0.04650616193919167 | Params: {'stride': 1, 'pca_k': 0.7642758917504903, 'model__kernel': 'rbf', 'model__C': 0.3413209886783999, 'model__max_iter': -1, 'model__gamma': 0.04201832338986433, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.0 | Params: {'stride': 1, 'pca_k': 0.7499428453439859, 'model__kernel': 'rbf', 'model__C': 0.03657499265263814, 'model__max_iter': -1, 'model__gamma': 0.09990922122122475, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.040275033412831285 | Params: {'stride': 1, 'pca_k': 0.544278439121461, 'model__kernel': 'rbf', 'model__C': 0.06599329283726679, 'model__max_iter': -1, 'model__gamma': 0.036730860049760124, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.09047839025075397 | Params: {'stride': 1, 'pca_k': 0.8027980060395544, 'model__kernel': 'rbf', 'model__C': 0.19682858209699317, 'model__max_iter': -1, 'model__gamma': 0.08956945775970779, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.02157368950135346 | Params: {'stride': 1, 'pca_k': 0.7877545570145831, 'model__kernel': 'rbf', 'model__C': 30.962767869204047, 'model__max_iter': -1, 'model__gamma': 0.001009391575378539, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.09047839025075397
+Final Best Params: {'stride': 1, 'pca_k': 0.8027980060395544, 'model__kernel': 'rbf', 'model__C': 0.19682858209699317, 'model__max_iter': -1, 'model__gamma': 0.08956945775970779, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Experiment run time: 667.3020989894867
+LeftHand_RightHand_pos | Experiment 0 best score: 0.09047839025075397
+Running LeftHand_RightHand_pos_quat
+Running experiment for LeftHand_RightHand_pos_quat
+Relevance filter: kept 29 / 2366 features with |r| ≥ 0.2
+Redundancy filter: dropped 12 correlated features (17 remain).
+Nested CV Outer Fold Performance: -0.06900655593423542 | best_params: {'stride': 1, 'pca_k': 0.5699340389106708, 'model__kernel': 'rbf', 'model__C': 0.44280057158412667, 'model__max_iter': -1, 'model__gamma': 0.042159065497046434, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 132.26355624198914
+Nested CV Outer Fold Performance: -0.07254762501100116 | best_params: {'stride': 1, 'pca_k': 0.7915380182258808, 'model__kernel': 'rbf', 'model__C': 2.749926132470217, 'model__max_iter': -1, 'model__gamma': 0.002521126051873115, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 137.86510682106018
+Nested CV Outer Fold Performance: -0.15811388300841897 | best_params: {'stride': 1, 'pca_k': 0.682736655426222, 'model__kernel': 'rbf', 'model__C': 99.46579361602795, 'model__max_iter': -1, 'model__gamma': 0.021968130298545278, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 132.28045892715454
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.7918077605878693, 'model__kernel': 'rbf', 'model__C': 0.4606281024909914, 'model__max_iter': -1, 'model__gamma': 0.009682870443869309, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 125.17690992355347
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.5388686055922021, 'model__kernel': 'rbf', 'model__C': 0.16766629033871797, 'model__max_iter': -1, 'model__gamma': 0.002785644573433343, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 126.05037760734558
+Final K-Fold 0 MCC: 0.11631803686994495 | Params: {'stride': 1, 'pca_k': 0.5699340389106708, 'model__kernel': 'rbf', 'model__C': 0.44280057158412667, 'model__max_iter': -1, 'model__gamma': 0.042159065497046434, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.1944321758679294 | Params: {'stride': 1, 'pca_k': 0.7915380182258808, 'model__kernel': 'rbf', 'model__C': 2.749926132470217, 'model__max_iter': -1, 'model__gamma': 0.002521126051873115, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: -0.003364293577977995 | Params: {'stride': 1, 'pca_k': 0.682736655426222, 'model__kernel': 'rbf', 'model__C': 99.46579361602795, 'model__max_iter': -1, 'model__gamma': 0.021968130298545278, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.10096558151580566 | Params: {'stride': 1, 'pca_k': 0.7918077605878693, 'model__kernel': 'rbf', 'model__C': 0.4606281024909914, 'model__max_iter': -1, 'model__gamma': 0.009682870443869309, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.0271257940190135 | Params: {'stride': 1, 'pca_k': 0.5388686055922021, 'model__kernel': 'rbf', 'model__C': 0.16766629033871797, 'model__max_iter': -1, 'model__gamma': 0.002785644573433343, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.1944321758679294
+Final Best Params: {'stride': 1, 'pca_k': 0.7915380182258808, 'model__kernel': 'rbf', 'model__C': 2.749926132470217, 'model__max_iter': -1, 'model__gamma': 0.002521126051873115, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Experiment run time: 656.5553011894226
+LeftHand_RightHand_pos_quat | Experiment 0 best score: 0.1944321758679294
+Running LeftHand_RightHand_quat
+Running experiment for LeftHand_RightHand_quat
+Relevance filter: kept 18 / 1352 features with |r| ≥ 0.2
+Redundancy filter: dropped 6 correlated features (12 remain).
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.9751708558284101, 'model__kernel': 'rbf', 'model__C': 0.07118728544007857, 'model__max_iter': -1, 'model__gamma': 0.03743983065121668, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 148.22609400749207
+Nested CV Outer Fold Performance: -0.13245323570650439 | best_params: {'stride': 1, 'pca_k': 0.9074408971049707, 'model__kernel': 'rbf', 'model__C': 0.5929258363377841, 'model__max_iter': -1, 'model__gamma': 0.004711255553084808, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 129.97643327713013
+Nested CV Outer Fold Performance: -0.1414213562373095 | best_params: {'stride': 1, 'pca_k': 0.5437277965418189, 'model__kernel': 'rbf', 'model__C': 34.31066703587728, 'model__max_iter': -1, 'model__gamma': 0.0026922425707965555, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 130.4661693572998
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.6211216478057959, 'model__kernel': 'rbf', 'model__C': 0.718106996860113, 'model__max_iter': -1, 'model__gamma': 0.005647090263348691, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 117.8829984664917
+Nested CV Outer Fold Performance: 0.6062989761611047 | best_params: {'stride': 1, 'pca_k': 0.784302370679936, 'model__kernel': 'rbf', 'model__C': 0.1107119436136762, 'model__max_iter': -1, 'model__gamma': 0.004712777763406413, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 129.56366968154907
+Final K-Fold 0 MCC: 0.1846356834749704 | Params: {'stride': 1, 'pca_k': 0.9751708558284101, 'model__kernel': 'rbf', 'model__C': 0.07118728544007857, 'model__max_iter': -1, 'model__gamma': 0.03743983065121668, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.061701228190529256 | Params: {'stride': 1, 'pca_k': 0.9074408971049707, 'model__kernel': 'rbf', 'model__C': 0.5929258363377841, 'model__max_iter': -1, 'model__gamma': 0.004711255553084808, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.20711617266456242 | Params: {'stride': 1, 'pca_k': 0.5437277965418189, 'model__kernel': 'rbf', 'model__C': 34.31066703587728, 'model__max_iter': -1, 'model__gamma': 0.0026922425707965555, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.09085701965212487 | Params: {'stride': 1, 'pca_k': 0.6211216478057959, 'model__kernel': 'rbf', 'model__C': 0.718106996860113, 'model__max_iter': -1, 'model__gamma': 0.005647090263348691, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.17096975433524697 | Params: {'stride': 1, 'pca_k': 0.784302370679936, 'model__kernel': 'rbf', 'model__C': 0.1107119436136762, 'model__max_iter': -1, 'model__gamma': 0.004712777763406413, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.20711617266456242
+Final Best Params: {'stride': 1, 'pca_k': 0.5437277965418189, 'model__kernel': 'rbf', 'model__C': 34.31066703587728, 'model__max_iter': -1, 'model__gamma': 0.0026922425707965555, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Experiment run time: 657.5798110961914
+LeftHand_RightHand_quat | Experiment 0 best score: 0.20711617266456242
+Running LeftHand_pos
+Running experiment for LeftHand_pos
+Relevance filter: kept 6 / 507 features with |r| ≥ 0.2
+Redundancy filter: dropped 2 correlated features (4 remain).
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.6965913551681744, 'model__kernel': 'rbf', 'model__C': 0.7833357406427747, 'model__max_iter': -1, 'model__gamma': 0.0017239179198418064, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 121.51382946968079
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.8385993640850117, 'model__kernel': 'rbf', 'model__C': 0.04738179892756166, 'model__max_iter': -1, 'model__gamma': 0.0790914868418833, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 123.37712049484253
+Nested CV Outer Fold Performance: 0.22508924114428133 | best_params: {'stride': 1, 'pca_k': 0.5003478423333423, 'model__kernel': 'rbf', 'model__C': 0.5520743041589694, 'model__max_iter': -1, 'model__gamma': 0.0020683975452889217, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 91.18800711631775
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.8583159846536328, 'model__kernel': 'rbf', 'model__C': 0.09880993927233156, 'model__max_iter': -1, 'model__gamma': 0.06667300252943187, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 90.95609712600708
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.9830288123050615, 'model__kernel': 'rbf', 'model__C': 1.796614217365574, 'model__max_iter': -1, 'model__gamma': 0.0010049781225988388, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 83.88434362411499
+Final K-Fold 0 MCC: 0.0 | Params: {'stride': 1, 'pca_k': 0.6965913551681744, 'model__kernel': 'rbf', 'model__C': 0.7833357406427747, 'model__max_iter': -1, 'model__gamma': 0.0017239179198418064, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.0 | Params: {'stride': 1, 'pca_k': 0.8385993640850117, 'model__kernel': 'rbf', 'model__C': 0.04738179892756166, 'model__max_iter': -1, 'model__gamma': 0.0790914868418833, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.0239652166499089 | Params: {'stride': 1, 'pca_k': 0.5003478423333423, 'model__kernel': 'rbf', 'model__C': 0.5520743041589694, 'model__max_iter': -1, 'model__gamma': 0.0020683975452889217, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: -0.031052631578947366 | Params: {'stride': 1, 'pca_k': 0.8583159846536328, 'model__kernel': 'rbf', 'model__C': 0.09880993927233156, 'model__max_iter': -1, 'model__gamma': 0.06667300252943187, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.05803058313599435 | Params: {'stride': 1, 'pca_k': 0.9830288123050615, 'model__kernel': 'rbf', 'model__C': 1.796614217365574, 'model__max_iter': -1, 'model__gamma': 0.0010049781225988388, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.05803058313599435
+Final Best Params: {'stride': 1, 'pca_k': 0.9830288123050615, 'model__kernel': 'rbf', 'model__C': 1.796614217365574, 'model__max_iter': -1, 'model__gamma': 0.0010049781225988388, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Experiment run time: 511.51291012763977
+LeftHand_pos | Experiment 0 best score: 0.05803058313599435
+Running LeftHand_pos_quat
+Running experiment for LeftHand_pos_quat
+Relevance filter: kept 22 / 1183 features with |r| ≥ 0.2
+Redundancy filter: dropped 8 correlated features (14 remain).
+Nested CV Outer Fold Performance: -0.047619047619047616 | best_params: {'stride': 1, 'pca_k': 0.9444167255042581, 'model__kernel': 'rbf', 'model__C': 9.589879419275132, 'model__max_iter': -1, 'model__gamma': 0.001018056992881415, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 95.5710027217865
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.9068758640964412, 'model__kernel': 'rbf', 'model__C': 0.28879654152530104, 'model__max_iter': -1, 'model__gamma': 0.02294327694615529, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 94.00541973114014
+Nested CV Outer Fold Performance: -0.125 | best_params: {'stride': 1, 'pca_k': 0.5780842610538371, 'model__kernel': 'rbf', 'model__C': 72.73549112851322, 'model__max_iter': -1, 'model__gamma': 0.0012831567239505494, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 90.41744709014893
+Nested CV Outer Fold Performance: 0.27595054510306166 | best_params: {'stride': 1, 'pca_k': 0.9055592549426673, 'model__kernel': 'rbf', 'model__C': 6.6623993616711, 'model__max_iter': -1, 'model__gamma': 0.005040551401417139, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 84.70201683044434
+Nested CV Outer Fold Performance: 0.13249545458220208 | best_params: {'stride': 1, 'pca_k': 0.9829926285939964, 'model__kernel': 'rbf', 'model__C': 8.428636985784092, 'model__max_iter': -1, 'model__gamma': 0.0037116275800806306, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 90.54966521263123
+Final K-Fold 0 MCC: 0.2477436619804668 | Params: {'stride': 1, 'pca_k': 0.9444167255042581, 'model__kernel': 'rbf', 'model__C': 9.589879419275132, 'model__max_iter': -1, 'model__gamma': 0.001018056992881415, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.21112633061627126 | Params: {'stride': 1, 'pca_k': 0.9068758640964412, 'model__kernel': 'rbf', 'model__C': 0.28879654152530104, 'model__max_iter': -1, 'model__gamma': 0.02294327694615529, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.06581901222440292 | Params: {'stride': 1, 'pca_k': 0.5780842610538371, 'model__kernel': 'rbf', 'model__C': 72.73549112851322, 'model__max_iter': -1, 'model__gamma': 0.0012831567239505494, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.2842823588421157 | Params: {'stride': 1, 'pca_k': 0.9055592549426673, 'model__kernel': 'rbf', 'model__C': 6.6623993616711, 'model__max_iter': -1, 'model__gamma': 0.005040551401417139, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.2842823588421157 | Params: {'stride': 1, 'pca_k': 0.9829926285939964, 'model__kernel': 'rbf', 'model__C': 8.428636985784092, 'model__max_iter': -1, 'model__gamma': 0.0037116275800806306, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.2842823588421157
+Final Best Params: {'stride': 1, 'pca_k': 0.9055592549426673, 'model__kernel': 'rbf', 'model__C': 6.6623993616711, 'model__max_iter': -1, 'model__gamma': 0.005040551401417139, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Experiment run time: 455.93829369544983
+LeftHand_pos_quat | Experiment 0 best score: 0.2842823588421157
+Running LeftHand_quat
+Running experiment for LeftHand_quat
+Relevance filter: kept 16 / 676 features with |r| ≥ 0.2
+Redundancy filter: dropped 5 correlated features (11 remain).
+Nested CV Outer Fold Performance: -0.047619047619047616 | best_params: {'stride': 1, 'pca_k': 0.9044830447423171, 'model__kernel': 'rbf', 'model__C': 0.5938881805269969, 'model__max_iter': -1, 'model__gamma': 0.024639763212144495, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 94.81176853179932
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.8539878628063658, 'model__kernel': 'rbf', 'model__C': 0.5371128806584934, 'model__max_iter': -1, 'model__gamma': 0.0011231945430602182, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 92.07360315322876
+Nested CV Outer Fold Performance: -0.125 | best_params: {'stride': 1, 'pca_k': 0.6500872425752688, 'model__kernel': 'rbf', 'model__C': 0.8305494645603984, 'model__max_iter': -1, 'model__gamma': 0.06115329209650536, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 93.0032205581665
+Nested CV Outer Fold Performance: -0.07254762501100116 | best_params: {'stride': 1, 'pca_k': 0.9725682721151934, 'model__kernel': 'rbf', 'model__C': 6.3023140358220555, 'model__max_iter': -1, 'model__gamma': 0.004364584551214545, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 88.04857087135315
+Nested CV Outer Fold Performance: 0.20269649161613795 | best_params: {'stride': 1, 'pca_k': 0.901183746441122, 'model__kernel': 'rbf', 'model__C': 1.1428743489302686, 'model__max_iter': -1, 'model__gamma': 0.08165304532195851, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 91.38133549690247
+Final K-Fold 0 MCC: -0.032361621433778374 | Params: {'stride': 1, 'pca_k': 0.9044830447423171, 'model__kernel': 'rbf', 'model__C': 0.5938881805269969, 'model__max_iter': -1, 'model__gamma': 0.024639763212144495, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.101053477152108 | Params: {'stride': 1, 'pca_k': 0.8539878628063658, 'model__kernel': 'rbf', 'model__C': 0.5371128806584934, 'model__max_iter': -1, 'model__gamma': 0.0011231945430602182, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.12349585105935948 | Params: {'stride': 1, 'pca_k': 0.6500872425752688, 'model__kernel': 'rbf', 'model__C': 0.8305494645603984, 'model__max_iter': -1, 'model__gamma': 0.06115329209650536, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.011764030440571806 | Params: {'stride': 1, 'pca_k': 0.9725682721151934, 'model__kernel': 'rbf', 'model__C': 6.3023140358220555, 'model__max_iter': -1, 'model__gamma': 0.004364584551214545, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.07840863659866591 | Params: {'stride': 1, 'pca_k': 0.901183746441122, 'model__kernel': 'rbf', 'model__C': 1.1428743489302686, 'model__max_iter': -1, 'model__gamma': 0.08165304532195851, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.12349585105935948
+Final Best Params: {'stride': 1, 'pca_k': 0.6500872425752688, 'model__kernel': 'rbf', 'model__C': 0.8305494645603984, 'model__max_iter': -1, 'model__gamma': 0.06115329209650536, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Experiment run time: 459.8382680416107
+LeftHand_quat | Experiment 0 best score: 0.12349585105935948
+Running RightHand_pos
+Running experiment for RightHand_pos
+Relevance filter: kept 5 / 507 features with |r| ≥ 0.2
+Redundancy filter: dropped 2 correlated features (3 remain).
+Nested CV Outer Fold Performance: -0.047619047619047616 | best_params: {'stride': 1, 'pca_k': 0.8440060126280005, 'model__kernel': 'rbf', 'model__C': 99.77940380389163, 'model__max_iter': -1, 'model__gamma': 0.020086035479994824, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 93.22330069541931
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.706272246023035, 'model__kernel': 'rbf', 'model__C': 0.036644066496732804, 'model__max_iter': -1, 'model__gamma': 0.09090651452984011, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 92.59523868560791
+Nested CV Outer Fold Performance: -0.15737789507292674 | best_params: {'stride': 1, 'pca_k': 0.7634916332814379, 'model__kernel': 'rbf', 'model__C': 5.379659237217823, 'model__max_iter': -1, 'model__gamma': 0.014461466577655482, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 92.26996922492981
+Nested CV Outer Fold Performance: -0.07254762501100116 | best_params: {'stride': 1, 'pca_k': 0.8201178369540069, 'model__kernel': 'rbf', 'model__C': 0.2972101402883471, 'model__max_iter': -1, 'model__gamma': 0.05550662248755149, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 90.9046266078949
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.5241294615772651, 'model__kernel': 'rbf', 'model__C': 20.34971393841317, 'model__max_iter': -1, 'model__gamma': 0.012684639698241209, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 77.50217747688293
+Final K-Fold 0 MCC: -0.014699173098027424 | Params: {'stride': 1, 'pca_k': 0.8440060126280005, 'model__kernel': 'rbf', 'model__C': 99.77940380389163, 'model__max_iter': -1, 'model__gamma': 0.020086035479994824, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.0 | Params: {'stride': 1, 'pca_k': 0.706272246023035, 'model__kernel': 'rbf', 'model__C': 0.036644066496732804, 'model__max_iter': -1, 'model__gamma': 0.09090651452984011, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: -0.0210387338345762 | Params: {'stride': 1, 'pca_k': 0.7634916332814379, 'model__kernel': 'rbf', 'model__C': 5.379659237217823, 'model__max_iter': -1, 'model__gamma': 0.014461466577655482, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.11903917072234657 | Params: {'stride': 1, 'pca_k': 0.8201178369540069, 'model__kernel': 'rbf', 'model__C': 0.2972101402883471, 'model__max_iter': -1, 'model__gamma': 0.05550662248755149, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.10417501354138192 | Params: {'stride': 1, 'pca_k': 0.5241294615772651, 'model__kernel': 'rbf', 'model__C': 20.34971393841317, 'model__max_iter': -1, 'model__gamma': 0.012684639698241209, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.11903917072234657
+Final Best Params: {'stride': 1, 'pca_k': 0.8201178369540069, 'model__kernel': 'rbf', 'model__C': 0.2972101402883471, 'model__max_iter': -1, 'model__gamma': 0.05550662248755149, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Experiment run time: 446.9526119232178
+RightHand_pos | Experiment 0 best score: 0.11903917072234657
+Running RightHand_pos_quat
+Running experiment for RightHand_pos_quat
+Relevance filter: kept 7 / 1183 features with |r| ≥ 0.2
+Redundancy filter: dropped 3 correlated features (4 remain).
+Nested CV Outer Fold Performance: -0.11834526708278771 | best_params: {'stride': 1, 'pca_k': 0.870329762558213, 'model__kernel': 'rbf', 'model__C': 0.051848058421584076, 'model__max_iter': -1, 'model__gamma': 0.06800747015509012, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 65.71917963027954
+Nested CV Outer Fold Performance: -0.18136906252750293 | best_params: {'stride': 1, 'pca_k': 0.8328432569914612, 'model__kernel': 'rbf', 'model__C': 98.27682980190507, 'model__max_iter': -1, 'model__gamma': 0.0015689387265328163, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 61.18648362159729
+Nested CV Outer Fold Performance: 0.21560097978902976 | best_params: {'stride': 1, 'pca_k': 0.708301486305887, 'model__kernel': 'rbf', 'model__C': 0.256665237562784, 'model__max_iter': -1, 'model__gamma': 0.04226680678524618, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 53.13153028488159
+Nested CV Outer Fold Performance: -0.13245323570650439 | best_params: {'stride': 1, 'pca_k': 0.8623229132887474, 'model__kernel': 'rbf', 'model__C': 0.4350858963136606, 'model__max_iter': -1, 'model__gamma': 0.04577816266059866, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 52.49977993965149
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.6364621661153465, 'model__kernel': 'rbf', 'model__C': 14.449830545981804, 'model__max_iter': -1, 'model__gamma': 0.01819418536718153, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 47.827523708343506
+Final K-Fold 0 MCC: 0.056094836133558035 | Params: {'stride': 1, 'pca_k': 0.870329762558213, 'model__kernel': 'rbf', 'model__C': 0.051848058421584076, 'model__max_iter': -1, 'model__gamma': 0.06800747015509012, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: -0.10283269651723177 | Params: {'stride': 1, 'pca_k': 0.8328432569914612, 'model__kernel': 'rbf', 'model__C': 98.27682980190507, 'model__max_iter': -1, 'model__gamma': 0.0015689387265328163, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: -0.007039504600052471 | Params: {'stride': 1, 'pca_k': 0.708301486305887, 'model__kernel': 'rbf', 'model__C': 0.256665237562784, 'model__max_iter': -1, 'model__gamma': 0.04226680678524618, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: -0.03353015174135335 | Params: {'stride': 1, 'pca_k': 0.8623229132887474, 'model__kernel': 'rbf', 'model__C': 0.4350858963136606, 'model__max_iter': -1, 'model__gamma': 0.04577816266059866, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: -0.041162783341675155 | Params: {'stride': 1, 'pca_k': 0.6364621661153465, 'model__kernel': 'rbf', 'model__C': 14.449830545981804, 'model__max_iter': -1, 'model__gamma': 0.01819418536718153, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.056094836133558035
+Final Best Params: {'stride': 1, 'pca_k': 0.870329762558213, 'model__kernel': 'rbf', 'model__C': 0.051848058421584076, 'model__max_iter': -1, 'model__gamma': 0.06800747015509012, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Experiment run time: 280.7347242832184
+RightHand_pos_quat | Experiment 0 best score: 0.056094836133558035
+Running RightHand_quat
+Running experiment for RightHand_quat
+Relevance filter: kept 2 / 676 features with |r| ≥ 0.2
+Redundancy filter: dropped 0 correlated features (2 remain).
+Nested CV Outer Fold Performance: -0.06900655593423542 | best_params: {'stride': 1, 'pca_k': 0.5001414533364738, 'model__kernel': 'rbf', 'model__C': 98.96809565954345, 'model__max_iter': -1, 'model__gamma': 0.09028223390743514, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 53.15894627571106
+Nested CV Outer Fold Performance: -0.13245323570650439 | best_params: {'stride': 1, 'pca_k': 0.5194989115695827, 'model__kernel': 'rbf', 'model__C': 6.241962949180905, 'model__max_iter': -1, 'model__gamma': 0.008086058575191511, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 51.771723985672
+Nested CV Outer Fold Performance: 0.311846007573034 | best_params: {'stride': 1, 'pca_k': 0.7572804186794659, 'model__kernel': 'rbf', 'model__C': 0.0791424559365697, 'model__max_iter': -1, 'model__gamma': 0.0762566395158322, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 51.505229473114014
+Nested CV Outer Fold Performance: 0.21013266717158355 | best_params: {'stride': 1, 'pca_k': 0.5268321617471596, 'model__kernel': 'rbf', 'model__C': 81.2373418715395, 'model__max_iter': -1, 'model__gamma': 0.029757814292108904, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 49.29661297798157
+Nested CV Outer Fold Performance: 0.0 | best_params: {'stride': 1, 'pca_k': 0.6960623507429707, 'model__kernel': 'rbf', 'model__C': 5.094439392646773, 'model__max_iter': -1, 'model__gamma': 0.08295839612391659, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Split time: 52.286539793014526
+Final K-Fold 0 MCC: 0.14514649240665156 | Params: {'stride': 1, 'pca_k': 0.5001414533364738, 'model__kernel': 'rbf', 'model__C': 98.96809565954345, 'model__max_iter': -1, 'model__gamma': 0.09028223390743514, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 1 MCC: 0.15950113679846856 | Params: {'stride': 1, 'pca_k': 0.5194989115695827, 'model__kernel': 'rbf', 'model__C': 6.241962949180905, 'model__max_iter': -1, 'model__gamma': 0.008086058575191511, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 2 MCC: 0.0084332572381983 | Params: {'stride': 1, 'pca_k': 0.7572804186794659, 'model__kernel': 'rbf', 'model__C': 0.0791424559365697, 'model__max_iter': -1, 'model__gamma': 0.0762566395158322, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 3 MCC: 0.0448547710639747 | Params: {'stride': 1, 'pca_k': 0.5268321617471596, 'model__kernel': 'rbf', 'model__C': 81.2373418715395, 'model__max_iter': -1, 'model__gamma': 0.029757814292108904, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final K-Fold 4 MCC: 0.03732605635917846 | Params: {'stride': 1, 'pca_k': 0.6960623507429707, 'model__kernel': 'rbf', 'model__C': 5.094439392646773, 'model__max_iter': -1, 'model__gamma': 0.08295839612391659, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Final Best MCC: 0.15950113679846856
+Final Best Params: {'stride': 1, 'pca_k': 0.5194989115695827, 'model__kernel': 'rbf', 'model__C': 6.241962949180905, 'model__max_iter': -1, 'model__gamma': 0.008086058575191511, 'model__tol': 0.001, 'model__class_weight': 'balanced'}
+Experiment run time: 258.36066150665283
+RightHand_quat | Experiment 0 best score: 0.15950113679846856

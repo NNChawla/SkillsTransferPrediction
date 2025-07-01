@@ -1,11 +1,12 @@
 import pandas as pd
+import numpy as np
 
 # ------------------------------------------------------------------
 # 0) Load the table you showed in the *first* screenshot
 # ------------------------------------------------------------------
 import pickle
 
-with open("/srv/STP/450shift7_central_tabulated_dataframe.pkl", "rb") as f:
+with open("/srv/STP/450shift450_tabulated_dataframe.pkl", "rb") as f:
     df_step = pickle.load(f)
 
 # ------------------------------------------------------------------
@@ -46,13 +47,17 @@ imputer = SimpleImputer(strategy="median")
 PID = wide["PID"]
 task_id = wide["task_id"]
 wide = wide.drop(columns=["PID", "task_id"])
-features = [i for i in wide.columns.to_list() if "_pause_" in i]
-wide = wide[features]
+wide.fillna(wide.median(), inplace=True)
+wide[:] = np.nan_to_num(wide)
+
+# features = [i for i in wide.columns.to_list() if "_pause_" in i]
+features = wide.columns.to_list()
+# wide = wide[features]
 wide = pd.DataFrame(imputer.fit_transform(wide), columns=features)
 wide.insert(0, "PID", PID)
 wide.insert(1, "task_id", task_id)
 
-with open("450shift7_central_step_df.pkl", "wb") as f:
+with open("450shift450_central_step_df.pkl", "wb") as f:
     pickle.dump(wide, f)
 
 # The DataFrame now matches the second screenshot:

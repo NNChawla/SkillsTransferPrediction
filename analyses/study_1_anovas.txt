@@ -1,0 +1,65 @@
+noIBT => 0.2
+Repeated-measures two-way ANOVA
+                         Source      SS  ddof1  ddof2      MS       F   p-unc  p-GG-corr     np2     eps
+0                  motion_combo  0.7704      2    208  0.3852  9.0624  0.0002     0.0004  0.0802  0.8633
+1                 spatial_combo  0.4640      2    208  0.2320  5.6905  0.0039     0.0060  0.0519  0.8665
+2  motion_combo * spatial_combo  0.2487      4    416  0.0622  2.2541  0.0626     0.0841  0.0212  0.7281
+
+Motion post-hocs (Holm-corrected)
+          A                  B       T    dof   p-unc  p-corr
+0  Position  Position_Velocity -4.2928  104.0  0.0000  0.0001
+1  Position           Velocity -3.3318  104.0  0.0012  0.0024
+
+Spatial post-hocs (Holm-corrected)
+         A               B       T    dof   p-unc  p-corr
+1  Angular  Linear_Angular -3.4689  104.0  0.0008  0.0023
+2   Linear  Linear_Angular -2.9708  104.0  0.0037  0.0074
+
+noIBT => 0.15
+Repeated-measures two-way ANOVA
+                         Source      SS  ddof1  ddof2      MS       F   p-unc  p-GG-corr     np2     eps
+0                  motion_combo  0.3825      2    208  0.1913  6.6855  0.0015     0.0036  0.0604  0.7856
+1                 spatial_combo  0.1254      2    208  0.0627  2.7701  0.0650     0.0756  0.0259  0.8267
+2  motion_combo * spatial_combo  0.1111      4    416  0.0278  1.5639  0.1830     0.2030  0.0148  0.6663
+
+Motion post-hocs (Holm-corrected)
+                   A                  B      T    dof   p-unc  p-corr
+0           Position  Position_Velocity -3.802  104.0  0.0002  0.0007
+2  Position_Velocity           Velocity  2.603  104.0  0.0106  0.0212
+
+Spatial post-hocs (Holm-corrected)
+        A               B       T    dof   p-unc  p-corr
+2  Linear  Linear_Angular -2.4358  104.0  0.0166  0.0497
+
+IBT => 0.2
+Repeated-measures two-way ANOVA
+                         Source      SS  ddof1  ddof2      MS       F   p-unc  p-GG-corr     np2     eps
+0                  motion_combo  0.9926      2    208  0.4963  9.4738  0.0001     0.0004  0.0835  0.8110
+1                 spatial_combo  0.4545      2    208  0.2272  5.0102  0.0075     0.0093  0.0460  0.9168
+2  motion_combo * spatial_combo  0.2058      4    416  0.0515  1.5772  0.1794     0.1941  0.0149  0.7622
+
+Motion post-hocs (Holm-corrected)
+                   A                  B       T    dof   p-unc  p-corr
+0           Position  Position_Velocity -2.6956  104.0  0.0082  0.0164
+2  Position_Velocity           Velocity  4.4297  104.0  0.0000  0.0001
+
+Spatial post-hocs (Holm-corrected)
+         A               B       T    dof   p-unc  p-corr
+1  Angular  Linear_Angular -3.4124  104.0  0.0009  0.0028
+2   Linear  Linear_Angular -2.2895  104.0  0.0241  0.0481
+
+IBT => 0.15
+Repeated-measures two-way ANOVA
+                         Source      SS  ddof1  ddof2      MS       F   p-unc  p-GG-corr     np2     eps
+0                  motion_combo  0.0958      2    208  0.0479  1.7359  0.1788     0.1843  0.0164  0.8396
+1                 spatial_combo  0.2132      2    208  0.1066  3.5274  0.0312     0.0466  0.0328  0.7177
+2  motion_combo * spatial_combo  0.0868      4    416  0.0217  1.1906  0.3143     0.3125  0.0113  0.6869
+
+Motion post-hocs (Holm-corrected)
+Empty DataFrame
+Columns: [A, B, T, dof, p-unc, p-corr]
+Index: []
+
+Spatial post-hocs (Holm-corrected)
+        A               B       T    dof   p-unc  p-corr
+2  Linear  Linear_Angular -2.4689  104.0  0.0152  0.0455

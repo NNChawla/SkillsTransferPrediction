@@ -99,7 +99,7 @@ def get_position_features(tracking_df, assembly_df):
     
     obj_list = ['Head', 'LeftHand', 'RightHand']
     obj_pair_list = list(itertools.combinations(obj_list, 2))
-    unique_position_features = ['bbox', 'conv_hull', 'total_dist_traveled', 'path_efficiency', 'net_displacement']
+    # unique_position_features = ['bbox', 'conv_hull', 'total_dist_traveled', 'path_efficiency', 'net_displacement']
 
     column_parameter_list = []
 
@@ -108,112 +108,112 @@ def get_position_features(tracking_df, assembly_df):
         column_parameter_list.append(column_name)
 
     # Session level
-    for col_name in column_parameter_list:
-        axis_names = [col_name.replace('axis', 'x'), col_name.replace('axis', 'y'), col_name.replace('axis', 'z')]
-        session_df = tracking_df[axis_names]
-        position_features.update(get_custom_features_position(session_df, tracking_df['Timestamp'].to_numpy(), assembly_df['Timestamp'].to_numpy(), assembly_df['step'].to_numpy(), assembly_df['subStep'].to_numpy(), prefix=f'session_{obj}', fs=90, stat_features=False))
+    # for col_name in column_parameter_list:
+    #     axis_names = [col_name.replace('axis', 'x'), col_name.replace('axis', 'y'), col_name.replace('axis', 'z')]
+    #     session_df = tracking_df[axis_names]
+    #     position_features.update(get_custom_features_position(session_df, tracking_df['Timestamp'].to_numpy(), assembly_df['Timestamp'].to_numpy(), assembly_df['step'].to_numpy(), assembly_df['subStep'].to_numpy(), prefix=f'session_{obj}', fs=90, stat_features=True))
 
-    for obj_pair in obj_pair_list:
-        obj1_df = tracking_df[[f'{obj_pair[0]}_position_x', f'{obj_pair[0]}_position_y', f'{obj_pair[0]}_position_z']]
-        obj2_df = tracking_df[[f'{obj_pair[1]}_position_x', f'{obj_pair[1]}_position_y', f'{obj_pair[1]}_position_z']]
-        distance_between_objects = calculate_distance_between_objects_3D(obj1_df, obj2_df)
-        position_features.update(get_stat_features(distance_between_objects, prefix=f'{obj_pair[0]}_dist_to_{obj_pair[1]}'))
+    # for obj_pair in obj_pair_list:
+    #     obj1_df = tracking_df[[f'{obj_pair[0]}_position_x', f'{obj_pair[0]}_position_y', f'{obj_pair[0]}_position_z']]
+    #     obj2_df = tracking_df[[f'{obj_pair[1]}_position_x', f'{obj_pair[1]}_position_y', f'{obj_pair[1]}_position_z']]
+    #     distance_between_objects = calculate_distance_between_objects_3D(obj1_df, obj2_df)
+    #     position_features.update(get_stat_features(distance_between_objects, prefix=f'{obj_pair[0]}_dist_to_{obj_pair[1]}'))
 
-        axes = [('x', 'x'), ('x', 'y'), ('x', 'z'), ('y', 'y'), ('y', 'z'), ('z', 'z')]
-        for axis in axes:
-            obj1_column_name = f"{obj_pair[0]}_position_{axis[0]}"
-            obj2_column_name = f"{obj_pair[1]}_position_{axis[1]}"
-            data = calculate_distance_between_objects_1D(tracking_df[obj1_column_name].to_numpy(), tracking_df[obj2_column_name].to_numpy())
-            position_features.update(get_stat_features(data, prefix=f'{obj_pair[0]}_dist_to_{obj_pair[1]}_{axis[0]}_{axis[1]}'))
+    #     axes = [('x', 'x'), ('x', 'y'), ('x', 'z'), ('y', 'y'), ('y', 'z'), ('z', 'z')]
+    #     for axis in axes:
+    #         obj1_column_name = f"{obj_pair[0]}_position_{axis[0]}"
+    #         obj2_column_name = f"{obj_pair[1]}_position_{axis[1]}"
+    #         data = calculate_distance_between_objects_1D(tracking_df[obj1_column_name].to_numpy(), tracking_df[obj2_column_name].to_numpy())
+    #         position_features.update(get_stat_features(data, prefix=f'{obj_pair[0]}_dist_to_{obj_pair[1]}_{axis[0]}_{axis[1]}'))
     
-    # End level
-    for col_name in column_parameter_list:
-        axis_names = [col_name.replace('axis', 'x'), col_name.replace('axis', 'y'), col_name.replace('axis', 'z')]
-        end_df = tracking_end_df[axis_names]
-        position_features.update(get_custom_features_position(end_df, tracking_end_df['Timestamp'].to_numpy(), assembly_df['Timestamp'].to_numpy(), assembly_df['step'].to_numpy(), assembly_df['subStep'].to_numpy(), prefix=f'end_{obj}', fs=90, stat_features=True))
+    # # End level
+    # for col_name in column_parameter_list:
+    #     axis_names = [col_name.replace('axis', 'x'), col_name.replace('axis', 'y'), col_name.replace('axis', 'z')]
+    #     end_df = tracking_end_df[axis_names]
+    #     position_features.update(get_custom_features_position(end_df, tracking_end_df['Timestamp'].to_numpy(), assembly_df['Timestamp'].to_numpy(), assembly_df['step'].to_numpy(), assembly_df['subStep'].to_numpy(), prefix=f'end_{obj}', fs=90, stat_features=True))
     
-    for obj_pair in obj_pair_list:
-        obj1_df = tracking_end_df[[f'{obj_pair[0]}_position_x', f'{obj_pair[0]}_position_y', f'{obj_pair[0]}_position_z']]
-        obj2_df = tracking_end_df[[f'{obj_pair[1]}_position_x', f'{obj_pair[1]}_position_y', f'{obj_pair[1]}_position_z']]
-        distance_between_objects = calculate_distance_between_objects_3D(obj1_df, obj2_df)
-        position_features.update(get_stat_features(distance_between_objects, prefix=f'end_{obj_pair[0]}_dist_to_{obj_pair[1]}'))
+    # for obj_pair in obj_pair_list:
+    #     obj1_df = tracking_end_df[[f'{obj_pair[0]}_position_x', f'{obj_pair[0]}_position_y', f'{obj_pair[0]}_position_z']]
+    #     obj2_df = tracking_end_df[[f'{obj_pair[1]}_position_x', f'{obj_pair[1]}_position_y', f'{obj_pair[1]}_position_z']]
+    #     distance_between_objects = calculate_distance_between_objects_3D(obj1_df, obj2_df)
+    #     position_features.update(get_stat_features(distance_between_objects, prefix=f'end_{obj_pair[0]}_dist_to_{obj_pair[1]}'))
 
-        axes = [('x', 'x'), ('x', 'y'), ('x', 'z'), ('y', 'y'), ('y', 'z'), ('z', 'z')]
-        for axis in axes:
-            obj1_column_name = f"{obj_pair[0]}_position_{axis[0]}"
-            obj2_column_name = f"{obj_pair[1]}_position_{axis[1]}"
-            data = calculate_distance_between_objects_1D(tracking_end_df[obj1_column_name].to_numpy(), tracking_end_df[obj2_column_name].to_numpy())
-            position_features.update(get_stat_features(data, prefix=f'end_{obj_pair[0]}_dist_to_{obj_pair[1]}_{axis[0]}_{axis[1]}'))
+    #     axes = [('x', 'x'), ('x', 'y'), ('x', 'z'), ('y', 'y'), ('y', 'z'), ('z', 'z')]
+    #     for axis in axes:
+    #         obj1_column_name = f"{obj_pair[0]}_position_{axis[0]}"
+    #         obj2_column_name = f"{obj_pair[1]}_position_{axis[1]}"
+    #         data = calculate_distance_between_objects_1D(tracking_end_df[obj1_column_name].to_numpy(), tracking_end_df[obj2_column_name].to_numpy())
+    #         position_features.update(get_stat_features(data, prefix=f'end_{obj_pair[0]}_dist_to_{obj_pair[1]}_{axis[0]}_{axis[1]}'))
 
     # Step level
     for step in range(len(tracking_step_dfs) - 1): # last step is not included as it is imbalanced
         for col_name in column_parameter_list:
             axis_names = [col_name.replace('axis', 'x'), col_name.replace('axis', 'y'), col_name.replace('axis', 'z')]
             step_df = tracking_step_dfs[step][axis_names]
-            position_features.update(get_custom_features_position(step_df, tracking_step_dfs[step]['Timestamp'].to_numpy(), assembly_df['Timestamp'].to_numpy(), assembly_df['step'].to_numpy(), assembly_df['subStep'].to_numpy(), prefix=f'step{step}_{obj}', fs=90, stat_features=True))
+            position_features.update(get_custom_features_position(step_df, tracking_step_dfs[step]['Timestamp'].to_numpy(), assembly_df['Timestamp'].to_numpy(), assembly_df['step'].to_numpy(), assembly_df['subStep'].to_numpy(), prefix=f'step{step}_{col_name}', fs=90, stat_features=True))
 
-        for obj_pair in obj_pair_list:
-            obj1_df = tracking_step_dfs[step][[f'{obj_pair[0]}_position_x', f'{obj_pair[0]}_position_y', f'{obj_pair[0]}_position_z']]
-            obj2_df = tracking_step_dfs[step][[f'{obj_pair[1]}_position_x', f'{obj_pair[1]}_position_y', f'{obj_pair[1]}_position_z']]
-            distance_between_objects = calculate_distance_between_objects_3D(obj1_df, obj2_df)
-            position_features.update(get_stat_features(distance_between_objects, prefix=f'step{step}_{obj_pair[0]}_dist_to_{obj_pair[1]}'))
+        # for obj_pair in obj_pair_list:
+        #     obj1_df = tracking_step_dfs[step][[f'{obj_pair[0]}_position_x', f'{obj_pair[0]}_position_y', f'{obj_pair[0]}_position_z']]
+        #     obj2_df = tracking_step_dfs[step][[f'{obj_pair[1]}_position_x', f'{obj_pair[1]}_position_y', f'{obj_pair[1]}_position_z']]
+        #     distance_between_objects = calculate_distance_between_objects_3D(obj1_df, obj2_df)
+        #     position_features.update(get_stat_features(distance_between_objects, prefix=f'step{step}_{obj_pair[0]}_dist_to_{obj_pair[1]}'))
 
-            axes = [('x', 'x'), ('x', 'y'), ('x', 'z'), ('y', 'y'), ('y', 'z'), ('z', 'z')]
-            for axis in axes:
-                obj1_column_name = f"{obj_pair[0]}_position_{axis[0]}"
-                obj2_column_name = f"{obj_pair[1]}_position_{axis[1]}"
-                data = calculate_distance_between_objects_1D(tracking_step_dfs[step][obj1_column_name].to_numpy(), tracking_step_dfs[step][obj2_column_name].to_numpy())
-                position_features.update(get_stat_features(data, prefix=f'step{step}_{obj_pair[0]}_dist_to_{obj_pair[1]}_{axis[0]}_{axis[1]}'))
+        #     axes = [('x', 'x'), ('x', 'y'), ('x', 'z'), ('y', 'y'), ('y', 'z'), ('z', 'z')]
+        #     for axis in axes:
+        #         obj1_column_name = f"{obj_pair[0]}_position_{axis[0]}"
+        #         obj2_column_name = f"{obj_pair[1]}_position_{axis[1]}"
+        #         data = calculate_distance_between_objects_1D(tracking_step_dfs[step][obj1_column_name].to_numpy(), tracking_step_dfs[step][obj2_column_name].to_numpy())
+        #         position_features.update(get_stat_features(data, prefix=f'step{step}_{obj_pair[0]}_dist_to_{obj_pair[1]}_{axis[0]}_{axis[1]}'))
 
-    for obj in obj_list:
-        for feature in unique_position_features:
-            step_list = [position_features.get(f'step{step}_{obj}_{feature}', None) for step in range(len(tracking_step_dfs) - 1)]
-            non_none_step_list = [i for i in step_list if i is not None]
-            if (len(non_none_step_list) == 0):
-                continue
-            position_features[f'step_of_max_{feature}_{obj}'] = step_list.index(max(non_none_step_list))
-            position_features[f'step_of_min_{feature}_{obj}'] = step_list.index(min(non_none_step_list))
-            position_features.update(get_stat_features(non_none_step_list, prefix=f'steps_{feature}_{obj}'))
+    # for obj in obj_list:
+    #     for feature in unique_position_features:
+    #         step_list = [position_features.get(f'step{step}_{obj}_{feature}', None) for step in range(len(tracking_step_dfs) - 1)]
+    #         non_none_step_list = [i for i in step_list if i is not None]
+    #         if (len(non_none_step_list) == 0):
+    #             continue
+    #         position_features[f'step_of_max_{feature}_{obj}'] = step_list.index(max(non_none_step_list))
+    #         position_features[f'step_of_min_{feature}_{obj}'] = step_list.index(min(non_none_step_list))
+    #         position_features.update(get_stat_features(non_none_step_list, prefix=f'steps_{feature}_{obj}'))
 
     # Substep level
-    for substep_idx in range(len(tracking_substep_dfs)):
+    for substep_idx in [36]:
         for col_name in column_parameter_list:
             axis_names = [col_name.replace('axis', 'x'), col_name.replace('axis', 'y'), col_name.replace('axis', 'z')]
             substep_df = tracking_substep_dfs[substep_idx][axis_names]
-            position_features.update(get_custom_features_position(substep_df, tracking_substep_dfs[substep_idx]['Timestamp'].to_numpy(), assembly_df['Timestamp'].to_numpy(), assembly_df['step'].to_numpy(), assembly_df['subStep'].to_numpy(), prefix=f'substep{substep_idx}_{obj}', fs=90, stat_features=True))
+            position_features.update(get_custom_features_position(substep_df, tracking_substep_dfs[substep_idx]['Timestamp'].to_numpy(), assembly_df['Timestamp'].to_numpy(), assembly_df['step'].to_numpy(), assembly_df['subStep'].to_numpy(), prefix=f'substep{substep_idx}_{col_name}', fs=90, stat_features=True))
 
-        for obj_pair in obj_pair_list:
-            obj1_df = tracking_substep_dfs[substep_idx][[f'{obj_pair[0]}_position_x', f'{obj_pair[0]}_position_y', f'{obj_pair[0]}_position_z']]
-            obj2_df = tracking_substep_dfs[substep_idx][[f'{obj_pair[1]}_position_x', f'{obj_pair[1]}_position_y', f'{obj_pair[1]}_position_z']]
-            distance_between_objects = calculate_distance_between_objects_3D(obj1_df, obj2_df)
-            position_features.update(get_stat_features(distance_between_objects, prefix=f'substep{substep_idx}_{obj_pair[0]}_dist_to_{obj_pair[1]}'))
+        # for obj_pair in obj_pair_list:
+        #     obj1_df = tracking_substep_dfs[substep_idx][[f'{obj_pair[0]}_position_x', f'{obj_pair[0]}_position_y', f'{obj_pair[0]}_position_z']]
+        #     obj2_df = tracking_substep_dfs[substep_idx][[f'{obj_pair[1]}_position_x', f'{obj_pair[1]}_position_y', f'{obj_pair[1]}_position_z']]
+        #     distance_between_objects = calculate_distance_between_objects_3D(obj1_df, obj2_df)
+        #     position_features.update(get_stat_features(distance_between_objects, prefix=f'substep{substep_idx}_{obj_pair[0]}_dist_to_{obj_pair[1]}'))
 
-            axes = [('x', 'x'), ('x', 'y'), ('x', 'z'), ('y', 'y'), ('y', 'z'), ('z', 'z')]
-            for axis in axes:
-                obj1_column_name = f"{obj_pair[0]}_position_{axis[0]}"
-                obj2_column_name = f"{obj_pair[1]}_position_{axis[1]}"
-                data = calculate_distance_between_objects_1D(tracking_substep_dfs[substep_idx][obj1_column_name].to_numpy(), tracking_substep_dfs[substep_idx][obj2_column_name].to_numpy())
-                position_features.update(get_stat_features(data, prefix=f'substep{substep_idx}_{obj_pair[0]}_dist_to_{obj_pair[1]}_{axis[0]}_{axis[1]}'))
+        #     axes = [('x', 'x'), ('x', 'y'), ('x', 'z'), ('y', 'y'), ('y', 'z'), ('z', 'z')]
+        #     for axis in axes:
+        #         obj1_column_name = f"{obj_pair[0]}_position_{axis[0]}"
+        #         obj2_column_name = f"{obj_pair[1]}_position_{axis[1]}"
+        #         data = calculate_distance_between_objects_1D(tracking_substep_dfs[substep_idx][obj1_column_name].to_numpy(), tracking_substep_dfs[substep_idx][obj2_column_name].to_numpy())
+        #         position_features.update(get_stat_features(data, prefix=f'substep{substep_idx}_{obj_pair[0]}_dist_to_{obj_pair[1]}_{axis[0]}_{axis[1]}'))
 
-    for obj in obj_list:
-        for feature in unique_position_features:
-            substep_list = [position_features.get(f'substep{substep_idx}_{obj}_{feature}', None) for substep_idx in range(len(tracking_substep_dfs))]
-            non_none_substep_list = [i for i in substep_list if i is not None]
-            if (len(non_none_substep_list) == 0):
-                continue
-            position_features[f'substep_of_max_{feature}_{obj}'] = substep_list.index(max(non_none_substep_list))
-            position_features[f'substep_of_min_{feature}_{obj}'] = substep_list.index(min(non_none_substep_list))
-            position_features.update(get_stat_features(non_none_substep_list, prefix=f'substeps_{feature}_{obj}'))
+    # for obj in obj_list:
+    #     for feature in unique_position_features:
+    #         substep_list = [position_features.get(f'substep{substep_idx}_{obj}_{feature}', None) for substep_idx in range(len(tracking_substep_dfs))]
+    #         non_none_substep_list = [i for i in substep_list if i is not None]
+    #         if (len(non_none_substep_list) == 0):
+    #             continue
+    #         position_features[f'substep_of_max_{feature}_{obj}'] = substep_list.index(max(non_none_substep_list))
+    #         position_features[f'substep_of_min_{feature}_{obj}'] = substep_list.index(min(non_none_substep_list))
+    #         position_features.update(get_stat_features(non_none_substep_list, prefix=f'substeps_{feature}_{obj}'))
     
     # Substep type level
-    for substep_type in sorted(tracking_substep_type_dfs.keys()):
-        for obj in obj_list:
-            for feature in unique_position_features:
-                substep_list = [position_features.get(f'substep{substep_idx}_{obj}_{feature}', None) for substep_idx in tracking_substep_type_dfs[substep_type]]
-                non_none_substep_list = [i for i in substep_list if i is not None]
-                if (len(non_none_substep_list) == 0):
-                    continue
-                position_features.update(get_stat_features(non_none_substep_list, prefix=f'{substep_type}_{feature}_{obj}'))
+    # for substep_type in sorted(tracking_substep_type_dfs.keys()):
+    #     for obj in obj_list:
+    #         for feature in unique_position_features:
+    #             substep_list = [position_features.get(f'substep{substep_idx}_{obj}_{feature}', None) for substep_idx in tracking_substep_type_dfs[substep_type]]
+    #             non_none_substep_list = [i for i in substep_list if i is not None]
+    #             if (len(non_none_substep_list) == 0):
+    #                 continue
+    #             position_features.update(get_stat_features(non_none_substep_list, prefix=f'{substep_type}_{feature}_{obj}'))
 
     return position_features
 
@@ -230,61 +230,61 @@ def get_quat_features(tracking_df, assembly_df):
         column_name = f"{obj}_quat_axis"
         column_parameter_list.append(column_name)
 
-    # Session level
-    for col_name in column_parameter_list:
-        axis_names = [col_name.replace('axis', 'x'), col_name.replace('axis', 'y'), col_name.replace('axis', 'z'), col_name.replace('axis', 'w')]
-        session_df = tracking_df[axis_names].to_numpy()
-        quat_features.update(get_custom_features_quat(session_df, tracking_df['Timestamp'].to_numpy(), assembly_df['Timestamp'].to_numpy(), assembly_df['step'].to_numpy(), assembly_df['subStep'].to_numpy(), prefix=f'session_{obj}', fs=90, stat_features=False))
+    # # Session level
+    # for col_name in column_parameter_list:
+    #     axis_names = [col_name.replace('axis', 'x'), col_name.replace('axis', 'y'), col_name.replace('axis', 'z'), col_name.replace('axis', 'w')]
+    #     session_df = tracking_df[axis_names].to_numpy()
+    #     quat_features.update(get_custom_features_quat(session_df, tracking_df['Timestamp'].to_numpy(), assembly_df['Timestamp'].to_numpy(), assembly_df['step'].to_numpy(), assembly_df['subStep'].to_numpy(), prefix=f'session_{obj}', fs=90, stat_features=True))
 
-    # End level
-    for col_name in column_parameter_list:
-        axis_names = [col_name.replace('axis', 'x'), col_name.replace('axis', 'y'), col_name.replace('axis', 'z'), col_name.replace('axis', 'w')]
-        obj_df = tracking_end_df[axis_names].to_numpy()
-        quat_features.update(get_custom_features_quat(obj_df, tracking_end_df['Timestamp'].to_numpy(), assembly_df['Timestamp'].to_numpy(), assembly_df['step'].to_numpy(), assembly_df['subStep'].to_numpy(), prefix=f'end_{obj}', fs=90, stat_features=True))
+    # # End level
+    # for col_name in column_parameter_list:
+    #     axis_names = [col_name.replace('axis', 'x'), col_name.replace('axis', 'y'), col_name.replace('axis', 'z'), col_name.replace('axis', 'w')]
+    #     obj_df = tracking_end_df[axis_names].to_numpy()
+    #     quat_features.update(get_custom_features_quat(obj_df, tracking_end_df['Timestamp'].to_numpy(), assembly_df['Timestamp'].to_numpy(), assembly_df['step'].to_numpy(), assembly_df['subStep'].to_numpy(), prefix=f'end_{obj}', fs=90, stat_features=True))
 
     # Step level
     for step in range(len(tracking_step_dfs) - 1): # last step is not included as it is imbalanced
         for col_name in column_parameter_list:
             axis_names = [col_name.replace('axis', 'x'), col_name.replace('axis', 'y'), col_name.replace('axis', 'z'), col_name.replace('axis', 'w')]
             obj_df = tracking_step_dfs[step][axis_names].to_numpy()
-            quat_features.update(get_custom_features_quat(obj_df, tracking_step_dfs[step]['Timestamp'].to_numpy(), assembly_df['Timestamp'].to_numpy(), assembly_df['step'].to_numpy(), assembly_df['subStep'].to_numpy(), prefix=f'step{step}_{obj}', fs=90, stat_features=True))
+            quat_features.update(get_custom_features_quat(obj_df, tracking_step_dfs[step]['Timestamp'].to_numpy(), assembly_df['Timestamp'].to_numpy(), assembly_df['step'].to_numpy(), assembly_df['subStep'].to_numpy(), prefix=f'step{step}_{col_name}', fs=90, stat_features=True))
 
-    for obj in obj_list:
-        for feature in unique_quat_features:
-            step_list = [quat_features.get(f'step{step}_{obj}_{feature}', None) for step in range(len(tracking_step_dfs) - 1)]
-            non_none_step_list = [i for i in step_list if i is not None]
-            if (len(non_none_step_list) == 0):
-                continue
-            quat_features[f'step_of_max_{feature}_{obj}'] = step_list.index(max(non_none_step_list))
-            quat_features[f'step_of_min_{feature}_{obj}'] = step_list.index(min(non_none_step_list))
-            quat_features.update(get_stat_features(non_none_step_list, prefix=f'steps_{feature}_{obj}'))
+    # for obj in obj_list:
+    #     for feature in unique_quat_features:
+    #         step_list = [quat_features.get(f'step{step}_{obj}_{feature}', None) for step in range(len(tracking_step_dfs) - 1)]
+    #         non_none_step_list = [i for i in step_list if i is not None]
+    #         if (len(non_none_step_list) == 0):
+    #             continue
+    #         quat_features[f'step_of_max_{feature}_{obj}'] = step_list.index(max(non_none_step_list))
+    #         quat_features[f'step_of_min_{feature}_{obj}'] = step_list.index(min(non_none_step_list))
+    #         quat_features.update(get_stat_features(non_none_step_list, prefix=f'steps_{feature}_{obj}'))
                 
     # Substep level
-    for substep_idx in range(len(tracking_substep_dfs)):
+    for substep_idx in [36]:
         for col_name in column_parameter_list:
             axis_names = [col_name.replace('axis', 'x'), col_name.replace('axis', 'y'), col_name.replace('axis', 'z'), col_name.replace('axis', 'w')]
             obj_df = tracking_substep_dfs[substep_idx][axis_names].to_numpy()
-            quat_features.update(get_custom_features_quat(obj_df, tracking_substep_dfs[substep_idx]['Timestamp'].to_numpy(), assembly_df['Timestamp'].to_numpy(), assembly_df['step'].to_numpy(), assembly_df['subStep'].to_numpy(), prefix=f'substep{substep_idx}_{obj}', fs=90, stat_features=True))
+            quat_features.update(get_custom_features_quat(obj_df, tracking_substep_dfs[substep_idx]['Timestamp'].to_numpy(), assembly_df['Timestamp'].to_numpy(), assembly_df['step'].to_numpy(), assembly_df['subStep'].to_numpy(), prefix=f'substep{substep_idx}_{col_name}', fs=90, stat_features=True))
         
-    for obj in obj_list:
-        for feature in unique_quat_features:
-            substep_list = [quat_features.get(f'substep{substep_idx}_{obj}_{feature}', None) for substep_idx in range(len(tracking_substep_dfs))]
-            non_none_substep_list = [i for i in substep_list if i is not None]
-            if (len(non_none_substep_list) == 0):
-                continue
-            quat_features[f'substep_of_max_{feature}_{obj}'] = substep_list.index(max(non_none_substep_list))
-            quat_features[f'substep_of_min_{feature}_{obj}'] = substep_list.index(min(non_none_substep_list))
-            quat_features.update(get_stat_features(non_none_substep_list, prefix=f'substeps_{feature}_{obj}'))
+    # for obj in obj_list:
+    #     for feature in unique_quat_features:
+    #         substep_list = [quat_features.get(f'substep{substep_idx}_{obj}_{feature}', None) for substep_idx in range(len(tracking_substep_dfs))]
+    #         non_none_substep_list = [i for i in substep_list if i is not None]
+    #         if (len(non_none_substep_list) == 0):
+    #             continue
+    #         quat_features[f'substep_of_max_{feature}_{obj}'] = substep_list.index(max(non_none_substep_list))
+    #         quat_features[f'substep_of_min_{feature}_{obj}'] = substep_list.index(min(non_none_substep_list))
+    #         quat_features.update(get_stat_features(non_none_substep_list, prefix=f'substeps_{feature}_{obj}'))
     
-    # Substep type level
-    for substep_type in sorted(tracking_substep_type_dfs.keys()):
-        for obj in obj_list:
-            for feature in unique_quat_features:
-                substep_list = [quat_features.get(f'substep{substep_idx}_{obj}_{feature}', None) for substep_idx in tracking_substep_type_dfs[substep_type]]
-                non_none_substep_list = [i for i in substep_list if i is not None]
-                if (len(non_none_substep_list) == 0):
-                    continue
-                quat_features.update(get_stat_features(non_none_substep_list, prefix=f'{substep_type}_{feature}_{obj}'))
+    # # Substep type level
+    # for substep_type in sorted(tracking_substep_type_dfs.keys()):
+    #     for obj in obj_list:
+    #         for feature in unique_quat_features:
+    #             substep_list = [quat_features.get(f'substep{substep_idx}_{obj}_{feature}', None) for substep_idx in tracking_substep_type_dfs[substep_type]]
+    #             non_none_substep_list = [i for i in substep_list if i is not None]
+    #             if (len(non_none_substep_list) == 0):
+    #                 continue
+    #             quat_features.update(get_stat_features(non_none_substep_list, prefix=f'{substep_type}_{feature}_{obj}'))
 
     return quat_features
 
@@ -299,17 +299,17 @@ def get_sixD_features(tracking_df, assembly_df):
         column_name = f"{obj}_sixD_axis"
         column_parameter_list.append(column_name)
 
-    # Session level
-    for col_name in column_parameter_list:
-        axis_names = [col_name.replace('axis', 'a'), col_name.replace('axis', 'b'), col_name.replace('axis', 'c'), col_name.replace('axis', 'd'), col_name.replace('axis', 'e'), col_name.replace('axis', 'f')]
-        for axis_name in axis_names:
-            sixD_features.update(get_custom_features(tracking_df[axis_name].to_numpy(), tracking_df['Timestamp'].to_numpy(), assembly_df['Timestamp'].to_numpy(), assembly_df['step'].to_numpy(), assembly_df['subStep'].to_numpy(), prefix=f'session_{axis_name}', fs=90))
+    # # Session level
+    # for col_name in column_parameter_list:
+    #     axis_names = [col_name.replace('axis', 'a'), col_name.replace('axis', 'b'), col_name.replace('axis', 'c'), col_name.replace('axis', 'd'), col_name.replace('axis', 'e'), col_name.replace('axis', 'f')]
+    #     for axis_name in axis_names:
+    #         sixD_features.update(get_custom_features(tracking_df[axis_name].to_numpy(), tracking_df['Timestamp'].to_numpy(), assembly_df['Timestamp'].to_numpy(), assembly_df['step'].to_numpy(), assembly_df['subStep'].to_numpy(), prefix=f'session_{axis_name}', fs=90))
 
-    # End level
-    for col_name in column_parameter_list:
-        axis_names = [col_name.replace('axis', 'a'), col_name.replace('axis', 'b'), col_name.replace('axis', 'c'), col_name.replace('axis', 'd'), col_name.replace('axis', 'e'), col_name.replace('axis', 'f')]
-        for axis_name in axis_names:
-            sixD_features.update(get_stat_features(tracking_end_df[axis_name].to_numpy(), prefix=f'end_{axis_name}'))
+    # # End level
+    # for col_name in column_parameter_list:
+    #     axis_names = [col_name.replace('axis', 'a'), col_name.replace('axis', 'b'), col_name.replace('axis', 'c'), col_name.replace('axis', 'd'), col_name.replace('axis', 'e'), col_name.replace('axis', 'f')]
+    #     for axis_name in axis_names:
+    #         sixD_features.update(get_stat_features(tracking_end_df[axis_name].to_numpy(), prefix=f'end_{axis_name}'))
 
     # Step level
     for step in range(len(tracking_step_dfs) - 1): # last step is not included as it is imbalanced
@@ -319,21 +319,28 @@ def get_sixD_features(tracking_df, assembly_df):
                 sixD_features.update(get_stat_features(tracking_step_dfs[step][axis_name].to_numpy(), prefix=f'step{step}_{axis_name}'))
                 
     # Substep level
-    for substep_idx in range(len(tracking_substep_dfs)): # last step is not included as it is imbalanced
+    for substep_idx in [36]:
         for col_name in column_parameter_list:
             axis_names = [col_name.replace('axis', 'a'), col_name.replace('axis', 'b'), col_name.replace('axis', 'c'), col_name.replace('axis', 'd'), col_name.replace('axis', 'e'), col_name.replace('axis', 'f')]
             for axis_name in axis_names:
                 sixD_features.update(get_stat_features(tracking_substep_dfs[substep_idx][axis_name].to_numpy(), prefix=f'substep{substep_idx}_{axis_name}'))
 
-    for substep_type in sorted(tracking_substep_type_dfs.keys()):
-        for col_name in column_parameter_list:
-            axis_names = [col_name.replace('axis', 'a'), col_name.replace('axis', 'b'), col_name.replace('axis', 'c'), col_name.replace('axis', 'd'), col_name.replace('axis', 'e'), col_name.replace('axis', 'f')]
-            for axis_name in axis_names:
-                substep_list = [sixD_features.get(f'substep{substep_idx}_{axis_name}', None) for substep_idx in tracking_substep_type_dfs[substep_type]]
-                non_none_substep_list = [i for i in substep_list if i is not None]
-                if (len(non_none_substep_list) == 0):
-                    continue
-                sixD_features.update(get_stat_features(non_none_substep_list, prefix=f'{substep_type}_{axis_name}'))
+    # # Substep level
+    # for substep_idx in range(len(tracking_substep_dfs)): # last step is not included as it is imbalanced
+    #     for col_name in column_parameter_list:
+    #         axis_names = [col_name.replace('axis', 'a'), col_name.replace('axis', 'b'), col_name.replace('axis', 'c'), col_name.replace('axis', 'd'), col_name.replace('axis', 'e'), col_name.replace('axis', 'f')]
+    #         for axis_name in axis_names:
+    #             sixD_features.update(get_stat_features(tracking_substep_dfs[substep_idx][axis_name].to_numpy(), prefix=f'substep{substep_idx}_{axis_name}'))
+
+    # for substep_type in sorted(tracking_substep_type_dfs.keys()):
+    #     for col_name in column_parameter_list:
+    #         axis_names = [col_name.replace('axis', 'a'), col_name.replace('axis', 'b'), col_name.replace('axis', 'c'), col_name.replace('axis', 'd'), col_name.replace('axis', 'e'), col_name.replace('axis', 'f')]
+    #         for axis_name in axis_names:
+    #             substep_list = [sixD_features.get(f'substep{substep_idx}_{axis_name}', None) for substep_idx in tracking_substep_type_dfs[substep_type]]
+    #             non_none_substep_list = [i for i in substep_list if i is not None]
+    #             if (len(non_none_substep_list) == 0):
+    #                 continue
+    #             sixD_features.update(get_stat_features(non_none_substep_list, prefix=f'{substep_type}_{axis_name}'))
 
     return sixD_features
 
@@ -358,7 +365,7 @@ def get_motion_features(tracking_df, assembly_df, window_sizes):
     unique_motion_features = ['directional_reversal_frequency', 'num_reversals', 'cumulative_opposing_displacement']
 
     column_parameter_list = []
-    feature_types = ['linvel', 'linacc', 'angvel', 'angacc']
+    feature_types = ['linvel', 'linacc', 'angvel', 'angacc', 'linjerk', 'angjerk']
     for obj in obj_list:
         for feature_type in feature_types:
             for window_size in window_sizes:
@@ -1130,6 +1137,39 @@ def finite_difference_linear_accel(
 
     return acc[:, 0], acc[:, 1], acc[:, 2]
 
+def finite_difference_linear_jerk(
+    positions: np.ndarray,
+    timestamps: np.ndarray,
+    shift: int = 1,
+    mode: str = "central",
+    stride: int = 1,
+):
+    """
+    Third-order finite difference (linear jerk, m s⁻³).
+
+    Parameters
+    ----------
+    positions, timestamps : see `finite_difference_linear`
+    shift, mode, stride   : forwarded to the underlying helpers
+
+    Returns
+    -------
+    jx, jy, jz : float arrays, length N
+    """
+    # 1) second derivative (acceleration)
+    ax, ay, az = finite_difference_linear_accel(
+        positions, timestamps,
+        shift=shift, mode=mode, stride=stride
+    )
+    acc = np.column_stack([ax, ay, az])
+
+    # 2) derivative of acceleration → jerk
+    jx, jy, jz = finite_difference_linear(
+        acc, timestamps,
+        shift=shift, mode=mode, stride=stride
+    )
+    return jx, jy, jz
+
 def finite_difference_angular(
     quaternions: np.ndarray,
     timestamps: np.ndarray,
@@ -1223,6 +1263,39 @@ def finite_difference_angular_accel(
         omega, timestamps, shift=shift, mode=mode, stride=stride
     )
     return ax, ay, az
+
+def finite_difference_angular_jerk(
+    quaternions: np.ndarray,
+    timestamps: np.ndarray,
+    shift: int = 1,
+    mode: str = "central",
+    stride: int = 1,
+):
+    """
+    Third-order finite difference (angular jerk, rad s⁻³).
+
+    Parameters
+    ----------
+    quaternions, timestamps : see `finite_difference_angular`
+    shift, mode, stride     : forwarded to the underlying helpers
+
+    Returns
+    -------
+    𝛁ωx, 𝛁ωy, 𝛁ωz : float arrays, length N
+    """
+    # 1) second derivative (angular acceleration)
+    ax, ay, az = finite_difference_angular_accel(
+        quaternions, timestamps,
+        shift=shift, mode=mode, stride=stride
+    )
+    ang_acc = np.column_stack([ax, ay, az])
+
+    # 2) derivative of angular acceleration → angular jerk
+    jx, jy, jz = finite_difference_linear(
+        ang_acc, timestamps,
+        shift=shift, mode=mode, stride=stride
+    )
+    return jx, jy, jz
 
 def substep_type_to_int(substep_type):
     if substep_type == 'AttachPiece':
@@ -1408,12 +1481,12 @@ def get_custom_features_position(input_data, timestamps, asbly_timestamps, asbly
     features = {}
     if len(input_data) == 0:
         return features
-    features[f'{prefix}_bbox'] = calculate_bounding_box_volume(input_data)
-    features[f'{prefix}_conv_hull'] = calculate_convex_hull_volume(input_data)
-    features[f'{prefix}_total_dist_traveled'] = calculate_total_distance_traveled_3D(input_data)
-    efficiency, net_displacement, _ = calculate_path_efficiency(input_data)
-    features[f'{prefix}_path_efficiency'] = efficiency
-    features[f'{prefix}_net_displacement'] = net_displacement
+    # features[f'{prefix}_bbox'] = calculate_bounding_box_volume(input_data)
+    # features[f'{prefix}_conv_hull'] = calculate_convex_hull_volume(input_data)
+    # features[f'{prefix}_total_dist_traveled'] = calculate_total_distance_traveled_3D(input_data)
+    # efficiency, net_displacement, _ = calculate_path_efficiency(input_data)
+    # features[f'{prefix}_path_efficiency'] = efficiency
+    # features[f'{prefix}_net_displacement'] = net_displacement
     pos_x = []
     pos_y = []
     pos_z = []
@@ -1432,9 +1505,9 @@ def get_custom_features_position(input_data, timestamps, asbly_timestamps, asbly
         features.update(get_custom_features(pos_x, timestamps, asbly_timestamps, asbly_steps, asbly_substeps, prefix=f'{prefix}_pos_x', fs=fs))
         features.update(get_custom_features(pos_y, timestamps, asbly_timestamps, asbly_steps, asbly_substeps, prefix=f'{prefix}_pos_y', fs=fs))
         features.update(get_custom_features(pos_z, timestamps, asbly_timestamps, asbly_steps, asbly_substeps, prefix=f'{prefix}_pos_z', fs=fs))
-    features[f'{prefix}_pos_x_total_dist_traveled'] = calculate_total_distance_traveled_1D(pos_x)
-    features[f'{prefix}_pos_y_total_dist_traveled'] = calculate_total_distance_traveled_1D(pos_y)
-    features[f'{prefix}_pos_z_total_dist_traveled'] = calculate_total_distance_traveled_1D(pos_z)
+    # features[f'{prefix}_pos_x_total_dist_traveled'] = calculate_total_distance_traveled_1D(pos_x)
+    # features[f'{prefix}_pos_y_total_dist_traveled'] = calculate_total_distance_traveled_1D(pos_y)
+    # features[f'{prefix}_pos_z_total_dist_traveled'] = calculate_total_distance_traveled_1D(pos_z)
 
     return features
 
@@ -1444,7 +1517,7 @@ def get_custom_features_quat(input_data, timestamps, asbly_timestamps, asbly_ste
     if len(input_data) == 0:
         return features
 
-    features[f'{prefix}_total_rotation_traveled'] = total_rotation_traveled(input_data)
+    # features[f'{prefix}_total_rotation_traveled'] = total_rotation_traveled(input_data)
     # features[f'{prefix}_quaternion_dispersion'] = quaternion_dispersion(input_data)
     quat_x = []
     quat_y = []
@@ -1483,6 +1556,7 @@ def get_custom_features_quat(input_data, timestamps, asbly_timestamps, asbly_ste
         features.update(get_custom_features(axis_x, timestamps, asbly_timestamps, asbly_steps, asbly_substeps, prefix=f'{prefix}_axis_x', fs=fs))
         features.update(get_custom_features(axis_y, timestamps, asbly_timestamps, asbly_steps, asbly_substeps, prefix=f'{prefix}_axis_y', fs=fs))
         features.update(get_custom_features(axis_z, timestamps, asbly_timestamps, asbly_steps, asbly_substeps, prefix=f'{prefix}_axis_z', fs=fs))
+
     return features
 
 def get_custom_features_interval(intervals, timestamps, prefix=""):
@@ -1523,10 +1597,10 @@ def get_custom_features_motion(input_data, positions, timestamps, asbly_timestam
     pos_y = positions[:, 1]
     pos_z = positions[:, 2]
 
-    num_reversals, reversal_frequency = directional_reversal_frequency(deriv_x, deriv_y, deriv_z, timestamps)
-    motion_features[f'{prefix}_directional_reversal_frequency'] = reversal_frequency
-    motion_features[f'{prefix}_num_reversals'] = num_reversals
-    motion_features[f'{prefix}_cumulative_opposing_displacement'] = cumulative_opposing_displacement(pos_x, pos_y, pos_z, deriv_x, deriv_y, deriv_z)
+    # num_reversals, reversal_frequency = directional_reversal_frequency(deriv_x, deriv_y, deriv_z, timestamps)
+    # motion_features[f'{prefix}_directional_reversal_frequency'] = reversal_frequency
+    # motion_features[f'{prefix}_num_reversals'] = num_reversals
+    # motion_features[f'{prefix}_cumulative_opposing_displacement'] = cumulative_opposing_displacement(pos_x, pos_y, pos_z, deriv_x, deriv_y, deriv_z)
     
     vectors = [deriv_x, deriv_y, deriv_z, magnitude]
     prefixes = [prefix.replace('_axis_', '_x_'), prefix.replace('_axis_', '_y_'), prefix.replace('_axis_', '_z_'), prefix.replace('_axis_', '_magnitude_')]
@@ -1536,14 +1610,14 @@ def get_custom_features_motion(input_data, positions, timestamps, asbly_timestam
         else:
             motion_features.update(get_custom_features(vec, timestamps, asbly_timestamps, asbly_steps, asbly_substeps, prefix=pfix, fs=fs))
 
-        mean_val = np.mean(vec)
-        std_val = np.std(vec)
-        thresholds = [1.0] # [0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.0]
+        # mean_val = np.mean(vec)
+        # std_val = np.std(vec)
+        # thresholds = [1.0] # [0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.0]
 
-        for multiplier in thresholds:
-            threshold_high = mean_val + multiplier * std_val
-            threshold_low = mean_val - multiplier * std_val
-            intervals = find_threshold_intervals(vec, threshold_high=threshold_high, threshold_low=threshold_low)
-            motion_features.update(get_custom_features_interval(intervals, timestamps, prefix=f"{pfix}_pause_{multiplier}"))
+        # for multiplier in thresholds:
+        #     threshold_high = mean_val + multiplier * std_val
+        #     threshold_low = mean_val - multiplier * std_val
+        #     intervals = find_threshold_intervals(vec, threshold_high=threshold_high, threshold_low=threshold_low)
+        #     motion_features.update(get_custom_features_interval(intervals, timestamps, prefix=f"{pfix}_pause_{multiplier}"))
 
     return motion_features
